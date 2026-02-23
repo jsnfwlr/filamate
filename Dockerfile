@@ -16,5 +16,5 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /tmp/bin/filamate .
 
 FROM scratch AS filamate
 COPY --from=gobuilder /tmp/bin/filamate /filamate
-EXPOSE 9767
+EXPOSE 9766
 ENTRYPOINT ["/filamate", "daemon", "start"]
