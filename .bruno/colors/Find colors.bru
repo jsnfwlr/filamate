@@ -1,0 +1,79 @@
+meta {
+  name: Find colors
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://{{filamate_host}}:{{port}}/api/colors
+  body: none
+  auth: inherit
+}
+
+example {
+  name: 200 Response
+  description: List of colors retrieved successfully
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/colors
+    method: GET
+    mode: none
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        [
+          {
+            "id": 1,
+            "label": "Black",
+            "alias": null,
+            "hex": "#000000"
+          }
+        ]
+      '''
+    }
+  }
+}
+
+example {
+  name: 500 Response
+  description: Internal server error
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/colors
+    method: GET
+    mode: none
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 500
+      text: Internal Server Error
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}

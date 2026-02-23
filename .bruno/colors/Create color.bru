@@ -1,0 +1,138 @@
+meta {
+  name: Create color
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://{{filamate_host}}:{{port}}/api/colors
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "label": "Teal",
+    "alias": "Mint Green",
+    "hex": "#00a887"
+  }
+}
+
+example {
+  name: 201 Response
+  description: color created successfully
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/colors
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "label": "",
+        "alias": "",
+        "hex": ""
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 201
+      text: Created
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "id": 0,
+          "label": "",
+          "alias": "",
+          "hex": ""
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 400 Response
+  description: Invalid request data
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/colors
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "label": "",
+        "alias": "",
+        "hex": ""
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 400
+      text: Bad Request
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 500 Response
+  description: Internal server error
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/colors
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "label": "",
+        "alias": "",
+        "hex": ""
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 500
+      text: Internal Server Error
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}

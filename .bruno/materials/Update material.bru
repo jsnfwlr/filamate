@@ -1,0 +1,203 @@
+meta {
+  name: Update material
+  type: http
+  seq: 4
+}
+
+patch {
+  url: http://{{filamate_host}}:{{port}}/api/material/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+body:json {
+  {
+    "label": "",
+    "description": "",
+    "class": "",
+    "special": false
+  }
+}
+
+example {
+  name: 200 Response
+  description: material updated successfully
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/material/:id
+    method: PATCH
+    mode: json
+    params:path: {
+      id:
+    }
+
+    body:json: {
+      {
+        "label": "",
+        "description": "",
+        "class": "",
+        "special": false
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "id": 0,
+          "label": "",
+          "description": "",
+          "class": "",
+          "special": false
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 400 Response
+  description: Invalid request data
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/material/:id
+    method: PATCH
+    mode: json
+    params:path: {
+      id:
+    }
+
+    body:json: {
+      {
+        "label": "",
+        "description": "",
+        "class": "",
+        "special": false
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 400
+      text: Bad Request
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 404 Response
+  description: material not found
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/material/:id
+    method: PATCH
+    mode: json
+    params:path: {
+      id:
+    }
+
+    body:json: {
+      {
+        "label": "",
+        "description": "",
+        "class": "",
+        "special": false
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 404
+      text: Not Found
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 500 Response
+  description: Internal server error
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/material/:id
+    method: PATCH
+    mode: json
+    params:path: {
+      id:
+    }
+
+    body:json: {
+      {
+        "label": "",
+        "description": "",
+        "class": "",
+        "special": false
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 500
+      text: Internal Server Error
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}

@@ -1,0 +1,132 @@
+meta {
+  name: Create store
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://{{filamate_host}}:{{port}}/api/stores
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "label": "Something"
+  }
+}
+
+example {
+  name: 201 Response
+  description: store created successfully
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/stores
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "label": "",
+        "url": ""
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 201
+      text: Created
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "id": 0,
+          "label": "",
+          "url": ""
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 400 Response
+  description: Invalid request data
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/stores
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "label": "",
+        "url": ""
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 400
+      text: Bad Request
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 500 Response
+  description: Internal server error
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/stores
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "label": "",
+        "url": ""
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 500
+      text: Internal Server Error
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}

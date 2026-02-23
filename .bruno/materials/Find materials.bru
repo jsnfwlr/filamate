@@ -1,0 +1,80 @@
+meta {
+  name: Find materials
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://{{filamate_host}}:{{port}}/api/materials
+  body: none
+  auth: inherit
+}
+
+example {
+  name: 200 Response
+  description: List of materials retrieved successfully
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/materials
+    method: GET
+    mode: none
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        [
+          {
+            "id": 0,
+            "label": "",
+            "description": "",
+            "class": "",
+            "special": false
+          }
+        ]
+      '''
+    }
+  }
+}
+
+example {
+  name: 500 Response
+  description: Internal server error
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/materials
+    method: GET
+    mode: none
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 500
+      text: Internal Server Error
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}

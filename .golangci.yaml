@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=https://golangci-lint.run/jsonschema/golangci.jsonschema.json
+version: "2"
+run:
+  timeout: "5m"
+  relative-path-mode: gomod
+  issues-exit-code: 1
+  tests: true
+  modules-download-mode: readonly
+  allow-parallel-runners: true
+  concurrency: 8
+linters:
+  default: none
+  exclusions:
+    warn-unused: false
+    generated: lax
+  enable:
+    # - lll
+    - bodyclose
+    - copyloopvar
+    - errcheck
+    - govet
+    - ineffassign
+    - misspell
+    - nakedret
+    - nolintlint
+    - staticcheck
+    - tparallel
+    - unconvert
+    - whitespace
+    - gocyclo
+  settings:
+    lll:
+      line-length: 200
+      tab-width: 1
+
+
+formatters:
+  enable:
+    - gci
+    # - golines
+  exclusions:
+    warn-unused: false
+    generated: lax
+  settings:
+    gci:
+      sections:
+        - standard
+        - prefix(github.com/jsnfwlr)
+        - localmodule
+        - default
+      custom-order: true
+    # golines:
+    #   max-len: 200
+    #   tab-len: 1
+
+output:
+  formats:
+    text:
+      colors: true
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  # new: false
+  # new-from-merge-base: main
+  # whole-files: true
+  fix: true
+
+severity:
+  default: error
+  rules:
+    - severity: warning
+      linters:
+        - XYZ
+    - severity: info
+      linters:
+        - ABC
+

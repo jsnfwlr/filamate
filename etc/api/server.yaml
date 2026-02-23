@@ -1,0 +1,13 @@
+package: oapi
+output: ./internal/server/oapi/oapi.gen.go
+output-options:
+  nullable-type: false
+  skip-prune: false
+  name-normalizer: ToCamelCaseWithInitialisms
+
+generate:
+  gorilla-server: true
+  strict-server: true
+  embedded-spec: true
+  models: true
+  client: false

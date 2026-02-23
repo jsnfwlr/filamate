@@ -1,0 +1,43 @@
+meta {
+  name: CORS preflight for location by ID
+  type: http
+  seq: 2
+}
+
+options {
+  url: http://{{filamate_host}}:{{port}}/api/location/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+example {
+  name: 204 Response
+  description: CORS preflight successful
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/location/:id
+    method: OPTIONS
+    mode: none
+    params:path: {
+      id:
+    }
+  }
+
+  response: {
+    status: {
+      code: 204
+      text: No Content
+    }
+
+    body: {
+      type: text
+      content: '''
+
+      '''
+    }
+  }
+}

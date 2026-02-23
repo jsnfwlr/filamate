@@ -1,0 +1,36 @@
+meta {
+  name: CORS preflight for stores
+  type: http
+  seq: 1
+}
+
+options {
+  url: http://{{filamate_host}}:{{port}}/api/stores
+  body: none
+  auth: inherit
+}
+
+example {
+  name: 204 Response
+  description: CORS preflight successful
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/stores
+    method: OPTIONS
+    mode: none
+  }
+
+  response: {
+    status: {
+      code: 204
+      text: No Content
+    }
+
+    body: {
+      type: text
+      content: '''
+
+      '''
+    }
+  }
+}

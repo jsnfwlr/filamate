@@ -1,0 +1,82 @@
+package handlers
+
+import (
+	"context"
+
+	"github.com/jsnfwlr/go11y"
+
+	"github.com/jsnfwlr/filamate/internal/server/handlers/stats"
+	"github.com/jsnfwlr/filamate/internal/server/oapi"
+
+	"github.com/jackc/pgx/v5"
+)
+
+// CheckUsageStats CORS preflight for usage stats by ID
+// (OPTIONS /api/stats/usage)
+func (h Handlers) CheckUsageStats(ctx context.Context, r oapi.CheckUsageStatsRequestObject) (response oapi.CheckUsageStatsResponseObject, fault error) {
+	return stats.CheckUsage(ctx, h.DBClient.Queries, r)
+}
+
+// CheckStorageStats CORS preflight for storage stats by ID
+// (OPTIONS /api/stats/storage)
+func (h Handlers) CheckStorageStats(ctx context.Context, r oapi.CheckStorageStatsRequestObject) (response oapi.CheckStorageStatsResponseObject, fault error) {
+	return stats.CheckStorage(ctx, h.DBClient.Queries, r)
+}
+
+// GetUsageStats CORS preflight for usage stats by ID
+// (OPTIONS /api/stats/usage)
+func (h Handlers) GetUsageStats(ctx context.Context, r oapi.GetUsageStatsRequestObject) (response oapi.GetUsageStatsResponseObject, fault error) {
+	ctx, o := go11y.Get(ctx)
+	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
+	if err != nil {
+		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
+		return oapi.GetUsageStats500JSONResponse{}, err
+	}
+
+	txQuerier := h.DBClient.Queries.WithTx(tx)
+
+	resp, err := stats.GetUsageStats(ctx, txQuerier, r)
+	if err != nil {
+		o.Error("request failed", err, go11y.SeverityHigh)
+		if rbErr := tx.Rollback(ctx); rbErr != nil {
+			o.Error("could not rollback transaction", rbErr, go11y.SeverityHigh)
+		}
+		return resp, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		o.Error("could not commit transaction", err, go11y.SeverityHigh)
+		return oapi.GetUsageStats500JSONResponse{}, err
+	}
+
+	return resp, nil
+}
+
+// GetStorageStats CORS preflight for storage stats by ID
+// (OPTIONS /api/stats/storage)
+func (h Handlers) GetStorageStats(ctx context.Context, r oapi.GetStorageStatsRequestObject) (response oapi.GetStorageStatsResponseObject, fault error) {
+	ctx, o := go11y.Get(ctx)
+	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
+	if err != nil {
+		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
+		return oapi.GetStorageStats500JSONResponse{}, err
+	}
+
+	txQuerier := h.DBClient.Queries.WithTx(tx)
+
+	resp, err := stats.GetStorageStats(ctx, txQuerier, r)
+	if err != nil {
+		o.Error("request failed", err, go11y.SeverityHigh)
+		if rbErr := tx.Rollback(ctx); rbErr != nil {
+			o.Error("could not rollback transaction", rbErr, go11y.SeverityHigh)
+		}
+		return resp, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		o.Error("could not commit transaction", err, go11y.SeverityHigh)
+		return oapi.GetStorageStats500JSONResponse{}, err
+	}
+
+	return resp, nil
+}

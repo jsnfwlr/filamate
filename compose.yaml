@@ -1,0 +1,37 @@
+networks:
+  filamate-private:
+    name: filamate-private
+    driver: bridge
+services:
+  filamate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: filamate
+      pull: true
+      tags:
+        - filamate:latest
+    container_name: filamate
+    depends_on:
+      - filamate-db
+    ports:
+      - "9766:9766"
+    networks:
+      - filamate-private
+    environment:
+      POSTGRES_HOST: "filamate-db"
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: filamate
+      POSTGRES_USER: filamate
+      POSTGRES_PASSWORD: filamate
+
+  filamate-db:
+    image: postgres:18-alpine
+    container_name: filamate-db
+    networks:
+      - filamate-private
+    environment:
+      POSTGRES_USER: filamate
+      POSTGRES_PASSWORD: filamate
+      POSTGRES_DB: filamate
+

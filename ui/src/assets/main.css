@@ -1,0 +1,28 @@
+@import './base.css';
+
+#app {
+  padding: 0 1rem;
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: #26a69a;
+  transition: 0.4s;
+  padding: 3px;
+}
+
+.q-toolbar__title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  a.active {
+    background-color: hsla(210, 79%, 46%, 0.2);
+  }
+  a:hover {
+    background-color: hsla(171, 79%, 46%, 0.2);
+  }
+}

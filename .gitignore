@@ -1,0 +1,9 @@
+tmp/
+static/*.*
+!static/static.go
+!static/gitkeep.*
+static/assets/*
+!static/assets/.gitkeep
+go.work
+go.work.sum
+etc/**/*exclude*

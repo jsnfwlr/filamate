@@ -1,0 +1,193 @@
+meta {
+  name: Update color
+  type: http
+  seq: 4
+}
+
+patch {
+  url: http://{{filamate_host}}:{{port}}/api/color/8
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "label": "Teal",
+    "hex": "#00a887",
+    "alias": "Mint Green"
+  }
+}
+
+example {
+  name: 200 Response
+  description: Color updated successfully
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/color/:id
+    method: PATCH
+    mode: json
+    params:path: {
+      id:
+    }
+
+    body:json: {
+      {
+        "label": "",
+        "alias": "",
+        "hex": ""
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "id": 0,
+          "label": "",
+          "alias": "",
+          "hex": ""
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 400 Response
+  description: Invalid request data
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/color/:id
+    method: PATCH
+    mode: json
+    params:path: {
+      id:
+    }
+
+    body:json: {
+      {
+        "label": "",
+        "alias": "",
+        "hex": ""
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 400
+      text: Bad Request
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 404 Response
+  description: Color not found
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/color/:id
+    method: PATCH
+    mode: json
+    params:path: {
+      id:
+    }
+
+    body:json: {
+      {
+        "label": "",
+        "alias": "",
+        "hex": ""
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 404
+      text: Not Found
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 500 Response
+  description: Internal server error
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/color/:id
+    method: PATCH
+    mode: json
+    params:path: {
+      id:
+    }
+
+    body:json: {
+      {
+        "label": "",
+        "alias": "",
+        "hex": ""
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 500
+      text: Internal Server Error
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}

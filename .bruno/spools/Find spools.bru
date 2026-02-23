@@ -1,0 +1,86 @@
+meta {
+  name: Find spools
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://{{filamate_host}}:{{port}}/api/spools
+  body: none
+  auth: inherit
+}
+
+example {
+  name: 200 Response
+  description: List of spools retrieved successfully
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/spools
+    method: GET
+    mode: none
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 200
+      text: OK
+    }
+
+    body: {
+      type: json
+      content: '''
+        [
+          {
+            "id": 0,
+            "location": 0,
+            "material": 0,
+            "brand": 0,
+            "colors": [],
+            "store": 0,
+            "weight": 0,
+            "empty": false,
+            "created_at": "",
+            "updated_at": "",
+            "deleted_at": ""
+          }
+        ]
+      '''
+    }
+  }
+}
+
+example {
+  name: 500 Response
+  description: Internal server error
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/spools
+    method: GET
+    mode: none
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 500
+      text: Internal Server Error
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}

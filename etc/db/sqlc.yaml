@@ -1,0 +1,75 @@
+version: "2"
+sql:
+  - name: "filamate"
+    schema: "migrations"
+    engine: "postgresql"
+    queries:
+      - "queries/brands.sql"
+      - "queries/colors.sql"
+      - "queries/healthcheck.sql"
+      - "queries/locations.sql"
+      - "queries/materials.sql"
+      - "queries/stores.sql"
+      - "queries/spools.sql"
+      - "queries/dashboard.sql"
+    gen:
+      go:
+        out: "../../internal/db"
+        package: "db"
+        sql_package: "pgx/v5"
+        emit_interface: true
+        emit_prepared_queries: true
+        emit_empty_slices: true
+        emit_json_tags: true
+        json_tags_case_style: "snake"
+        emit_pointers_for_null_types: true
+        emit_enum_valid_method: true
+        emit_all_enum_values: true
+        output_models_file_name: "models.gen.go"
+        output_querier_file_name: "querier.gen.go"
+        output_db_file_name: "db.gen.go"
+        output_copyfrom_file_name: "copyfrom.gen.go"
+        output_files_suffix: ".gen"
+        query_parameter_limit: 2
+        initialisms:
+          - "id"
+          - "url"
+        overrides:
+          - db_type: "pg_catalog.timestamptz"
+            nullable: false
+            go_type:
+              import: "time"
+              type: "Time"
+              pointer: false
+          - db_type: "pg_catalog.timestamptz"
+            nullable: true
+            go_type:
+              import: "time"
+              type: "Time"
+              pointer: true
+          - db_type: "date"
+            nullable: false
+            go_type:
+              import: "cloud.google.com/go/civil"
+              type: "Date"
+              pointer: false
+          - db_type: "date"
+            nullable: true
+            go_type:
+              import: "cloud.google.com/go/civil"
+              type: "Date"
+              pointer: true
+          - db_type: "pg_catalog.numeric"
+            nullable: false
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Numeric"
+              pointer: false
+          - db_type: "pg_catalog.numeric"
+            nullable: true
+            go_type:
+              import: "github.com/jackc/pgx/v5/pgtype"
+              type: "Numeric"
+              pointer: false
+    strict_order_by: true
+    strict_function_checks: true

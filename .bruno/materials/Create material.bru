@@ -1,0 +1,143 @@
+meta {
+  name: Create material
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://{{filamate_host}}:{{port}}/api/materials
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "label": "Hyper PETG",
+    "description": "Like PETG, only faster",
+    "class": "PETG",
+    "special": false
+  }
+}
+
+example {
+  name: 201 Response
+  description: material created successfully
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/materials
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "label": "",
+        "description": "",
+        "class": "",
+        "special": false
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 201
+      text: Created
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "id": 0,
+          "label": "",
+          "description": "",
+          "class": "",
+          "special": false
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 400 Response
+  description: Invalid request data
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/materials
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "label": "",
+        "description": "",
+        "class": "",
+        "special": false
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 400
+      text: Bad Request
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 500 Response
+  description: Internal server error
+
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/materials
+    method: POST
+    mode: json
+    body:json: {
+      {
+        "label": "",
+        "description": "",
+        "class": "",
+        "special": false
+      }
+    }
+  }
+
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+
+    status: {
+      code: 500
+      text: Internal Server Error
+    }
+
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}

@@ -1,0 +1,83 @@
+meta {
+  name: Find brands
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://{{filamate_host}}:{{port}}/api/brands?sort_by=label
+  body: none
+  auth: inherit
+}
+
+params:query {
+  sort_by: label
+}
+
+example {
+  name: 200 Response
+  description: List of brands retrieved successfully
+  
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/brands
+    method: GET
+    mode: none
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 200
+      text: OK
+    }
+  
+    body: {
+      type: json
+      content: '''
+        [
+          {
+            "id": 0,
+            "label": "",
+            "active": false,
+            "store_id": 0
+          }
+        ]
+      '''
+    }
+  }
+}
+
+example {
+  name: 500 Response
+  description: Internal server error
+  
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/brands
+    method: GET
+    mode: none
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 500
+      text: Internal Server Error
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}
