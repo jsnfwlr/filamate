@@ -12,7 +12,10 @@ import (
 //go:embed *.sql
 var Filesystem embed.FS
 
-var MigPattern = regexp.MustCompile(`^[0-9]{4}_.+\.sql$`)
+//go:embed demo_data.sql
+var DemoData embed.FS
+
+var AllPattern = regexp.MustCompile(`^([0-9]{4}_).+\.sql$`)
 
 type Collection struct {
 	Filesystem embed.FS
@@ -30,12 +33,22 @@ func (c Collection) Migrations() []fs.DirEntry {
 	files, _ := c.Filesystem.ReadDir(".")
 
 	for _, f := range files {
-		if !f.IsDir() && MigPattern.MatchString(f.Name()) {
+		if !f.IsDir() && AllPattern.MatchString(f.Name()) {
 			migrations = append(migrations, f)
 		}
 	}
 
 	return migrations
+}
+
+func (c Collection) Files() []string {
+	files := []string{}
+
+	for _, mig := range c.Migrations() {
+		files = append(files, mig.Name())
+	}
+
+	return files
 }
 
 func (c Collection) Steps() (number int32) {
@@ -54,7 +67,7 @@ func (c Collection) ReadDir(name string) ([]fs.FileInfo, error) {
 	for _, f := range files {
 		fi, _ := f.Info()
 
-		if !MigPattern.MatchString(fi.Name()) {
+		if !AllPattern.MatchString(fi.Name()) {
 			continue
 		}
 
@@ -81,7 +94,7 @@ func (c Collection) Glob(pattern string) (matches []string, fault error) {
 
 	filteredMatches := []string{}
 	for _, m := range matches {
-		if !MigPattern.MatchString(m) {
+		if !AllPattern.MatchString(m) {
 			continue
 		}
 		filteredMatches = append(filteredMatches, m)

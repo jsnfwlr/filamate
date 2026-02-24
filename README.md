@@ -15,7 +15,7 @@ open http://localhost:9766
 
 ## TODO
 
-* [ ] Make demo-data optional via env-var
+* [x] Make demo-data optional via env-var
 * [ ] Make README nicer
 * [ ] Publish official container image to ghcr.io and hub.docker.com
 * [ ] Add custom sort functions to the Locations/Materials/Brands/Colors columns for Spools page to they sort by the label, not the ID

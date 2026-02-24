@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	AddSpoolColors(ctx context.Context, spoolID int64, colorIds []int64) error
+	CheckDemoData(ctx context.Context) (bool, error)
 	CheckMigration(ctx context.Context) (int32, error)
 	CreateBrand(ctx context.Context, arg CreateBrandParams) (Brand, error)
 	CreateColor(ctx context.Context, arg CreateColorParams) (Color, error)
@@ -41,6 +42,7 @@ type Querier interface {
 	// GetUsageStats returns the most used color and material combinations, sorted by the number of empty spools and total spools. It filters out combinations that have only one spool or where the number of empty spools is less than half of the total spools.
 	GetUsageStats(ctx context.Context) ([]GetUsageStatsRow, error)
 	ResetSpoolColor(ctx context.Context, spoolID int64) error
+	SetDemoData(ctx context.Context) error
 	UpdateBrand(ctx context.Context, arg UpdateBrandParams) (Brand, error)
 	UpdateColor(ctx context.Context, arg UpdateColorParams) (Color, error)
 	UpdateLocation(ctx context.Context, arg UpdateLocationParams) (Location, error)

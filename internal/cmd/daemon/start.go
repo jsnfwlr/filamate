@@ -38,15 +38,24 @@ func StartRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = database.DoMigration(ctx, dbConfig, -1)
-	if err != nil {
-		o.Error("could not perform database migration", err, go11y.SeverityHighest)
-		return err
-	}
-
 	dbClient, err := db.Connect(ctx, dbConfig)
 	if err != nil {
 		o.Error("could not connect to database", err, go11y.SeverityHighest)
+		return err
+	}
+
+	if dbConfig.GetIncDemo() {
+		err = dbClient.LoadDemoData(ctx)
+		if err != nil {
+			o.Error("could not load demo data", err, go11y.SeverityHighest)
+			return err
+		}
+		o.Info("demo data loaded successfully")
+	}
+
+	err = database.DoMigration(ctx, dbConfig, -1)
+	if err != nil {
+		o.Error("could not perform database migration", err, go11y.SeverityHighest)
 		return err
 	}
 

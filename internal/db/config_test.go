@@ -129,7 +129,7 @@ func TestConfigEdgeCases(t *testing.T) {
 		t.Setenv("POSTGRES_DATABASE", "")
 		t.Setenv("POSTGRES_USER", "")
 		t.Setenv("POSTGRES_PASSWORD", "")
-		t.Setenv("POSTGRES_VERSION_TABLE", "")
+		t.Setenv("VERSION_TABLE", "")
 
 		cfg, err := db.LoadConfig()
 		if err != nil {
@@ -309,15 +309,15 @@ func TestConfigValidate(t *testing.T) {
 			},
 			expectErr: db.NewConfigError("POSTGRES_HOST", ""),
 		},
-		"loc@lhost": {
+		"loc@l_host": {
 			cfg: db.Config{
-				Host:     "loc@lhost",
+				Host:     "loc@l_host",
 				Port:     "5432",
 				Database: "filament",
 				Username: "filament",
 				Password: "filament",
 			},
-			expectErr: db.NewConfigError("POSTGRES_HOST", "loc@lhost"),
+			expectErr: db.NewConfigError("POSTGRES_HOST", "loc@l_host"),
 		},
 		"local host": {
 			cfg: db.Config{

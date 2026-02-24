@@ -36,6 +36,10 @@ type DbVersion struct {
 	Version int32 `json:"version"`
 }
 
+type DemoDatum struct {
+	Done bool `json:"done"`
+}
+
 // Table storing information about filament storage locations
 type Location struct {
 	ID int64 `json:"id"`

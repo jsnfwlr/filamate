@@ -69,6 +69,14 @@ func TestDatabase(t *testing.T) {
 
 	testMigrations(t, ctx, cfg, dbClient)
 
+	t.Run("load demo data", func(t *testing.T) {
+		err := dbClient.LoadDemoData(ctx)
+		if err != nil {
+			t.Fatalf("could not load demo data: %v", err)
+		}
+		t.Log("demo data loaded successfully")
+	})
+
 	t.Run("transactions", func(t *testing.T) {
 		testBrandsTX(t, ctx, dbClient)
 		testStoresTX(t, ctx, dbClient)
@@ -76,6 +84,7 @@ func TestDatabase(t *testing.T) {
 		testMaterialsTX(t, ctx, dbClient)
 		testColorsTX(t, ctx, dbClient)
 		testSpoolsTX(t, ctx, dbClient)
+		testStatsTX(t, ctx, dbClient)
 	})
 
 	t.Run("raw", func(t *testing.T) {
@@ -85,6 +94,7 @@ func TestDatabase(t *testing.T) {
 		testMaterials(t, ctx, dbClient)
 		testColors(t, ctx, dbClient)
 		testSpools(t, ctx, dbClient)
+		testStats(t, ctx, dbClient)
 	})
 }
 
@@ -247,6 +257,12 @@ func testMigrations(t *testing.T, ctx context.Context, dbConfig db.Config, dbCli
 			t.Fatalf("could not create the migrator: %v", err)
 		}
 
+		if m.Steps() != col.Steps() {
+			t.Logf("steps: %d/%d - files: %s", m.Steps(), col.Steps(), strings.Join(col.Files(), ", "))
+
+			t.Fatalf("migrator steps do not match collection steps: expected %d, got %d", col.Steps(), m.Steps())
+		}
+
 		i, err := m.Info(ctx, -1)
 		if err != nil {
 			t.Fatalf("could not get the migration info: %v", err)
@@ -256,17 +272,17 @@ func testMigrations(t *testing.T, ctx context.Context, dbConfig db.Config, dbCli
 
 		_, err = m.MigrateTo(ctx, col.Steps())
 		if err != nil {
-			t.Fatalf("could not run the migrations: %v", err)
+			t.Fatalf("could not migrateTo %d: %v", col.Steps(), err)
 		}
 
 		_, err = m.MigrateTo(ctx, 0)
 		if err != nil {
-			t.Fatalf("could not run the migrations: %v", err)
+			t.Fatalf("could not migrateTo 0: %v", err)
 		}
 
 		_, err = m.Migrate(ctx)
 		if err != nil {
-			t.Fatalf("could not run the migrations: %v", err)
+			t.Fatalf("could not migrateTo latest: %v", err)
 		}
 	})
 
@@ -651,13 +667,13 @@ func testSpools(t *testing.T, ctx context.Context, dbClient *db.Client) {
 		}
 
 		price := pgtype.Numeric{}
-		price.Scan("29.99")
+		_ = price.Scan("29.99")
 		weight := pgtype.Numeric{}
-		weight.Scan("1000.00")
+		_ = weight.Scan("1000.00")
 		currentWeight := pgtype.Numeric{}
-		currentWeight.Scan("900.00")
+		_ = currentWeight.Scan("900.00")
 		combinedWeight := pgtype.Numeric{}
-		combinedWeight.Scan("1167.00")
+		_ = combinedWeight.Scan("1167.00")
 
 		s, err := dbClient.Queries.CreateSpool(ctx, db.CreateSpoolParams{
 			Location:       locations[locationCount-1].ID,
@@ -680,13 +696,13 @@ func testSpools(t *testing.T, ctx context.Context, dbClient *db.Client) {
 		}
 
 		newWeight := pgtype.Numeric{}
-		newWeight.Scan("2900.00")
+		_ = newWeight.Scan("2900.00")
 
 		newCurrentWeight := pgtype.Numeric{}
-		newCurrentWeight.Scan("2800.00")
+		_ = newCurrentWeight.Scan("2800.00")
 
 		newCombinedWeight := pgtype.Numeric{}
-		newCombinedWeight.Scan("2900.00")
+		_ = newCombinedWeight.Scan("2900.00")
 
 		s, err = dbClient.Queries.UpdateSpool(ctx, db.UpdateSpoolParams{
 			ID:             s.ID,
@@ -775,8 +791,12 @@ func testSpools(t *testing.T, ctx context.Context, dbClient *db.Client) {
 		if err != nil {
 			t.Fatalf("could not remove spool color: %v", err)
 		}
+	})
+}
 
-		_, err = dbClient.Queries.GetStorageStats(ctx)
+func testStats(t *testing.T, ctx context.Context, dbClient *db.Client) {
+	t.Run("stats", func(t *testing.T) {
+		_, err := dbClient.Queries.GetStorageStats(ctx)
 		if err != nil {
 			t.Fatalf("could not get storage stats: %v", err)
 		}
@@ -1489,6 +1509,8 @@ func testSpoolsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 			t.Fatalf("no locations found to assign to spool")
 		}
 
+		t.Logf("Found %d locations", len(locations))
+
 		brands, err := querier.FindBrands(ctx)
 		if err != nil {
 			t.Fatalf("could not find brands: %v", err)
@@ -1497,6 +1519,8 @@ func testSpoolsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 		if len(brands) == 0 {
 			t.Fatalf("no brands found to assign to spool")
 		}
+
+		t.Logf("Found %d brands", len(brands))
 
 		materials, err := querier.FindMaterials(ctx)
 		if err != nil {
@@ -1507,6 +1531,8 @@ func testSpoolsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 			t.Fatalf("no materials found to assign to spool")
 		}
 
+		t.Logf("Found %d materials", len(materials))
+
 		stores, err := querier.FindStores(ctx)
 		if err != nil {
 			t.Fatalf("could not find stores: %v", err)
@@ -1515,6 +1541,8 @@ func testSpoolsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 		if len(stores) == 0 {
 			t.Fatalf("no stores found to assign to spool")
 		}
+
+		t.Logf("Found %d stores", len(stores))
 
 		colors, err := querier.FindColors(ctx)
 		if err != nil {
@@ -1525,14 +1553,16 @@ func testSpoolsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 			t.Fatalf("no colors found to assign to spool")
 		}
 
+		t.Logf("Found %d colors", len(colors))
+
 		price := pgtype.Numeric{}
-		price.Scan("29.99")
+		_ = price.Scan("29.99")
 		weight := pgtype.Numeric{}
-		weight.Scan("1000.00")
+		_ = weight.Scan("1000.00")
 		currentWeight := pgtype.Numeric{}
-		currentWeight.Scan("900.00")
+		_ = currentWeight.Scan("900.00")
 		combinedWeight := pgtype.Numeric{}
-		combinedWeight.Scan("1167.00")
+		_ = combinedWeight.Scan("1167.00")
 
 		s, err := querier.CreateSpool(ctx, db.CreateSpoolParams{
 			Location:       locations[locationCount-1].ID,
@@ -1555,13 +1585,13 @@ func testSpoolsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 		}
 
 		newWeight := pgtype.Numeric{}
-		newWeight.Scan("2900.00")
+		_ = newWeight.Scan("2900.00")
 
 		newCurrentWeight := pgtype.Numeric{}
-		newCurrentWeight.Scan("2800.00")
+		_ = newCurrentWeight.Scan("2800.00")
 
 		newCombinedWeight := pgtype.Numeric{}
-		newCombinedWeight.Scan("2900.00")
+		_ = newCombinedWeight.Scan("2900.00")
 
 		s, err = querier.UpdateSpool(ctx, db.UpdateSpoolParams{
 			ID:             s.ID,
@@ -1651,7 +1681,22 @@ func testSpoolsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 			t.Fatalf("could not remove spool color: %v", err)
 		}
 
-		_, err = querier.GetStorageStats(ctx)
+		err = tx.Commit(ctx)
+		if err != nil {
+			t.Fatalf("could not commit transaction: %v", err)
+		}
+	})
+}
+
+func testStatsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
+	querier, tx := getQuerier(t, ctx, dbClient)
+
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
+
+	t.Run("stats", func(t *testing.T) {
+		_, err := querier.GetStorageStats(ctx)
 		if err != nil {
 			t.Fatalf("could not get storage stats: %v", err)
 		}
@@ -1659,11 +1704,6 @@ func testSpoolsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 		_, err = querier.GetUsageStats(ctx)
 		if err != nil {
 			t.Fatalf("could not get usage stats: %v", err)
-		}
-
-		err = tx.Commit(ctx)
-		if err != nil {
-			t.Fatalf("could not commit transaction: %v", err)
 		}
 	})
 }

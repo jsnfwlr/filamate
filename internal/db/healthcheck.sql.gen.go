@@ -9,6 +9,17 @@ import (
 	"context"
 )
 
+const checkDemoData = `-- name: CheckDemoData :one
+SELECT done FROM demo_data
+`
+
+func (q *Queries) CheckDemoData(ctx context.Context) (bool, error) {
+	row := q.db.QueryRow(ctx, checkDemoData)
+	var done bool
+	err := row.Scan(&done)
+	return done, err
+}
+
 const checkMigration = `-- name: CheckMigration :one
 SELECT version::integer FROM db_version
 `
@@ -18,4 +29,13 @@ func (q *Queries) CheckMigration(ctx context.Context) (int32, error) {
 	var version int32
 	err := row.Scan(&version)
 	return version, err
+}
+
+const setDemoData = `-- name: SetDemoData :exec
+UPDATE demo_data SET done = true WHERE done = false
+`
+
+func (q *Queries) SetDemoData(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, setDemoData)
+	return err
 }

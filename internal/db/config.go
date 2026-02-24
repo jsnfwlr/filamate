@@ -17,12 +17,13 @@ func (Secret) LogValue() slog.Value {
 }
 
 type Config struct {
-	Host         string `env:"POSTGRES_HOST"     envDefault:"localhost"`
-	Port         string `env:"POSTGRES_PORT"     envDefault:"5432"`
-	Database     string `env:"POSTGRES_DATABASE" envDefault:"filament"`        // Database name
-	Username     string `env:"POSTGRES_USER"     envDefault:"filament"`        // Username
-	Password     Secret `env:"POSTGRES_PASSWORD" envDefault:"filament"`        // Password
-	VersionTable string `env:"POSTGRES_VERSION_TABLE" envDefault:"db_version"` // Migrations version table
+	Host         string `env:"POSTGRES_HOST" envDefault:"localhost"`
+	Port         string `env:"POSTGRES_PORT" envDefault:"5432"`
+	Database     string `env:"POSTGRES_DATABASE" envDefault:"filament"` // Database name
+	Username     string `env:"POSTGRES_USER" envDefault:"filament"`     // Username
+	Password     Secret `env:"POSTGRES_PASSWORD" envDefault:"filament"` // Password
+	VersionTable string `env:"VERSION_TABLE" envDefault:"db_version"`   // Migrations version table
+	DemoData     bool   `env:"DEMO_DATA" envDefault:"false"`            // Whether to include demo data in the database
 }
 
 func (c Config) GetURI() string {
@@ -61,6 +62,10 @@ func (c Config) GetVersionTable() string {
 	return c.VersionTable
 }
 
+func (c Config) GetIncDemo() bool {
+	return c.DemoData
+}
+
 func LoadConfig() (cfg Config, fault error) {
 	c := Config{}
 	if err := env.Parse(&c); err != nil {
@@ -87,25 +92,25 @@ func NewConfigError(field, value string) error {
 	return ConfigError{field: field, value: value}
 }
 
-func (c Config) Validate() error {
-	rex := []*regexp.Regexp{
-		regexp.MustCompile(`^[a-zA-Z0-9\._-]+$`), // Host, Database, Username
-		regexp.MustCompile(`^[0-9]+$`),           // Port
-	}
+var (
+	alphaNum = regexp.MustCompile(`^[a-zA-Z0-9\._-]+$`) // Host, Database, Username
+	numeric  = regexp.MustCompile(`^[0-9]+$`)           // Port
+)
 
-	if !rex[0].MatchString(c.Host) {
+func (c Config) Validate() error {
+	if !alphaNum.MatchString(c.Host) {
 		return ConfigError{field: "POSTGRES_HOST", value: c.Host}
 	}
 
-	if !rex[1].MatchString(c.Port) {
+	if !numeric.MatchString(c.Port) {
 		return ConfigError{field: "POSTGRES_PORT", value: c.Port}
 	}
 
-	if !rex[0].MatchString(c.Database) {
+	if !alphaNum.MatchString(c.Database) {
 		return ConfigError{field: "POSTGRES_DATABASE", value: c.Database}
 	}
 
-	if !rex[0].MatchString(c.Username) {
+	if !alphaNum.MatchString(c.Username) {
 		return ConfigError{field: "POSTGRES_USER", value: c.Username}
 	}
 

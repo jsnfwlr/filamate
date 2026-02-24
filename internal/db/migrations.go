@@ -13,6 +13,7 @@ type DBMigrator struct {
 	connection    *pgx.Conn
 	migrator      *migrate.Migrator
 	configuration ConfigProvider
+	steps         int32
 }
 
 type ConfigProvider interface {
@@ -22,6 +23,7 @@ type ConfigProvider interface {
 	GetPort() string
 	GetDatabase() string
 	GetVersionTable() string
+	GetIncDemo() bool
 }
 
 type FilesystemProvider interface {
@@ -78,6 +80,7 @@ func NewMigrator(ctx context.Context, dbParams ConfigProvider, fs FilesystemProv
 	return DBMigrator{
 		connection:    conn,
 		migrator:      mig,
+		steps:         int32(len(mig.Migrations)),
 		configuration: dbParams,
 	}, nil
 }
@@ -101,6 +104,10 @@ type Stage struct {
 	File      string
 	Direction string
 	Migrated  bool
+}
+
+func (m DBMigrator) Steps() int32 {
+	return m.steps
 }
 
 func (m DBMigrator) Info(ctx context.Context, stopAfter int32) (information Info, fault error) {

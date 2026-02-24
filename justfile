@@ -34,7 +34,7 @@ build:
 	@go build -o ../bin/filamate .
 
 run:
-	API_PORT="9766" POSTGRES_PORT="5444" air -c .air.toml
+	POSTGRES_PORT="5444" air -c .air.toml
 
 coverage:
 	@go test ./... -covermode=count -coverprofile=coverage.out -json -count=1 | tparse -pass -trimpath github.com/jsnfwlr/filamate/ || rm coverage.out

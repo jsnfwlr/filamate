@@ -24,6 +24,7 @@ services:
       POSTGRES_DATABASE: filamate
       POSTGRES_USER: filamate
       POSTGRES_PASSWORD: filamate
+      # DEMO_DATA: true # Uncomment to seed the database with demo data on startup
 
   filamate-db:
     image: postgres:18-alpine
