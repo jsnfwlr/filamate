@@ -218,6 +218,9 @@ type SpoolItem struct {
 	// DeletedAt Timestamp when the spool was deleted
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 
+	// EmptiedAt Timestamp when the spool was emptied
+	EmptiedAt *time.Time `json:"emptied_at,omitempty"`
+
 	// Empty Whether the spool is empty
 	Empty bool `json:"empty"`
 
@@ -243,8 +246,43 @@ type SpoolItem struct {
 	Weight string `json:"weight"`
 }
 
+// StorageChartItem Storage chart item
+type StorageChartItem struct {
+	// Labels Labels for the X Axis of the chart - typically the name of months
+	Labels []string `json:"labels"`
+
+	// Purchased Number of spools purchased in the period
+	Purchased []int64 `json:"purchased"`
+
+	// Stored Number of spools stored in the period
+	Stored []int64 `json:"stored"`
+
+	// Used Number of spools used in the period
+	Used []int64 `json:"used"`
+}
+
+// StorageStatsDetailsItem Additional details about the storage location, such as breakdown of materials stored or historical usage trends
+type StorageStatsDetailsItem struct {
+	// Brand Brand of the filament stored in the location
+	Brand int64 `json:"brand"`
+
+	// ColorsHex Hex code of the color of the filament stored in the location
+	ColorsHex []string `json:"colors_hex"`
+
+	// ColorsLabel Label of the color of the filament stored in the location
+	ColorsLabel []string `json:"colors_label"`
+
+	// CurrentWeight Current weight of the filament stored in the location in grams
+	CurrentWeight string `json:"current_weight"`
+
+	// Material Material of the filament stored in the location
+	Material int64 `json:"material"`
+}
+
 // StorageStatsItem Storage statistics item
 type StorageStatsItem struct {
+	Details []StorageStatsDetailsItem `json:"details"`
+
 	// Free Amount of available space in the location
 	Free int64 `json:"free"`
 
@@ -458,6 +496,12 @@ type ServerInterface interface {
 	// Create brand
 	// (POST /api/brands)
 	CreateBrand(w http.ResponseWriter, r *http.Request)
+	// Get storage chart
+	// (GET /api/chart/storage)
+	GetStorageChart(w http.ResponseWriter, r *http.Request)
+	// CORS preflight for storage chart
+	// (OPTIONS /api/chart/storage)
+	CheckStorageChart(w http.ResponseWriter, r *http.Request)
 	// Delete color
 	// (DELETE /api/color/{id})
 	KillColor(w http.ResponseWriter, r *http.Request, id ID)
@@ -695,6 +739,34 @@ func (siw *ServerInterfaceWrapper) CreateBrand(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateBrand(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetStorageChart operation middleware
+func (siw *ServerInterfaceWrapper) GetStorageChart(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetStorageChart(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CheckStorageChart operation middleware
+func (siw *ServerInterfaceWrapper) CheckStorageChart(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CheckStorageChart(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1484,6 +1556,10 @@ func HandlerWithOptions(si ServerInterface, options GorillaServerOptions) http.H
 
 	r.HandleFunc(options.BaseURL+"/api/brands", wrapper.CreateBrand).Methods("POST")
 
+	r.HandleFunc(options.BaseURL+"/api/chart/storage", wrapper.GetStorageChart).Methods("GET")
+
+	r.HandleFunc(options.BaseURL+"/api/chart/storage", wrapper.CheckStorageChart).Methods("OPTIONS")
+
 	r.HandleFunc(options.BaseURL+"/api/color/{id}", wrapper.KillColor).Methods("DELETE")
 
 	r.HandleFunc(options.BaseURL+"/api/color/{id}", wrapper.CheckColor).Methods("OPTIONS")
@@ -1726,6 +1802,46 @@ func (response CreateBrand500JSONResponse) VisitCreateBrandResponse(w http.Respo
 	w.WriteHeader(500)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type GetStorageChartRequestObject struct {
+}
+
+type GetStorageChartResponseObject interface {
+	VisitGetStorageChartResponse(w http.ResponseWriter) error
+}
+
+type GetStorageChart200JSONResponse StorageChartItem
+
+func (response GetStorageChart200JSONResponse) VisitGetStorageChartResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetStorageChart500JSONResponse Error
+
+func (response GetStorageChart500JSONResponse) VisitGetStorageChartResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CheckStorageChartRequestObject struct {
+}
+
+type CheckStorageChartResponseObject interface {
+	VisitCheckStorageChartResponse(w http.ResponseWriter) error
+}
+
+type CheckStorageChart204Response struct {
+}
+
+func (response CheckStorageChart204Response) VisitCheckStorageChartResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
 }
 
 type KillColorRequestObject struct {
@@ -2702,6 +2818,12 @@ type StrictServerInterface interface {
 	// Create brand
 	// (POST /api/brands)
 	CreateBrand(ctx context.Context, request CreateBrandRequestObject) (CreateBrandResponseObject, error)
+	// Get storage chart
+	// (GET /api/chart/storage)
+	GetStorageChart(ctx context.Context, request GetStorageChartRequestObject) (GetStorageChartResponseObject, error)
+	// CORS preflight for storage chart
+	// (OPTIONS /api/chart/storage)
+	CheckStorageChart(ctx context.Context, request CheckStorageChartRequestObject) (CheckStorageChartResponseObject, error)
 	// Delete color
 	// (DELETE /api/color/{id})
 	KillColor(ctx context.Context, request KillColorRequestObject) (KillColorResponseObject, error)
@@ -2997,6 +3119,54 @@ func (sh *strictHandler) CreateBrand(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(CreateBrandResponseObject); ok {
 		if err := validResponse.VisitCreateBrandResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetStorageChart operation middleware
+func (sh *strictHandler) GetStorageChart(w http.ResponseWriter, r *http.Request) {
+	var request GetStorageChartRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetStorageChart(ctx, request.(GetStorageChartRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetStorageChart")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetStorageChartResponseObject); ok {
+		if err := validResponse.VisitGetStorageChartResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CheckStorageChart operation middleware
+func (sh *strictHandler) CheckStorageChart(w http.ResponseWriter, r *http.Request) {
+	var request CheckStorageChartRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CheckStorageChart(ctx, request.(CheckStorageChartRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CheckStorageChart")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CheckStorageChartResponseObject); ok {
+		if err := validResponse.VisitCheckStorageChartResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -3947,56 +4117,61 @@ func (sh *strictHandler) CreateStore(w http.ResponseWriter, r *http.Request) {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

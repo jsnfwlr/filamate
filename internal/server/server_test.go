@@ -11,7 +11,6 @@ import (
 	"github.com/jsnfwlr/filamate/internal/db"
 	"github.com/jsnfwlr/filamate/internal/server"
 	"github.com/jsnfwlr/filamate/internal/test/containers"
-	. "github.com/jsnfwlr/filamate/internal/types"
 )
 
 func TestServer(t *testing.T) {
@@ -30,7 +29,7 @@ func TestServer(t *testing.T) {
 		t.Fatalf("could not initialise go11y: %v", err)
 	}
 
-	ctr, dbCfg, err := containers.Postgres(t, ctx, "db_version", "17", PointerOf("server-test"))
+	ctr, dbCfg, err := containers.Postgres(t, ctx, "db_version", "17", new("server-test"))
 	if err != nil {
 		t.Fatalf("could not start the Postgres container: %v", err)
 	}
@@ -66,7 +65,7 @@ func TestServer(t *testing.T) {
 
 	t.Cleanup(
 		func() {
-			srv.Close(ctx)
+			_ = srv.Close(ctx)
 			dbClient.Close()
 		},
 	)

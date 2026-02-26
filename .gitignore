@@ -7,3 +7,4 @@ static/assets/*
 go.work
 go.work.sum
 etc/**/*exclude*
+.env

@@ -1,0 +1,215 @@
+<script setup lang="ts">
+import type { QTableColumn } from 'quasar'
+import { ref, reactive, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+
+import { useStorageStatsStore } from '../stores/stats'
+import { useBrandsStore } from '../stores/brands'
+import { useMaterialsStore } from '../stores/materials'
+
+const storageStatsStore = useStorageStatsStore()
+const brandsStore = useBrandsStore()
+const materialsStore = useMaterialsStore()
+
+const rootColumns: QTableColumn[] = [
+  {
+    name: 'label',
+    required: true,
+    label: 'Label',
+    align: 'left',
+    field: 'label',
+    sortable: true,
+    style: 'width: 25%',
+  },
+  {
+    name: 'max',
+    required: true,
+    label: 'Capacity',
+    align: 'left',
+    field: 'max',
+    sortable: true,
+    style: 'width: 25%',
+  },
+  {
+    name: 'used',
+    required: true,
+    label: 'Used',
+    align: 'left',
+    field: 'used',
+    sortable: true,
+    style: 'width: 25%',
+  },
+  {
+    name: 'free',
+    required: true,
+    label: 'Free',
+    align: 'left',
+    field: 'free',
+    sortable: true,
+    style: 'width: 25%',
+  }
+]
+
+const detailsColumns: QTableColumn[] = [
+  {
+    name: 'brand',
+    required: true,
+    label: 'Brand',
+    align: 'left',
+    field: 'brand',
+    sortable: false,
+    style: 'width: 25%',
+  },
+  {
+    name: 'material',
+    required: true,
+    label: 'Material',
+    align: 'left',
+    field: 'material',
+    sortable: false,
+    style: 'width: 25%',
+  },
+  {
+    name: 'color',
+    required: true,
+    label: 'Color',
+    align: 'left',
+    field: 'color',
+    sortable: false,
+    style: 'width: 25%',
+  },
+  {
+    name: 'current_weight',
+    required: true,
+    label: 'Current Weight',
+    align: 'left',
+    field: 'current_weight',
+    sortable: false,
+    style: 'width: 25%',
+  }
+]
+
+var storage = ref(storageStatsStore.sorted)
+var brand = ref(brandsStore.sorted)
+var material = ref(materialsStore.sorted)
+
+onMounted(async () => {
+  await storageStatsStore.find()
+  storage.value = storageStatsStore.sorted
+  await brandsStore.find()
+  brand.value = brandsStore.sorted
+  await materialsStore.find()
+  material.value = materialsStore.sorted
+})
+
+const pagination = ref({
+  rowsPerPage: 0
+})
+
+</script>
+
+<template>
+  <div class="row">
+    <q-table dark flat bordered binary-state-sort :rows="storage" :columns="rootColumns" row-key="label" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header">
+      <template v-slot:header="props">
+        <q-tr :props="props">
+          <q-th v-for="col in props.cols" :key="col.name" :props="props">{{ col.label }}</q-th>
+          <q-th auto-width />
+        </q-tr>
+      </template>
+      <template v-slot:body="props">
+        <q-tr :props="props" @click="props.expand = !props.expand" :icon="props.expand ? 'remove' : 'add'">
+          <q-td v-for="col in props.cols" :key="col.name" :props="props">
+            {{ col.value }}
+          </q-td>
+          <q-td auto-width>
+            <q-icon @click="props.expand = !props.expand" size="xs" :name="props.expand ? 'mdi-chevron-up' : 'mdi-chevron-down'" />
+          </q-td>
+        </q-tr>
+        <q-tr v-show="props.expand" :props="props">
+          <q-td colspan="100%">
+            <q-table dark flat bordered binary-state-sort :rows="props.row.details" :columns="detailsColumns" row-key="label" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header">
+               <template v-slot:header="props">
+                <q-tr :props="props">
+                  <q-th v-for="col in props.cols" :key="col.name" :props="props">{{ col.label }}</q-th>
+                </q-tr>
+              </template>
+              <template v-slot:body="props">
+                <q-tr :props="props" @click="props.expand = !props.expand" :icon="props.expand ? 'remove' : 'add'">
+                  <q-td v-for="col in props.cols" :key="col.name" :props="props">
+                    <div v-if="col.name === 'brand'">{{ brand.find(b => b.id === props.row.brand)?.label }}</div>
+                    <div v-if="col.name === 'material'">{{ material.find(m => m.id === props.row.material)?.label }}</div>
+                    <div v-if="col.name === 'current_weight'">{{ props.row.current_weight }}</div>
+                    <div v-if="col.name === 'color'">
+                      <div v-for="color, index in props.row.colors_hex" :key="color" class="q-mr-sm">
+                        <div class="hex" :style="{ backgroundColor: color }"></div> {{ props.row.colors_label[index] }}
+                      </div>
+                    </div>
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+          </q-td>
+        </q-tr>
+      </template>
+    </q-table>
+  </div>
+</template>
+
+<style scoped>
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+
+.sticky-header {
+
+  /* height or max-height is important */
+  & {
+    width: 100%;
+    max-height: calc(100vh - (98px + 3rem));
+  }
+
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th {
+    /* bg color is important for th; just specify one */
+    background-color: #222222;
+  }
+
+  thead tr th {
+    position: sticky;
+    z-index: 1;
+  }
+
+  thead tr:first-child th {
+    top: 0
+  }
+
+  /* this is when the loading indicator appears */
+  &.q-table--loading thead tr:last-child th {
+    /* height of all previous header rows */
+    top: 48px;
+  }
+
+  /* prevent scrolling behind sticky top row on focus */
+  tbody {
+    /* height of all previous header rows */
+    scroll-margin-top: 48px;
+  }
+
+  tbody tr {
+    cursor: pointer;
+    padding: 7px 16px;
+  }
+}
+
+.hex {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  margin-right: 8px;
+  border: 1px solid #ffffff77;
+}
+</style>

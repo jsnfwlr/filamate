@@ -83,14 +83,13 @@ type Spool struct {
 	CurrentWeight pgtype.Numeric `json:"current_weight"`
 	// The cost of the filament at the time of purchase
 	Price pgtype.Numeric `json:"price"`
-	// Whether the spool is empty
-	Empty bool `json:"empty"`
 	// The timestamp when the spool record was created
 	CreatedAt time.Time `json:"created_at"`
 	// The timestamp when the spool record was last updated
 	UpdatedAt time.Time `json:"updated_at"`
 	// The timestamp when the spool record was deleted (soft delete)
 	DeletedAt *time.Time `json:"deleted_at"`
+	EmptiedAt *time.Time `json:"emptied_at"`
 }
 
 // Associative table linking spools to their colors (many-to-many relationship)

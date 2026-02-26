@@ -6,14 +6,13 @@ import (
 	"testing"
 
 	"github.com/jsnfwlr/filamate/internal/test/containers"
-	. "github.com/jsnfwlr/filamate/internal/types"
 )
 
 func TestPostgresContainer(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("valid_version_with_name", func(t *testing.T) {
-		ctr, cfg, err := containers.Postgres(t, ctx, "db_version", "17", PointerOf("container-test"))
+		ctr, cfg, err := containers.Postgres(t, ctx, "db_version", "17", new("container-test"))
 		if err != nil {
 			t.Fatalf("error starting Postgres container: %v", err)
 		}
@@ -79,7 +78,7 @@ func TestPostgresContainer(t *testing.T) {
 	})
 
 	t.Run("invalid_version_table", func(t *testing.T) {
-		ctr, _, err := containers.Postgres(t, ctx, "invalid table name", "17", PointerOf("test-invalid-table"))
+		ctr, _, err := containers.Postgres(t, ctx, "invalid table name", "17", new("test-invalid-table"))
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -91,7 +90,7 @@ func TestPostgresContainer(t *testing.T) {
 
 	t.Run("very_long_name", func(t *testing.T) {
 		longName := strings.Repeat("a", 100)
-		ctr, cfg, err := containers.Postgres(t, ctx, "db_version", "17", PointerOf(longName))
+		ctr, cfg, err := containers.Postgres(t, ctx, "db_version", "17", new(longName))
 		if err != nil {
 			// This might fail due to Docker name limitations, which is expected
 			t.Logf("expected failure for very long name: %v", err)
@@ -107,7 +106,7 @@ func TestPostgresContainer(t *testing.T) {
 	t.Run("empty_context", func(t *testing.T) {
 		// Test with background context to ensure no panics
 		emptyCtx := context.Background()
-		ctr, cfg, err := containers.Postgres(t, emptyCtx, "db_version", "17", PointerOf("empty-context-test"))
+		ctr, cfg, err := containers.Postgres(t, emptyCtx, "db_version", "17", new("empty-context-test"))
 		if err != nil {
 			t.Fatalf("error with background context: %v", err)
 		}
@@ -136,7 +135,7 @@ func TestDatabaseContainerCleanup(t *testing.T) {
 	})
 
 	t.Run("cleanup_valid_container", func(t *testing.T) {
-		ctr, _, err := containers.Postgres(t, ctx, "db_version", "17", PointerOf("cleanup-test"))
+		ctr, _, err := containers.Postgres(t, ctx, "db_version", "17", new("cleanup-test"))
 		if err != nil {
 			t.Fatalf("error starting container for cleanup test: %v", err)
 		}

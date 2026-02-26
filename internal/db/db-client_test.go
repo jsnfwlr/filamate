@@ -5,13 +5,13 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jsnfwlr/go11y"
 
 	"github.com/jsnfwlr/filamate/etc/db/migrations"
 	"github.com/jsnfwlr/filamate/internal/db"
 	"github.com/jsnfwlr/filamate/internal/test/containers"
-	. "github.com/jsnfwlr/filamate/internal/types"
 	"github.com/jsnfwlr/filamate/static"
 
 	"github.com/jackc/pgx/v5"
@@ -43,7 +43,7 @@ func TestDatabase(t *testing.T) {
 		t.Fatal("expected error when connecting with invalid config")
 	}
 
-	ctr, cfg, err := containers.Postgres(t, ctx, "db_version", "17", PointerOf("full-db-test"))
+	ctr, cfg, err := containers.Postgres(t, ctx, "db_version", "17", new("full-db-test"))
 	if err != nil {
 		t.Fatalf("could not start the Postgres container: %v", err)
 	}
@@ -368,7 +368,7 @@ func testStores(t *testing.T, ctx context.Context, dbClient *db.Client) {
 		s, err = dbClient.Queries.UpdateStore(ctx, db.UpdateStoreParams{
 			ID:    s.ID,
 			Label: "Test Store2",
-			URL:   PointerOf("https://example.com"),
+			URL:   new("https://example.com"),
 		})
 		if err != nil {
 			t.Fatalf("could not update store: %v", err)
@@ -579,7 +579,7 @@ func testColors(t *testing.T, ctx context.Context, dbClient *db.Client) {
 			ID:      s.ID,
 			Label:   "Test Color2",
 			HexCode: "#FFFFFF",
-			Alias:   PointerOf("White"),
+			Alias:   new("White"),
 		})
 		if err != nil {
 			t.Fatalf("could not update color: %v", err)
@@ -684,7 +684,6 @@ func testSpools(t *testing.T, ctx context.Context, dbClient *db.Client) {
 			CurrentWeight:  currentWeight,
 			CombinedWeight: combinedWeight,
 			Price:          price,
-			Empty:          false,
 		})
 		if err != nil {
 			t.Fatalf("could not create spool: %v", err)
@@ -714,7 +713,7 @@ func testSpools(t *testing.T, ctx context.Context, dbClient *db.Client) {
 			CurrentWeight:  newCurrentWeight,
 			CombinedWeight: newCombinedWeight,
 			Price:          price,
-			Empty:          false,
+			EmptiedAt:      new(time.Now()),
 		})
 		if err != nil {
 			t.Fatalf("could not update spool: %v", err)
@@ -729,7 +728,6 @@ func testSpools(t *testing.T, ctx context.Context, dbClient *db.Client) {
 			CurrentWeight:  newCurrentWeight,
 			CombinedWeight: newCombinedWeight,
 			Price:          price,
-			Empty:          false,
 		})
 		if err != nil {
 			t.Fatalf("should be able create spool: %v", err)
@@ -987,7 +985,7 @@ func testStoresTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 		s, err = querier.UpdateStore(ctx, db.UpdateStoreParams{
 			ID:    s.ID,
 			Label: "Test Store2 TX",
-			URL:   PointerOf("https://example.com"),
+			URL:   new("https://example.com"),
 		})
 		if err != nil {
 			t.Fatalf("could not update store: %v", err)
@@ -1411,7 +1409,7 @@ func testColorsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 			ID:      s.ID,
 			Label:   "Test Color2 TX",
 			HexCode: "#FFFFFF",
-			Alias:   PointerOf("White"),
+			Alias:   new("White"),
 		})
 		if err != nil {
 			t.Fatalf("could not update color: %v", err)
@@ -1573,7 +1571,6 @@ func testSpoolsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 			CurrentWeight:  currentWeight,
 			CombinedWeight: combinedWeight,
 			Price:          price,
-			Empty:          false,
 		})
 		if err != nil {
 			t.Fatalf("could not create spool: %v", err)
@@ -1603,7 +1600,7 @@ func testSpoolsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 			CurrentWeight:  newCurrentWeight,
 			CombinedWeight: newCombinedWeight,
 			Price:          price,
-			Empty:          false,
+			EmptiedAt:      new(time.Now()),
 		})
 		if err != nil {
 			t.Fatalf("could not update spool: %v", err)
@@ -1618,7 +1615,6 @@ func testSpoolsTX(t *testing.T, ctx context.Context, dbClient *db.Client) {
 			CurrentWeight:  newCurrentWeight,
 			CombinedWeight: newCombinedWeight,
 			Price:          price,
-			Empty:          false,
 		})
 		if err != nil {
 			t.Fatalf("should be able create spool: %v", err)

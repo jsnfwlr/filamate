@@ -25,6 +25,7 @@ export interface Spool {
     created_at: Date
     updated_at: Date
     deleted_at: Date | null
+    emptied_at: Date | null
 }
 
 export interface NewSpool {
@@ -41,7 +42,6 @@ export interface NewSpool {
     empty: boolean
     created_at: Date
     updated_at: Date
-    deleted_at: Date | null
 }
 
 export interface SpoolBrandLink {
@@ -126,6 +126,7 @@ export const useSpoolsStore = defineStore('spools', () => {
                 created_at: new Date(),
                 updated_at: new Date(),
                 deleted_at: null,
+                emptied_at: null,
             }
         }
         return {
@@ -143,6 +144,7 @@ export const useSpoolsStore = defineStore('spools', () => {
             created_at: found.created_at,
             updated_at: found.updated_at,
             deleted_at: found.deleted_at,
+            emptied_at: found.emptied_at,
         }
     }
 

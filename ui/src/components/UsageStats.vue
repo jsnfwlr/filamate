@@ -39,7 +39,7 @@ const columns: QTableColumn[] = [
   {
     name: 'ordered',
     required: true,
-    label: 'Ordered',
+    label: 'Purchased',
     align: 'left',
     field: 'ordered',
     sortable: true,
@@ -98,7 +98,8 @@ const pagination = ref({
 
   /* height or max-height is important */
   & {
-    height: calc(100vh - (98px + 3rem));
+   width: 100%;
+    max-height: calc(100vh - (98px + 3rem));
   }
 
   .q-table__top,

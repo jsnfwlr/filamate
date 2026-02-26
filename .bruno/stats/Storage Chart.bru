@@ -1,0 +1,16 @@
+meta {
+  name: Storage Chart
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://{{filamate_host}}:{{port}}/api/chart/storage
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

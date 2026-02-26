@@ -3,6 +3,7 @@ package stats
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jsnfwlr/go11y"
 
@@ -13,6 +14,8 @@ import (
 type statsQuerier interface {
 	GetStorageStats(ctx context.Context) ([]db.GetStorageStatsRow, error)
 	GetUsageStats(ctx context.Context) ([]db.GetUsageStatsRow, error)
+	FindSpools(ctx context.Context) ([]db.Spool, error)
+	GetSpoolColors(ctx context.Context, spoolID int64) ([]db.Color, error)
 }
 
 // CheckUsage does CORS preflight for spool by ID
@@ -27,9 +30,8 @@ func CheckStorage(ctx context.Context, dbq statsQuerier, r oapi.CheckStorageStat
 	return oapi.CheckStorageStats204Response{}, nil
 }
 
-// Find finds spool records
-// (GET /spools)
-// TODO add filtering, pagination, etc.
+// GetUsageStats retrieves usage stats
+// (GET /api/stats/usage)
 func GetUsageStats(ctx context.Context, dbq statsQuerier, r oapi.GetUsageStatsRequestObject) (response oapi.GetUsageStatsResponseObject, fault error) {
 	ctx, o := go11y.Get(ctx)
 
@@ -71,13 +73,61 @@ func GetStorageStats(ctx context.Context, dbq statsQuerier, r oapi.GetStorageSta
 		}, err
 	}
 
+	spools, err := dbq.FindSpools(ctx)
+	if err != nil {
+		o.Error("failed to find spools", err, go11y.SeverityHigh)
+
+		return oapi.GetStorageStats500JSONResponse{
+			Message: "Failed to find spools",
+			Code:    500,
+		}, err
+	}
+
 	var results []oapi.StorageStatsItem
-	for _, s := range stats {
+	for _, stat := range stats {
+		if stat.ID == nil {
+			continue
+		}
+		details := []oapi.StorageStatsDetailsItem{}
+		for _, spool := range spools {
+			if spool.LocationID == *stat.ID {
+				colors, err := dbq.GetSpoolColors(ctx, spool.ID)
+				if err != nil {
+					o.Error("failed to find spool colors", err, go11y.SeverityHigh)
+
+					return oapi.GetStorageStats500JSONResponse{
+						Message: "Failed to find spool colors",
+						Code:    500,
+					}, err
+				}
+
+				var colorsHex []string
+				var colorsLabel []string
+				for _, color := range colors {
+					colorsHex = append(colorsHex, color.HexCode)
+					colorsLabel = append(colorsLabel, color.Label)
+				}
+
+				rCurrentWeight, _ := spool.CurrentWeight.Float64Value()
+
+				detail := oapi.StorageStatsDetailsItem{
+					Brand:         spool.BrandID,
+					Material:      spool.MaterialID,
+					CurrentWeight: fmt.Sprintf("%0.2f", rCurrentWeight.Float64),
+					ColorsHex:     colorsHex,
+					ColorsLabel:   colorsLabel,
+				}
+
+				details = append(details, detail)
+			}
+		}
+
 		result := oapi.StorageStatsItem{
-			Label: s.TallyLabel,
-			Max:   s.Max,
-			Used:  s.Used,
-			Free:  s.Free,
+			Label:   stat.TallyLabel,
+			Max:     stat.Max,
+			Used:    stat.Used,
+			Free:    stat.Free,
+			Details: details,
 		}
 		results = append(results, result)
 	}

@@ -1,22 +1,41 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import {mande} from "mande";
+import { mande } from "mande";
+import type { Spool } from './spools';
+import type { Color } from './colors';
+
 
 const multiStatAPI = import.meta.env.DEV ? mande('http://bespin:9766/api/stats') : mande('/api/stats')
+const multiChartAPI = import.meta.env.DEV ? mande('http://bespin:9766/api/chart') : mande('/api/chart')
 
 export interface UsageStat {
-  color: string
-  material: string
-  used: number
-  ordered: number
+    color: string
+    material: string
+    used: number
+    ordered: number
 }
 
-
 export interface StorageStat {
-  label: string
-  max: number
-  used: number
-  free: number
+    label: string
+    max: number
+    used: number
+    free: number
+    details: StorageStatDetails[]
+}
+
+export interface StorageStatDetails {
+    material: string
+    brand: string
+    weight: number
+    colors_hex: string[]
+    colors_label: string[]
+}
+
+export interface StorageChart {
+    labels: string[]
+    used: (number | [number, number] | null)[]
+    purchased: (number | [number, number] | null)[]
+    stored: (number | [number, number] | null)[]
 }
 
 
@@ -69,6 +88,28 @@ export const useStorageStatsStore = defineStore('storageStats', () => {
     }
 
 
+
+    return {
+        sorted,
+        find,
+    }
+
+})
+
+export const useStorageChartStore = defineStore('storageChart', () => {
+
+    const sorted = ref<StorageChart>({} as StorageChart)
+
+    async function find(sortBy: string = "label", sortDir: string = "asc") {
+        await multiChartAPI.get<StorageChart>("storage").then((results: StorageChart) => {
+            sorted.value = results
+
+        }).catch(err => {
+            alert("find: " + err)
+        })
+
+        return sorted.value
+    }
 
     return {
         sorted,

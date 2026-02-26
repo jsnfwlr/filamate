@@ -1,6 +1,7 @@
 root = "."
 testdata_dir = "testdata"
-tmp_dir = "tmp"
+tmp_dir = "../bin"
+env_files = [".env"]
 
 [build]
   args_bin = ["daemon", "start"]

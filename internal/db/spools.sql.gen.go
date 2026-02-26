@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -26,7 +27,7 @@ func (q *Queries) AddSpoolColors(ctx context.Context, spoolID int64, colorIds []
 }
 
 const createSpool = `-- name: CreateSpool :one
-INSERT INTO spools (location_id, material_id, brand_id, store_id, empty, weight, combined_weight, current_weight, price) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, material_id, brand_id, location_id, store_id, weight, combined_weight, current_weight, price, empty, created_at, updated_at, deleted_at
+INSERT INTO spools (location_id, material_id, brand_id, store_id, emptied_at, weight, combined_weight, current_weight, price) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, material_id, brand_id, location_id, store_id, weight, combined_weight, current_weight, price, created_at, updated_at, deleted_at, emptied_at
 `
 
 type CreateSpoolParams struct {
@@ -34,7 +35,7 @@ type CreateSpoolParams struct {
 	Material       int64          `json:"material"`
 	Brand          int64          `json:"brand"`
 	Store          int64          `json:"store"`
-	Empty          bool           `json:"empty"`
+	EmptiedAt      *time.Time     `json:"emptied_at"`
 	Weight         pgtype.Numeric `json:"weight"`
 	CombinedWeight pgtype.Numeric `json:"combined_weight"`
 	CurrentWeight  pgtype.Numeric `json:"current_weight"`
@@ -47,7 +48,7 @@ func (q *Queries) CreateSpool(ctx context.Context, arg CreateSpoolParams) (Spool
 		arg.Material,
 		arg.Brand,
 		arg.Store,
-		arg.Empty,
+		arg.EmptiedAt,
 		arg.Weight,
 		arg.CombinedWeight,
 		arg.CurrentWeight,
@@ -64,10 +65,10 @@ func (q *Queries) CreateSpool(ctx context.Context, arg CreateSpoolParams) (Spool
 		&i.CombinedWeight,
 		&i.CurrentWeight,
 		&i.Price,
-		&i.Empty,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.EmptiedAt,
 	)
 	return i, err
 }
@@ -82,7 +83,7 @@ func (q *Queries) DeleteSpool(ctx context.Context, id int64) error {
 }
 
 const findSpools = `-- name: FindSpools :many
-SELECT id, material_id, brand_id, location_id, store_id, weight, combined_weight, current_weight, price, empty, created_at, updated_at, deleted_at FROM spools WHERE deleted_at IS NULL
+SELECT id, material_id, brand_id, location_id, store_id, weight, combined_weight, current_weight, price, created_at, updated_at, deleted_at, emptied_at FROM spools WHERE deleted_at IS NULL ORDER BY created_at DESC
 `
 
 func (q *Queries) FindSpools(ctx context.Context) ([]Spool, error) {
@@ -104,10 +105,10 @@ func (q *Queries) FindSpools(ctx context.Context) ([]Spool, error) {
 			&i.CombinedWeight,
 			&i.CurrentWeight,
 			&i.Price,
-			&i.Empty,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.EmptiedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -120,7 +121,7 @@ func (q *Queries) FindSpools(ctx context.Context) ([]Spool, error) {
 }
 
 const getSpoolByID = `-- name: GetSpoolByID :one
-SELECT id, material_id, brand_id, location_id, store_id, weight, combined_weight, current_weight, price, empty, created_at, updated_at, deleted_at FROM spools WHERE id = $1
+SELECT id, material_id, brand_id, location_id, store_id, weight, combined_weight, current_weight, price, created_at, updated_at, deleted_at, emptied_at FROM spools WHERE id = $1
 `
 
 func (q *Queries) GetSpoolByID(ctx context.Context, id int64) (Spool, error) {
@@ -136,10 +137,10 @@ func (q *Queries) GetSpoolByID(ctx context.Context, id int64) (Spool, error) {
 		&i.CombinedWeight,
 		&i.CurrentWeight,
 		&i.Price,
-		&i.Empty,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.EmptiedAt,
 	)
 	return i, err
 }
@@ -183,7 +184,7 @@ func (q *Queries) ResetSpoolColor(ctx context.Context, spoolID int64) error {
 }
 
 const updateSpool = `-- name: UpdateSpool :one
-UPDATE spools SET location_id = $1, material_id = $2, brand_id = $3, store_id = $4, empty = $5, weight = $6, combined_weight = $7, current_weight = $8, price = $9, updated_at = NOW() WHERE id = $10 RETURNING id, material_id, brand_id, location_id, store_id, weight, combined_weight, current_weight, price, empty, created_at, updated_at, deleted_at
+UPDATE spools SET location_id = $1, material_id = $2, brand_id = $3, store_id = $4, emptied_at = $5, weight = $6, combined_weight = $7, current_weight = $8, price = $9, updated_at = NOW() WHERE id = $10 RETURNING id, material_id, brand_id, location_id, store_id, weight, combined_weight, current_weight, price, created_at, updated_at, deleted_at, emptied_at
 `
 
 type UpdateSpoolParams struct {
@@ -191,7 +192,7 @@ type UpdateSpoolParams struct {
 	Material       int64          `json:"material"`
 	Brand          int64          `json:"brand"`
 	Store          int64          `json:"store"`
-	Empty          bool           `json:"empty"`
+	EmptiedAt      *time.Time     `json:"emptied_at"`
 	Weight         pgtype.Numeric `json:"weight"`
 	CombinedWeight pgtype.Numeric `json:"combined_weight"`
 	CurrentWeight  pgtype.Numeric `json:"current_weight"`
@@ -205,7 +206,7 @@ func (q *Queries) UpdateSpool(ctx context.Context, arg UpdateSpoolParams) (Spool
 		arg.Material,
 		arg.Brand,
 		arg.Store,
-		arg.Empty,
+		arg.EmptiedAt,
 		arg.Weight,
 		arg.CombinedWeight,
 		arg.CurrentWeight,
@@ -223,10 +224,10 @@ func (q *Queries) UpdateSpool(ctx context.Context, arg UpdateSpoolParams) (Spool
 		&i.CombinedWeight,
 		&i.CurrentWeight,
 		&i.Price,
-		&i.Empty,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.EmptiedAt,
 	)
 	return i, err
 }

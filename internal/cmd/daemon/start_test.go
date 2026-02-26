@@ -14,7 +14,6 @@ import (
 	"github.com/jsnfwlr/filamate/internal/cmd/daemon"
 	"github.com/jsnfwlr/filamate/internal/db"
 	"github.com/jsnfwlr/filamate/internal/test/containers"
-	. "github.com/jsnfwlr/filamate/internal/types"
 )
 
 func TestDaemonErrors(t *testing.T) {
@@ -95,7 +94,7 @@ func TestDaemonErrors(t *testing.T) {
 		waitTime := 1000 * time.Millisecond
 		if c.StartDB {
 			if !containerStarted {
-				ctr, cfg, err = containers.Postgres(t, ctx, "db_version", "17", PointerOf("daemon-progressive-test"))
+				ctr, cfg, err = containers.Postgres(t, ctx, "db_version", "17", new("daemon-progressive-test"))
 				if err != nil {
 					t.Fatalf("could not start the Postgres container: %v", err)
 				}
@@ -167,7 +166,7 @@ func TestStartDaemon(t *testing.T) {
 		t.Fatalf("could not initialise go11y: %v", err)
 	}
 
-	ctr, cfg, err := containers.Postgres(t, ctx, "db_version", "17", PointerOf("daemon-start-cmd-test"))
+	ctr, cfg, err := containers.Postgres(t, ctx, "db_version", "17", new("daemon-start-cmd-test"))
 	if err != nil {
 		t.Fatalf("could not start the Postgres container: %v", err)
 	}

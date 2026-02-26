@@ -1,14 +1,14 @@
 -- name: FindSpools :many
-SELECT * FROM spools WHERE deleted_at IS NULL;
+SELECT * FROM spools WHERE deleted_at IS NULL ORDER BY created_at DESC;
 
 -- name: DeleteSpool :exec
 UPDATE spools SET deleted_at = NOW() WHERE id = $1;
 
 -- name: CreateSpool :one
-INSERT INTO spools (location_id, material_id, brand_id, store_id, empty, weight, combined_weight, current_weight, price) VALUES (@location, @material, @brand, @store, @empty, @weight, @combined_weight, @current_weight, @price) RETURNING *;
+INSERT INTO spools (location_id, material_id, brand_id, store_id, emptied_at, weight, combined_weight, current_weight, price) VALUES (@location, @material, @brand, @store, @emptied_at, @weight, @combined_weight, @current_weight, @price) RETURNING *;
 
 -- name: UpdateSpool :one
-UPDATE spools SET location_id = @location, material_id = @material, brand_id = @brand, store_id = @store, empty = @empty, weight = @weight, combined_weight = @combined_weight, current_weight = @current_weight, price = @price, updated_at = NOW() WHERE id = @id RETURNING *;
+UPDATE spools SET location_id = @location, material_id = @material, brand_id = @brand, store_id = @store, emptied_at = @emptied_at, weight = @weight, combined_weight = @combined_weight, current_weight = @current_weight, price = @price, updated_at = NOW() WHERE id = @id RETURNING *;
 
 -- name: GetSpoolByID :one
 SELECT * FROM spools WHERE id = $1;

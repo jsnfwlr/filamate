@@ -26,7 +26,13 @@ const columns: QTableColumn[] = [
     align: 'left',
     field: 'brand',
     sortable: true,
-    style: 'width: 15%',
+    sort: (a, b, rowA, rowB) => {
+      // compare brand labels (fallback to string comparison)
+      const labelA = brandsStore.findByID(rowA?.brand)?.label ?? String(a ?? '')
+      const labelB = brandsStore.findByID(rowB?.brand)?.label ?? String(b ?? '')
+      return String(labelA).localeCompare(String(labelB))
+    },
+    style: 'width: clamp(200px, 15%, 260px);',
   },
   {
     name: 'material',
@@ -35,7 +41,13 @@ const columns: QTableColumn[] = [
     align: 'left',
     field: 'material',
     sortable: true,
-    style: 'width: 10%',
+    sort: (a, b, rowA, rowB) => {
+      // compare material labels (fallback to string comparison)
+      const labelA = materialsStore.findByID(rowA?.material)?.label ?? String(a ?? '')
+      const labelB = materialsStore.findByID(rowB?.material)?.label ?? String(b ?? '')
+      return String(labelA).localeCompare(String(labelB))
+    },
+    style: 'width: clamp(130px, 10%, 170px);',
   },
 
   {
@@ -45,7 +57,13 @@ const columns: QTableColumn[] = [
     align: 'left',
     field: 'colors',
     sortable: true,
-    style: 'width: 10%',
+    sort: (a, b, rowA, rowB) => {
+      // compare color labels (fallback to string comparison)
+      const labelA = colorsStore.findByID(rowA?.colors[0])?.label ?? String(a ?? '')
+      const labelB = colorsStore.findByID(rowB?.colors[0])?.label ?? String(b ?? '')
+      return String(labelA).localeCompare(String(labelB))
+    },
+    style: 'width: clamp(130px, 10%, 170px);',
   },
   {
     name: 'location',
@@ -54,7 +72,13 @@ const columns: QTableColumn[] = [
     align: 'left',
     field: 'location',
     sortable: true,
-    style: 'width: 10%',
+    sort: (a, b, rowA, rowB) => {
+      // compare location labels (fallback to string comparison)
+      const labelA = locationsStore.findByID(rowA?.location)?.label ?? String(a ?? '')
+      const labelB = locationsStore.findByID(rowB?.location)?.label ?? String(b ?? '')
+      return String(labelA).localeCompare(String(labelB))
+    },
+    style: 'width: clamp(130px, 10%, 170px);',
   },
 
   {
@@ -64,7 +88,7 @@ const columns: QTableColumn[] = [
     align: 'left',
     field: 'current_weight',
     sortable: true,
-    style: 'width: 10%',
+    style: 'width: clamp(130px, 10%, 170px);',
   },
 
   {
@@ -74,16 +98,17 @@ const columns: QTableColumn[] = [
     align: 'left',
     field: 'price',
     sortable: true,
-    style: 'width: 10%',
+    style: 'width: clamp(130px, 11%, 170px);',
   },
   {
-    name: 'empty',
+    name: 'emptied_at',
     required: true,
     label: 'Empty',
     align: 'left',
-    field: 'empty',
+    field: 'emptied_at',
     sortable: true,
-    style: 'width: 5%',
+    // format: val => val ? 'Yes' : 'No',
+    style: 'width: clamp(140px, 8%, 150px);',
   },
   {
     name: 'created_at',
@@ -92,7 +117,7 @@ const columns: QTableColumn[] = [
     align: 'left',
     field: 'created_at',
     sortable: true,
-    style: 'width: 10%',
+    style: 'width: clamp(140px, 8%, 150px);',
   },
   {
     name: 'updated_at',
@@ -101,14 +126,14 @@ const columns: QTableColumn[] = [
     align: 'left',
     field: 'updated_at',
     sortable: true,
-    style: 'width: 10%',
+    style: 'width: clamp(140px, 8%, 150px);',
   },
   {
     name: 'actions',
     label: 'Actions',
     align: 'center',
     field: 'label',
-    style: 'width: 10%',
+    style: 'width: clamp(130px, 10%, 170px);',
     format: val => `${val}`,
   }
 ]
@@ -235,7 +260,7 @@ async function toggleEmpty() {
               {{ DateTime(props.row.updated_at) }}
             </div>
 
-              <div v-else-if="col.name === 'empty'">{{ props.row.empty ? 'Yes' : 'No' }}</div>
+            <div v-else-if="col.name === 'emptied_at'">{{ props.row.empty ? DateTime(props.row.emptied_at) : '' }}</div>
 
             <div v-else-if="col.name === 'actions'">
               <q-btn flat color="primary" icon="mdi-pencil" size="xs" @click="editRow(props.row.id)" />
@@ -250,17 +275,16 @@ async function toggleEmpty() {
       <hr />
       <q-form v-if="editRowData != null" @submit="saveSpool(); editRowData = null" @reset="resetEdit()">
         <div class="text-h6 q-mb-md">{{ editRowData.id != null ? 'Edit spool' : 'Add new spool' }}</div>
-        <div><q-select label="Brand" dark v-model="editRowData.brand" :options="brands" option-label="label" option-value="id" map-options emit-value /> </div>
-        <div><q-select label="Store" dark v-model="editRowData.store" :options="stores" option-label="label" option-value="id" map-options emit-value /> </div>
-        <div><q-select label="Material" dark v-model="editRowData.material" :options="materials" option-label="label" option-value="id" map-options emit-value /> </div>
-        <div><q-select label="Location" dark v-model="editRowData.location" :options="locations" option-label="label" option-value="id" map-options emit-value /> </div>
-        <div><q-input dark v-model="editRowData.current_weight" label="Current weight" type="number" /></div>
-        <div><q-input dark v-model="editRowData.combined_weight" label="Combined weight" type="number" /></div>
-        <div><q-input dark v-model="editRowData.weight" label="Total weight" type="number" /></div>
-        <div><q-input dark v-model="editRowData.price" label="Price" type="number" /></div>
+        <div><q-select label="Brand" dark v-model="editRowData.brand" :options="brands" option-label="label" option-value="id" map-options emit-value hint="The brand of the filament on the spool" /></div>
+        <div><q-select label="Store" dark v-model="editRowData.store" :options="stores" option-label="label" option-value="id" map-options emit-value hint="The store the filament was purchased from" /></div>
+        <div><q-select label="Material" dark v-model="editRowData.material" :options="materials" option-label="label" option-value="id" map-options emit-value hint="The material type of the filament on the spool" /></div>
+        <div><q-select label="Location" dark v-model="editRowData.location" :options="locations" option-label="label" option-value="id" map-options emit-value hint="Where the spool is currently located" /></div>
+        <div><q-input dark v-model="editRowData.current_weight" label="Current weight" type="number" hint="The current combined weight of the filament and the spool" /></div>
+        <div><q-input dark v-model="editRowData.combined_weight" label="Combined weight" type="number" hint="The weight of the spool and the filament" /></div>
+        <div><q-input dark v-model="editRowData.weight" label="Weight" type="number" hint="The marketed weight of the filament on the spool" /></div>
+        <div><q-input dark v-model="editRowData.price" label="Price" type="number" hint="The price paid for the spool of filament" /></div>
         <div>
-          <q-select label="Colors" clearable dark v-model="editRowData.colors" :options="colors" option-label="label" option-value="id" map-options emit-value multiple />
-
+          <q-select label="Colors" clearable dark v-model="editRowData.colors" :options="colors" option-label="label" option-value="id" map-options emit-value multiple hint="The color(s) of the filament on the spool" />
         </div>
 
         <div><q-toggle label="Empty" v-model="editRowData.empty" /></div>
@@ -302,7 +326,7 @@ async function toggleEmpty() {
   .q-table__bottom,
   thead tr:first-child th {
     /* bg color is important for th; just specify one */
-    background-color: #222222;
+    background-color: #111111;
   }
 
   thead tr th {
@@ -325,6 +349,15 @@ async function toggleEmpty() {
     /* height of all previous header rows */
     scroll-margin-top: 48px;
   }
+  tbody.q-virtual-scroll__content {
+    tr.q-tr:nth-child(odd) {
+      background-color: #44444411;
+    }
+  }
+}
+
+.q-table__bottom {
+  background-color: #111111;
 }
 
 .hex {

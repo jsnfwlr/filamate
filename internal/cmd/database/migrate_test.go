@@ -16,7 +16,6 @@ import (
 	"github.com/jsnfwlr/filamate/internal/cmd/database"
 	"github.com/jsnfwlr/filamate/internal/db"
 	"github.com/jsnfwlr/filamate/internal/test/containers"
-	. "github.com/jsnfwlr/filamate/internal/types"
 )
 
 func TestMigrateCmd(t *testing.T) {
@@ -30,7 +29,7 @@ func TestMigrateCmd(t *testing.T) {
 		t.Fatalf("could not initialise go11y: %v", err)
 	}
 
-	ctr, cfg, err := containers.Postgres(t, ctx, "db_version", "17", PointerOf("database-migrate-cmd-test"))
+	ctr, cfg, err := containers.Postgres(t, ctx, "db_version", "17", new("database-migrate-cmd-test"))
 	if err != nil {
 		t.Fatalf("could not start the Postgres container: %v", err)
 	}

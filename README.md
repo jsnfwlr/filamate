@@ -2,6 +2,9 @@
 
 A simple web app for wrangling filament for your 3D printer
 
+
+![Screenshot of Filamate Dashboard](https://github.com/jsnfwlr/filamate/blob/main/assets/dashboard.png?raw=true)
+
 ![Screenshot of Filamate Spools page](https://github.com/jsnfwlr/filamate/blob/main/assets/spools.png?raw=true)
 
 ## Quick Start
@@ -16,10 +19,15 @@ open http://localhost:9766
 ## TODO
 
 * [x] Make demo-data optional via env-var
+* [x] Add custom sort functions to the Locations/Materials/Brands/Colors columns for Spools page to they sort by the label, not the ID
+* [x] Upgrade to Go 1.26
+* [x] Add stock level chart to the dashboard
+* [ ] Add material/brand chart to the dashboard
+* [ ] Release v0.1.0 and publish official container image to ghcr.io and hub.docker.com
 * [ ] Make README nicer
-* [ ] Publish official container image to ghcr.io and hub.docker.com
-* [ ] Add custom sort functions to the Locations/Materials/Brands/Colors columns for Spools page to they sort by the label, not the ID
-* [ ] Add some nice charts to the dashboard
+* [ ] Add linting for UI
+* [ ] Add testing for UI
+* [ ] Add test coverage for UI
 
 ## Disclaimer
 

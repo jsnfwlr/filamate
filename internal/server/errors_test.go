@@ -146,7 +146,7 @@ func TestStatusErrorMarshalJSON(t *testing.T) {
 			}
 
 			// Verify JSON is valid by unmarshaling
-			var unmarshaled map[string]interface{}
+			var unmarshaled map[string]any
 			if err := json.Unmarshal(jsonBytes, &unmarshaled); err != nil {
 				t.Errorf("Generated JSON is invalid: %v", err)
 			}
@@ -332,7 +332,7 @@ func TestErrorHandler(t *testing.T) {
 
 			// Verify the body contains valid JSON
 			if body != "" {
-				var jsonObj map[string]interface{}
+				var jsonObj map[string]any
 				if err := json.Unmarshal([]byte(body), &jsonObj); err != nil {
 					t.Errorf("errorHandler() body is not valid JSON: %v. Body: %s", err, body)
 				}

@@ -65,7 +65,7 @@ func makeInfo(t *testing.T, files []string) (targetVersion int32, information st
 	var tv int32
 	var l []infoLine
 
-	i := ""
+	var i strings.Builder
 
 	fPartReg := regexp.MustCompile(`([0-9]+)_(.*)\.sql`)
 	numLeadZero := regexp.MustCompile(`^0+`)
@@ -75,7 +75,7 @@ func makeInfo(t *testing.T, files []string) (targetVersion int32, information st
 		indicator := "  "
 
 		num := numLeadZero.ReplaceAllString(matches[0][1], "")
-		i += fmt.Sprintf("%2s %3s %s\n", indicator, num, matches[0][2])
+		i.WriteString(fmt.Sprintf("%2s %3s %s\n", indicator, num, matches[0][2]))
 		if num == "" {
 			num = "0"
 		}
@@ -93,7 +93,7 @@ func makeInfo(t *testing.T, files []string) (targetVersion int32, information st
 		}
 	}
 
-	return tv, i, l, nil
+	return tv, i.String(), l, nil
 }
 
 func compareMigrations(t *testing.T, sqlFiles, migs []string) {

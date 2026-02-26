@@ -10,7 +10,7 @@ import (
 )
 
 const getStorageStats = `-- name: GetStorageStats :many
-SELECT tally.label::text, max::bigint, used::bigint, free::bigint
+SELECT locations.id, tally.label::text, max::bigint, used::bigint, free::bigint
 FROM (
 SELECT locations.label, locations.capacity as max, count(spools.id) as used, (locations.capacity - count(spools.id)) as free FROM locations LEFT JOIN spools ON spools.location_id = locations.id AND spools.deleted_at IS NULL WHERE locations.tally = true GROUP BY locations.label, locations.capacity, locations.tally
 UNION
@@ -23,6 +23,7 @@ ORDER BY locations.id
 `
 
 type GetStorageStatsRow struct {
+	ID         *int64 `json:"id"`
 	TallyLabel string `json:"tally_label"`
 	Max        int64  `json:"max"`
 	Used       int64  `json:"used"`
@@ -40,6 +41,7 @@ func (q *Queries) GetStorageStats(ctx context.Context) ([]GetStorageStatsRow, er
 	for rows.Next() {
 		var i GetStorageStatsRow
 		if err := rows.Scan(
+			&i.ID,
 			&i.TallyLabel,
 			&i.Max,
 			&i.Used,
@@ -60,12 +62,12 @@ SELECT color::text, material, SUM(empty)::bigint as used, count(*)::bigint as or
 FROM (
 SELECT STRING_AGG(colors.label, ', ') as color,
 materials.class as material,
-CASE WHEN spools.empty THEN 1 ELSE 0 END as empty
+CASE WHEN spools.emptied_at IS NOT NULL THEN 1 ELSE 0 END as empty
 FROM spools
 JOIN spool_colors ON spool_id = spools.id
 JOIN colors ON color_id = colors.id
 JOIN materials  ON material_id = materials.id
-GROUP BY spools.id, materials.class, spools.empty
+GROUP BY spools.id, materials.class, (spools.emptied_at IS NOT NULL)
 )
 GROUP BY color,material
 HAVING count(*) != 1 AND ((SUM(empty) * 2) >= count(*) OR count(*) > 1)

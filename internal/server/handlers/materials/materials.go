@@ -4,7 +4,6 @@ package materials
 import (
 	"context"
 
-	// . "github.com/jsnfwlr/filamate/internal/types"
 	"github.com/jsnfwlr/go11y"
 
 	"github.com/jsnfwlr/filamate/internal/db"

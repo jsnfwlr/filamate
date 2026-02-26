@@ -52,6 +52,12 @@ func (h Handlers) GetUsageStats(ctx context.Context, r oapi.GetUsageStatsRequest
 	return resp, nil
 }
 
+// CheckStorageChart CORS preflight for storage chart by ID
+// (OPTIONS /api/chart/storage)
+func (h Handlers) CheckStorageChart(ctx context.Context, r oapi.CheckStorageChartRequestObject) (response oapi.CheckStorageChartResponseObject, fault error) {
+	return stats.CheckStorageChart(ctx, h.DBClient.Queries, r)
+}
+
 // GetStorageStats CORS preflight for storage stats by ID
 // (OPTIONS /api/stats/storage)
 func (h Handlers) GetStorageStats(ctx context.Context, r oapi.GetStorageStatsRequestObject) (response oapi.GetStorageStatsResponseObject, fault error) {
@@ -76,6 +82,35 @@ func (h Handlers) GetStorageStats(ctx context.Context, r oapi.GetStorageStatsReq
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
 		return oapi.GetStorageStats500JSONResponse{}, err
+	}
+
+	return resp, nil
+}
+
+// GetStorageChart CORS preflight for storage chart by ID
+// (OPTIONS /api/chart/storage)
+func (h Handlers) GetStorageChart(ctx context.Context, r oapi.GetStorageChartRequestObject) (response oapi.GetStorageChartResponseObject, fault error) {
+	ctx, o := go11y.Get(ctx)
+	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
+	if err != nil {
+		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
+		return oapi.GetStorageChart500JSONResponse{}, err
+	}
+
+	txQuerier := h.DBClient.Queries.WithTx(tx)
+
+	resp, err := stats.GetStorageChart(ctx, txQuerier, r)
+	if err != nil {
+		o.Error("request failed", err, go11y.SeverityHigh)
+		if rbErr := tx.Rollback(ctx); rbErr != nil {
+			o.Error("could not rollback transaction", rbErr, go11y.SeverityHigh)
+		}
+		return resp, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		o.Error("could not commit transaction", err, go11y.SeverityHigh)
+		return oapi.GetStorageChart500JSONResponse{}, err
 	}
 
 	return resp, nil

@@ -4,6 +4,7 @@ package spools
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jsnfwlr/go11y"
 
@@ -92,7 +93,7 @@ func Update(ctx context.Context, dbq spoolsQuerier, r oapi.UpdateSpoolRequestObj
 		CurrentWeight:  og.CurrentWeight,
 		CombinedWeight: og.CombinedWeight,
 		Price:          price,
-		Empty:          og.Empty,
+		EmptiedAt:      og.EmptiedAt,
 	}
 
 	if r.Body.Location != nil {
@@ -108,16 +109,20 @@ func Update(ctx context.Context, dbq spoolsQuerier, r oapi.UpdateSpoolRequestObj
 		params.Store = *r.Body.Store
 	}
 	if r.Body.Weight != nil {
-		params.Weight.Scan(*r.Body.Weight)
-	}
-	if r.Body.Empty != nil {
-		params.Empty = *r.Body.Empty
+		_ = params.Weight.Scan(*r.Body.Weight)
 	}
 	if r.Body.CurrentWeight != nil {
-		params.CurrentWeight.Scan(*r.Body.CurrentWeight)
+		_ = params.CurrentWeight.Scan(*r.Body.CurrentWeight)
 	}
 	if r.Body.CombinedWeight != nil {
-		params.CombinedWeight.Scan(*r.Body.CombinedWeight)
+		_ = params.CombinedWeight.Scan(*r.Body.CombinedWeight)
+	}
+	if r.Body.Empty != nil {
+		if *r.Body.Empty {
+			params.EmptiedAt = new(time.Now())
+		} else {
+			params.EmptiedAt = nil
+		}
 	}
 
 	s, err := dbq.UpdateSpool(ctx, params)
@@ -157,7 +162,8 @@ func Update(ctx context.Context, dbq spoolsQuerier, r oapi.UpdateSpoolRequestObj
 		CurrentWeight:  fmt.Sprintf("%.2f", rCurrentWeight.Float64),
 		CombinedWeight: fmt.Sprintf("%.2f", rCombinedWeight.Float64),
 		Price:          fmt.Sprintf("%.2f", rPrice.Float64),
-		Empty:          s.Empty,
+		Empty:          (s.EmptiedAt != nil),
+		EmptiedAt:      s.EmptiedAt,
 		CreatedAt:      s.CreatedAt,
 		UpdatedAt:      s.UpdatedAt,
 		DeletedAt:      s.DeletedAt,
@@ -232,7 +238,8 @@ func Find(ctx context.Context, dbq spoolsQuerier, r oapi.FindSpoolsRequestObject
 			CurrentWeight:  fmt.Sprintf("%.2f", rCurrentWeight.Float64),
 			CombinedWeight: fmt.Sprintf("%.2f", rCombinedWeight.Float64),
 			Price:          fmt.Sprintf("%.2f", rPrice.Float64),
-			Empty:          s.Empty,
+			Empty:          (s.EmptiedAt != nil),
+			EmptiedAt:      s.EmptiedAt,
 			CreatedAt:      s.CreatedAt,
 			UpdatedAt:      s.UpdatedAt,
 			DeletedAt:      s.DeletedAt,
@@ -259,12 +266,16 @@ func Create(ctx context.Context, dbq spoolsQuerier, r oapi.CreateSpoolRequestObj
 	}
 
 	params := db.CreateSpoolParams{
-		Location: r.Body.Location,
-		Brand:    r.Body.Brand,
-		Material: r.Body.Material,
-		Store:    r.Body.Store,
-		Price:    price,
-		Empty:    *r.Body.Empty,
+		Location:  r.Body.Location,
+		Brand:     r.Body.Brand,
+		Material:  r.Body.Material,
+		Store:     r.Body.Store,
+		Price:     price,
+		EmptiedAt: nil,
+	}
+
+	if r.Body.Empty != nil && *r.Body.Empty {
+		params.EmptiedAt = new(time.Now())
 	}
 
 	err = params.Weight.Scan(r.Body.Weight)
@@ -334,7 +345,8 @@ func Create(ctx context.Context, dbq spoolsQuerier, r oapi.CreateSpoolRequestObj
 		CurrentWeight:  fmt.Sprintf("%.2f", rCurrentWeight.Float64),
 		CombinedWeight: fmt.Sprintf("%.2f", rCombinedWeight.Float64),
 		Price:          fmt.Sprintf("%.2f", rPrice.Float64),
-		Empty:          spool.Empty,
+		Empty:          (spool.EmptiedAt != nil),
+		EmptiedAt:      spool.EmptiedAt,
 		CreatedAt:      spool.CreatedAt,
 		UpdatedAt:      spool.UpdatedAt,
 		DeletedAt:      spool.DeletedAt,
