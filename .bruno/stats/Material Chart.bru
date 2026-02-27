@@ -1,0 +1,20 @@
+meta {
+  name: Material Chart
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://{{filamate_host}}:{{port}}/api/chart/storage
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  port: 9766
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

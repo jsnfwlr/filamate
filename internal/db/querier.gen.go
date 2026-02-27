@@ -34,6 +34,9 @@ type Querier interface {
 	GetColorByID(ctx context.Context, id int64) (Color, error)
 	GetLocationByID(ctx context.Context, id int64) (Location, error)
 	GetMaterialByID(ctx context.Context, id int64) (Material, error)
+	// GetMaterialChartData returns the data for a material chart: class, material, brand, and count of spools for each combo.
+	// It includes a total row for each class, class and material, and a grand total row. The results are ordered by material label and class, with null values treated as 'All'.
+	GetMaterialChartData(ctx context.Context) ([]GetMaterialChartDataRow, error)
 	GetSpoolByID(ctx context.Context, id int64) (Spool, error)
 	GetSpoolColors(ctx context.Context, spoolID int64) ([]Color, error)
 	// GetStorageStats returns the storage statistics for each location, including the maximum capacity, used capacity, and free capacity. It also includes a total row that sums up the statistics for all locations. The results are ordered by location ID.

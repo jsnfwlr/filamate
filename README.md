@@ -22,7 +22,7 @@ open http://localhost:9766
 * [x] Add custom sort functions to the Locations/Materials/Brands/Colors columns for Spools page to they sort by the label, not the ID
 * [x] Upgrade to Go 1.26
 * [x] Add stock level chart to the dashboard
-* [ ] Add material/brand chart to the dashboard
+* [x] Add material/brand chart to the dashboard
 * [ ] Release v0.1.0 and publish official container image to ghcr.io and hub.docker.com
 * [ ] Make README nicer
 * [ ] Add linting for UI

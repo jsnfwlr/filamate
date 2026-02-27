@@ -9,6 +9,55 @@ import (
 	"context"
 )
 
+const getMaterialChartData = `-- name: GetMaterialChartData :many
+SELECT (CASE WHEN materials.class IS NULL THEN '' ELSE materials.class END)::text as class,
+(CASE WHEN materials.label IS NULL THEN '' ELSE materials.label END)::text as material,
+(CASE WHEN brands.label IS NULL THEN '' ELSE brands.label END)::text as brand,
+count(spools.id) as count
+FROM spools
+JOIN materials ON material_id = materials.id
+JOIN brands ON brand_id = brands.id
+WHERE spools.deleted_at IS NULL
+GROUP BY ROLLUP (materials.class, materials.label, brands.label)
+ORDER BY CASE WHEN materials.class IS NULL THEN '' ELSE materials.class END, CASE WHEN materials.label IS NULL THEN '' ELSE materials.label END,
+CASE WHEN materials.class IS NULL THEN '' ELSE materials.class END,
+CASE WHEN brands.label IS NULL THEN '' ELSE brands.label END
+`
+
+type GetMaterialChartDataRow struct {
+	Class    string `json:"class"`
+	Material string `json:"material"`
+	Brand    string `json:"brand"`
+	Count    int64  `json:"count"`
+}
+
+// GetMaterialChartData returns the data for a material chart: class, material, brand, and count of spools for each combo.
+// It includes a total row for each class, class and material, and a grand total row. The results are ordered by material label and class, with null values treated as 'All'.
+func (q *Queries) GetMaterialChartData(ctx context.Context) ([]GetMaterialChartDataRow, error) {
+	rows, err := q.db.Query(ctx, getMaterialChartData)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetMaterialChartDataRow{}
+	for rows.Next() {
+		var i GetMaterialChartDataRow
+		if err := rows.Scan(
+			&i.Class,
+			&i.Material,
+			&i.Brand,
+			&i.Count,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getStorageStats = `-- name: GetStorageStats :many
 SELECT locations.id, tally.label::text, max::bigint, used::bigint, free::bigint
 FROM (

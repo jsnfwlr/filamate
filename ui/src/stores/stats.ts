@@ -38,6 +38,15 @@ export interface StorageChart {
     stored: (number | [number, number] | null)[]
 }
 
+export interface MaterialChartDatasets {
+    labels: string[]
+    datasets: dataset[]
+}
+
+export interface dataset {
+    backgroundColor: string[]
+    data: number[]
+}
 
 export const useUsageStatsStore = defineStore('usageStats', () => {
 
@@ -66,7 +75,6 @@ export const useUsageStatsStore = defineStore('usageStats', () => {
     }
 
 })
-
 
 export const useStorageStatsStore = defineStore('storageStats', () => {
 
@@ -104,6 +112,27 @@ export const useStorageChartStore = defineStore('storageChart', () => {
         await multiChartAPI.get<StorageChart>("storage").then((results: StorageChart) => {
             sorted.value = results
 
+        }).catch(err => {
+            alert("find: " + err)
+        })
+
+        return sorted.value
+    }
+
+    return {
+        sorted,
+        find,
+    }
+
+})
+
+export const useMaterialChartStore = defineStore('materialChart', () => {
+
+    const sorted = ref<MaterialChartDatasets>({} as MaterialChartDatasets)
+
+    async function find(sortBy: string = "label", sortDir: string = "asc") {
+        await multiChartAPI.get<MaterialChartDatasets>("material").then((results: MaterialChartDatasets) => {
+            sorted.value = results
         }).catch(err => {
             alert("find: " + err)
         })

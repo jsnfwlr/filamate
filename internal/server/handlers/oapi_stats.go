@@ -23,6 +23,18 @@ func (h Handlers) CheckStorageStats(ctx context.Context, r oapi.CheckStorageStat
 	return stats.CheckStorage(ctx, h.DBClient.Queries, r)
 }
 
+// CheckStorageChart CORS preflight for storage chart by ID
+// (OPTIONS /api/chart/storage)
+func (h Handlers) CheckStorageChart(ctx context.Context, r oapi.CheckStorageChartRequestObject) (response oapi.CheckStorageChartResponseObject, fault error) {
+	return stats.CheckStorageChart(ctx, h.DBClient.Queries, r)
+}
+
+// CheckMaterialChart CORS preflight for material chart by ID
+// (OPTIONS /api/chart/material)
+func (h Handlers) CheckMaterialChart(ctx context.Context, r oapi.CheckMaterialChartRequestObject) (response oapi.CheckMaterialChartResponseObject, fault error) {
+	return stats.CheckMaterialChart(ctx, h.DBClient.Queries, r)
+}
+
 // GetUsageStats CORS preflight for usage stats by ID
 // (OPTIONS /api/stats/usage)
 func (h Handlers) GetUsageStats(ctx context.Context, r oapi.GetUsageStatsRequestObject) (response oapi.GetUsageStatsResponseObject, fault error) {
@@ -50,12 +62,6 @@ func (h Handlers) GetUsageStats(ctx context.Context, r oapi.GetUsageStatsRequest
 	}
 
 	return resp, nil
-}
-
-// CheckStorageChart CORS preflight for storage chart by ID
-// (OPTIONS /api/chart/storage)
-func (h Handlers) CheckStorageChart(ctx context.Context, r oapi.CheckStorageChartRequestObject) (response oapi.CheckStorageChartResponseObject, fault error) {
-	return stats.CheckStorageChart(ctx, h.DBClient.Queries, r)
 }
 
 // GetStorageStats CORS preflight for storage stats by ID
@@ -111,6 +117,35 @@ func (h Handlers) GetStorageChart(ctx context.Context, r oapi.GetStorageChartReq
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
 		return oapi.GetStorageChart500JSONResponse{}, err
+	}
+
+	return resp, nil
+}
+
+// GetMaterialChart CORS preflight for storage chart by ID
+// (OPTIONS /api/chart/storage)
+func (h Handlers) GetMaterialChart(ctx context.Context, r oapi.GetMaterialChartRequestObject) (response oapi.GetMaterialChartResponseObject, fault error) {
+	ctx, o := go11y.Get(ctx)
+	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
+	if err != nil {
+		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
+		return oapi.GetMaterialChart500JSONResponse{}, err
+	}
+
+	txQuerier := h.DBClient.Queries.WithTx(tx)
+
+	resp, err := stats.GetMaterialChart(ctx, txQuerier, r)
+	if err != nil {
+		o.Error("request failed", err, go11y.SeverityHigh)
+		if rbErr := tx.Rollback(ctx); rbErr != nil {
+			o.Error("could not rollback transaction", rbErr, go11y.SeverityHigh)
+		}
+		return resp, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		o.Error("could not commit transaction", err, go11y.SeverityHigh)
+		return oapi.GetMaterialChart500JSONResponse{}, err
 	}
 
 	return resp, nil

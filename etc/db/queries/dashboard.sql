@@ -29,3 +29,26 @@ GROUP BY color,material
 HAVING count(*) != 1 AND ((SUM(empty) * 2) >= count(*) OR count(*) > 1)
 ORDER BY SUM(empty) desc, count(*) DESC;
 
+-- name: GetMaterialChartData :many
+-- GetMaterialChartData returns the data for a material chart: class, material, brand, and count of spools for each combo.
+-- It includes a total row for each class, class and material, and a grand total row. The results are ordered by material label and class, with null values treated as 'All'.
+SELECT (CASE WHEN materials.class IS NULL THEN '' ELSE materials.class END)::text as class,
+(CASE WHEN materials.label IS NULL THEN '' ELSE materials.label END)::text as material,
+(CASE WHEN brands.label IS NULL THEN '' ELSE brands.label END)::text as brand,
+count(spools.id) as count
+FROM spools
+JOIN materials ON material_id = materials.id
+JOIN brands ON brand_id = brands.id
+WHERE spools.deleted_at IS NULL
+GROUP BY ROLLUP (materials.class, materials.label, brands.label)
+ORDER BY CASE WHEN materials.class IS NULL THEN '' ELSE materials.class END, CASE WHEN materials.label IS NULL THEN '' ELSE materials.label END,
+CASE WHEN materials.class IS NULL THEN '' ELSE materials.class END,
+CASE WHEN brands.label IS NULL THEN '' ELSE brands.label END;
+
+
+
+
+
+
+
+

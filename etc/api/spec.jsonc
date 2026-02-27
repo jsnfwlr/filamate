@@ -1378,6 +1378,45 @@
           }
         }
       }
+    },
+    "/api/chart/material": {
+      "options": {
+        "operationId": "check_material_chart",
+        "summary": "CORS preflight for material chart",
+        "description": "CORS preflight request for /chart/material endpoint.",
+        "responses": {
+          "204": {
+            "description": "CORS preflight successful"
+          }
+        }
+      },
+      "get": {
+        "operationId": "get_material_chart",
+        "summary": "Get material chart",
+        "description": "Retrieve material chart for the application.",
+        "responses": {
+          "200": {
+            "description": "Material chart retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/material_chart"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2134,6 +2173,52 @@
             "type": "string",
             "format": "date-time",
             "description": "Timestamp when the spool was deleted"
+          }
+        }
+      },
+      "material_chart": {
+        "type": "object",
+        "required": [
+          "labels",
+          "datasets"
+        ],
+        "properties": {
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Labels for the X Axis of the chart - typically the name of months"
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/material_chart_dataset"
+            }
+          }
+        }
+      },
+      "material_chart_dataset": {
+        "type": "object",
+        "required": [
+          "backgroundColor",
+          "data"
+        ],
+        "properties": {
+          "backgroundColor": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Hex code representing the color to use for the dataset in the chart"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "Data points for the dataset corresponding to each label on the X Axis"
           }
         }
       },
