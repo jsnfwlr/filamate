@@ -39,11 +39,11 @@ count(spools.id) as count
 FROM spools
 JOIN materials ON material_id = materials.id
 JOIN brands ON brand_id = brands.id
-WHERE spools.deleted_at IS NULL
+WHERE spools.deleted_at IS NULL AND spools.emptied_at IS NULL
 GROUP BY ROLLUP (materials.class, materials.label, brands.label)
-ORDER BY CASE WHEN materials.class IS NULL THEN '' ELSE materials.class END, CASE WHEN materials.label IS NULL THEN '' ELSE materials.label END,
-CASE WHEN materials.class IS NULL THEN '' ELSE materials.class END,
-CASE WHEN brands.label IS NULL THEN '' ELSE brands.label END;
+ORDER BY CASE WHEN materials.class IS NULL THEN '' ELSE materials.class END DESC,
+CASE WHEN materials.label IS NULL THEN '' ELSE materials.label END DESC,
+CASE WHEN brands.label IS NULL THEN '' ELSE brands.label END DESC;
 
 
 

@@ -3,7 +3,6 @@ package stats
 import (
 	"context"
 	"fmt"
-	"slices"
 	"strings"
 	"time"
 
@@ -176,102 +175,63 @@ type hsl struct {
 	lightness  int
 }
 
-var baseColors = []hsl{
-	{hue: 1, saturation: 100, lightness: 15},   // "hsl(1 100%, 15%)"
-	{hue: 1, saturation: 100, lightness: 30},   // "hsl(1 100%, 30%)"
-	{hue: 1, saturation: 100, lightness: 50},   // "hsl(1 100%, 50%)"
-	{hue: 1, saturation: 100, lightness: 70},   // "hsl(1 100%, 70%)"
-	{hue: 1, saturation: 100, lightness: 85},   // "hsl(1 100%, 85%)"
-	{hue: 20, saturation: 100, lightness: 15},  // "hsl(20 100%, 15%)"
-	{hue: 20, saturation: 100, lightness: 30},  // "hsl(20 100%, 30%)"
-	{hue: 20, saturation: 100, lightness: 50},  // "hsl(20 100%, 50%)"
-	{hue: 20, saturation: 100, lightness: 70},  // "hsl(20 100%, 70%)"
-	{hue: 20, saturation: 100, lightness: 85},  // "hsl(20 100%, 85%)"
-	{hue: 40, saturation: 100, lightness: 15},  // "hsl(40 100%, 15%)"
-	{hue: 40, saturation: 100, lightness: 30},  // "hsl(40 100%, 30%)"
-	{hue: 40, saturation: 100, lightness: 50},  // "hsl(40 100%, 50%)"
-	{hue: 40, saturation: 100, lightness: 70},  // "hsl(40 100%, 70%)"
-	{hue: 40, saturation: 100, lightness: 85},  // "hsl(40 100%, 85%)"
-	{hue: 60, saturation: 100, lightness: 15},  // "hsl(60 100%, 15%)"
-	{hue: 60, saturation: 100, lightness: 30},  // "hsl(60 100%, 30%)"
-	{hue: 60, saturation: 100, lightness: 50},  // "hsl(60 100%, 50%)"
-	{hue: 60, saturation: 100, lightness: 70},  // "hsl(60 100%, 70%)"
-	{hue: 60, saturation: 100, lightness: 85},  // "hsl(60 100%, 85%)"
-	{hue: 80, saturation: 100, lightness: 15},  // "hsl(80 100%, 15%)"
-	{hue: 80, saturation: 100, lightness: 30},  // "hsl(80 100%, 30%)"
-	{hue: 80, saturation: 100, lightness: 50},  // "hsl(80 100%, 50%)"
-	{hue: 80, saturation: 100, lightness: 70},  // "hsl(80 100%, 70%)"
-	{hue: 80, saturation: 100, lightness: 85},  // "hsl(80 100%, 85%)"
-	{hue: 100, saturation: 100, lightness: 15}, // "hsl(100, 100%, 15%)"
-	{hue: 100, saturation: 100, lightness: 30}, // "hsl(100, 100%, 30%)"
-	{hue: 100, saturation: 100, lightness: 50}, // "hsl(100, 100%, 50%)"
-	{hue: 100, saturation: 100, lightness: 70}, // "hsl(100, 100%, 70%)"
-	{hue: 100, saturation: 100, lightness: 85}, // "hsl(100, 100%, 85%)"
-	{hue: 120, saturation: 100, lightness: 15}, // "hsl(120, 100%, 15%)"
-	{hue: 120, saturation: 100, lightness: 30}, // "hsl(120, 100%, 30%)"
-	{hue: 120, saturation: 100, lightness: 50}, // "hsl(120, 100%, 50%)"
-	{hue: 120, saturation: 100, lightness: 70}, // "hsl(120, 100%, 70%)"
-	{hue: 120, saturation: 100, lightness: 85}, // "hsl(120, 100%, 85%)"
-	{hue: 140, saturation: 100, lightness: 15}, // "hsl(140, 100%, 15%)"
-	{hue: 140, saturation: 100, lightness: 30}, // "hsl(140, 100%, 30%)"
-	{hue: 140, saturation: 100, lightness: 50}, // "hsl(140, 100%, 50%)"
-	{hue: 140, saturation: 100, lightness: 70}, // "hsl(140, 100%, 70%)"
-	{hue: 140, saturation: 100, lightness: 85}, // "hsl(140, 100%, 85%)"
-	{hue: 160, saturation: 100, lightness: 15}, // "hsl(160, 100%, 15%)"
-	{hue: 160, saturation: 100, lightness: 30}, // "hsl(160, 100%, 30%)"
-	{hue: 160, saturation: 100, lightness: 50}, // "hsl(160, 100%, 50%)"
-	{hue: 160, saturation: 100, lightness: 70}, // "hsl(160, 100%, 70%)"
-	{hue: 160, saturation: 100, lightness: 85}, // "hsl(160, 100%, 85%)"
-	{hue: 180, saturation: 100, lightness: 15}, // "hsl(180, 100%, 15%)"
-	{hue: 180, saturation: 100, lightness: 30}, // "hsl(180, 100%, 30%)"
-	{hue: 180, saturation: 100, lightness: 50}, // "hsl(180, 100%, 50%)"
-	{hue: 180, saturation: 100, lightness: 70}, // "hsl(180, 100%, 70%)"
-	{hue: 180, saturation: 100, lightness: 85}, // "hsl(180, 100%, 85%)"
-	{hue: 200, saturation: 100, lightness: 15}, // "hsl(200, 100%, 15%)"
-	{hue: 200, saturation: 100, lightness: 30}, // "hsl(200, 100%, 30%)"
-	{hue: 200, saturation: 100, lightness: 50}, // "hsl(200, 100%, 50%)"
-	{hue: 200, saturation: 100, lightness: 70}, // "hsl(200, 100%, 70%)"
-	{hue: 200, saturation: 100, lightness: 85}, // "hsl(200, 100%, 85%)"
-	{hue: 220, saturation: 100, lightness: 15}, // "hsl(220, 100%, 15%)"
-	{hue: 220, saturation: 100, lightness: 30}, // "hsl(220, 100%, 30%)"
-	{hue: 220, saturation: 100, lightness: 50}, // "hsl(220, 100%, 50%)"
-	{hue: 220, saturation: 100, lightness: 70}, // "hsl(220, 100%, 70%)"
-	{hue: 220, saturation: 100, lightness: 85}, // "hsl(220, 100%, 85%)"
-	{hue: 240, saturation: 100, lightness: 15}, // "hsl(240, 100%, 15%)"
-	{hue: 240, saturation: 100, lightness: 30}, // "hsl(240, 100%, 30%)"
-	{hue: 240, saturation: 100, lightness: 50}, // "hsl(240, 100%, 50%)"
-	{hue: 240, saturation: 100, lightness: 70}, // "hsl(240, 100%, 70%)"
-	{hue: 240, saturation: 100, lightness: 85}, // "hsl(240, 100%, 85%)"
-	{hue: 260, saturation: 100, lightness: 15}, // "hsl(260, 100%, 15%)"
-	{hue: 260, saturation: 100, lightness: 30}, // "hsl(260, 100%, 30%)"
-	{hue: 260, saturation: 100, lightness: 50}, // "hsl(260, 100%, 50%)"
-	{hue: 260, saturation: 100, lightness: 70}, // "hsl(260, 100%, 70%)"
-	{hue: 260, saturation: 100, lightness: 85}, // "hsl(260, 100%, 85%)"
-	{hue: 280, saturation: 100, lightness: 15}, // "hsl(280, 100%, 15%)"
-	{hue: 280, saturation: 100, lightness: 30}, // "hsl(280, 100%, 30%)"
-	{hue: 280, saturation: 100, lightness: 50}, // "hsl(280, 100%, 50%)"
-	{hue: 280, saturation: 100, lightness: 70}, // "hsl(280, 100%, 70%)"
-	{hue: 280, saturation: 100, lightness: 85}, // "hsl(280, 100%, 85%)"
-	{hue: 300, saturation: 100, lightness: 15}, // "hsl(300, 100%, 15%)"
-	{hue: 300, saturation: 100, lightness: 30}, // "hsl(300, 100%, 30%)"
-	{hue: 300, saturation: 100, lightness: 50}, // "hsl(300, 100%, 50%)"
-	{hue: 300, saturation: 100, lightness: 70}, // "hsl(300, 100%, 70%)"
-	{hue: 300, saturation: 100, lightness: 85}, // "hsl(300, 100%, 85%)"
-	{hue: 320, saturation: 100, lightness: 15}, // "hsl(320, 100%, 15%)"
-	{hue: 320, saturation: 100, lightness: 30}, // "hsl(320, 100%, 30%)"
-	{hue: 320, saturation: 100, lightness: 50}, // "hsl(320, 100%, 50%)"
-	{hue: 320, saturation: 100, lightness: 70}, // "hsl(320, 100%, 70%)"
-	{hue: 320, saturation: 100, lightness: 85}, // "hsl(320, 100%, 85%)"
-	{hue: 340, saturation: 100, lightness: 15}, // "hsl(340, 100%, 15%)"
-	{hue: 340, saturation: 100, lightness: 30}, // "hsl(340, 100%, 30%)"
-	{hue: 340, saturation: 100, lightness: 50}, // "hsl(340, 100%, 50%)"
-	{hue: 340, saturation: 100, lightness: 70}, // "hsl(340, 100%, 70%)"
-	{hue: 340, saturation: 100, lightness: 85}, // "hsl(340, 100%, 85%)"
+// var baseColors = []hsl{
+// 	{hue: 0, saturation: 100, lightness: 40},   // "hsl(0 100%, 40%)"
+// 	{hue: 15, saturation: 100, lightness: 40},  // "hsl(15 100%, 40%)"
+// 	{hue: 30, saturation: 100, lightness: 40},  // "hsl(30 100%, 40%)"
+// 	{hue: 45, saturation: 100, lightness: 40},  // "hsl(45 100%, 40%)"
+// 	{hue: 60, saturation: 100, lightness: 40},  // "hsl(60 100%, 40%)"
+// 	{hue: 75, saturation: 100, lightness: 40},  // "hsl(75 100%, 40%)"
+// 	{hue: 90, saturation: 100, lightness: 40},  // "hsl(90 100%, 40%)"
+// 	{hue: 105, saturation: 100, lightness: 40}, // "hsl(105, 100%, 40%)"
+// 	{hue: 120, saturation: 100, lightness: 40}, // "hsl(120, 100%, 40%)"
+// 	{hue: 135, saturation: 100, lightness: 40}, // "hsl(135, 100%, 40%)"
+// 	{hue: 150, saturation: 100, lightness: 40}, // "hsl(150, 100%, 40%)"
+// 	{hue: 165, saturation: 100, lightness: 40}, // "hsl(165, 100%, 40%)"
+// 	{hue: 180, saturation: 100, lightness: 40}, // "hsl(180, 100%, 40%)"
+// 	{hue: 195, saturation: 100, lightness: 40}, // "hsl(195, 100%, 40%)"
+// 	{hue: 210, saturation: 100, lightness: 40}, // "hsl(210, 100%, 40%)"
+// 	{hue: 225, saturation: 100, lightness: 40}, // "hsl(225, 100%, 40%)"
+// 	{hue: 240, saturation: 100, lightness: 40}, // "hsl(240, 100%, 40%)"
+// 	{hue: 255, saturation: 100, lightness: 40}, // "hsl(255, 100%, 40%)"
+// 	{hue: 270, saturation: 100, lightness: 40}, // "hsl(270, 100%, 40%)"
+// 	{hue: 285, saturation: 100, lightness: 40}, // "hsl(285, 100%, 40%)"
+// 	{hue: 300, saturation: 100, lightness: 40}, // "hsl(300, 100%, 40%)"
+// 	{hue: 315, saturation: 100, lightness: 40}, // "hsl(315, 100%, 40%)"
+// 	{hue: 330, saturation: 100, lightness: 40}, // "hsl(330, 100%, 40%)"
+
+// }
+
+func makeBaseColors(details []db.GetMaterialChartDataRow) []hsl {
+	count := 0
+	for _, d := range details {
+		if d.Brand != "" {
+			count++
+		}
+	}
+
+	colors := []hsl{}
+
+	for i := range count {
+		colors = append(colors, hsl{
+			hue:        (i * 360 / count) % 360,
+			saturation: 100,
+			lightness:  50,
+		})
+	}
+
+	return colors
 }
 
 type assignedColors struct {
 	first hsl
 	last  hsl
+}
+
+type DataSet struct {
+	BackgroundColor []string
+	Data            []int64
+	Label           []string
 }
 
 func GetMaterialChart(ctx context.Context, dbq chartsQuerier, r oapi.GetMaterialChartRequestObject) (response oapi.GetMaterialChartResponseObject, fault error) {
@@ -287,79 +247,113 @@ func GetMaterialChart(ctx context.Context, dbq chartsQuerier, r oapi.GetMaterial
 		}, err
 	}
 
+	// slices.Reverse(details)
+
 	o.Info("retrieved material chart", "details", details)
 
+	datasets := [3]DataSet{}
 	labels := []string{}
-	datasets := []oapi.MaterialChartDataset{}
-
-	dataSetColors := []assignedColors{}
+	dataSetColors := map[string]assignedColors{}
 	usedColors := 0
 
-	dataSetLabels := [][]string{}
+	baseColors := makeBaseColors(details)
 
 	for _, d := range details {
 		parts := []string{}
-		if d.Class != "" {
-			parts = append(parts, d.Class)
+		label := ""
+		{ // build parts and label
+			if d.Class != "" {
+				parts = append(parts, d.Class)
+			}
+
+			if d.Material != "" {
+				parts = append(parts, d.Material)
+			}
+
+			if d.Brand != "" {
+				parts = append(parts, d.Brand)
+			}
+
+			label = strings.Join(parts, "/")
 		}
-
-		if d.Material != "" {
-			parts = append(parts, d.Material)
-		}
-
-		if d.Brand != "" {
-			parts = append(parts, d.Brand)
-		}
-
-		label := strings.Join(parts, "/")
-
 		if label == "" {
 			continue
 		}
 
-		if len(dataSetLabels) < len(parts) {
-			dataSetLabels = append(dataSetLabels, []string{label})
-		} else {
-			dataSetLabels[len(parts)-1] = append(dataSetLabels[len(parts)-1], label)
-		}
+		idx := len(parts) - 1
+		color := hsl{hue: 0, saturation: 0, lightness: 0}
 
-		if len(datasets) < len(parts) {
-			color := baseColors[usedColors]
+		switch len(parts) {
+		case 3:
+			color = baseColors[usedColors]
 			usedColors++
-			dataSetColors = append(dataSetColors, assignedColors{
-				first: color,
-				last:  color,
-			})
-			datasets = append(datasets, oapi.MaterialChartDataset{
-				Data: []int64{d.Count},
-				BackgroundColor: []string{
-					"hsl(" + fmt.Sprint(rune(color.hue)) + " " + fmt.Sprint(rune(color.saturation)) + "% " + fmt.Sprint(rune(color.lightness)) + "%)",
-				},
-			})
-		} else {
-			color := baseColors[usedColors]
-			dataSetColors[len(parts)-1].last = color
-			datasets[len(parts)-1].Data = append(datasets[len(parts)-1].Data, d.Count)
-			datasets[len(parts)-1].BackgroundColor = append(datasets[len(parts)-1].BackgroundColor, "hsl("+fmt.Sprint(rune(color.hue))+" "+fmt.Sprint(rune(color.saturation))+"% "+fmt.Sprint(rune(color.lightness))+"%)")
-			usedColors++
-		}
-	}
 
-	for d := range dataSetLabels {
-		if dataSetLabels[d] == nil {
-			continue
-		}
+			if x, ok := dataSetColors[strings.Join(parts[:2], "/")]; !ok {
+				dataSetColors[strings.Join(parts[:2], "/")] = assignedColors{
+					first: color,
+					last:  color,
+				}
+			} else {
+				x.last = color
+				dataSetColors[strings.Join(parts[:2], "/")] = x
+			}
+		case 2:
+			colors := dataSetColors[strings.Join(parts, "/")]
+			color = hsl{
+				hue:        (colors.first.hue + colors.last.hue) / 2,
+				saturation: (colors.first.saturation + colors.last.saturation) / 2,
+				lightness:  (colors.last.lightness + 15),
+			}
 
-		for _, label := range dataSetLabels[d] {
-			if !slices.Contains(labels, label) {
-				labels = append(labels, label)
+			if x, ok := dataSetColors[strings.Join(parts[:1], "/")]; !ok {
+				dataSetColors[strings.Join(parts[:1], "/")] = assignedColors{
+					first: color,
+					last:  color,
+				}
+			} else {
+				x.last = color
+				dataSetColors[strings.Join(parts[:1], "/")] = x
+			}
+		case 1:
+			colors := dataSetColors[strings.Join(parts, "/")]
+			color = hsl{
+				hue:        (colors.first.hue + colors.last.hue) / 2,
+				saturation: (colors.first.saturation + colors.last.saturation) / 2,
+				lightness:  (colors.last.lightness + 15),
 			}
 		}
+
+		// if len(datasets) < len(parts) {
+		// 	datasets = append(datasets, oapi.MaterialChartDataset{
+		// 		Data: []int64{d.Count},
+		// 		BackgroundColor: []string{
+		// 			"hsl(" + fmt.Sprint(rune(color.hue)) + " " + fmt.Sprint(rune(color.saturation)) + "% " + fmt.Sprint(rune(color.lightness)) + "%)",
+		// 		},
+		// 	})
+		// } else {
+
+		datasets[idx].Label = append(datasets[idx].Label, label)
+		datasets[idx].Data = append(datasets[idx].Data, d.Count)
+		datasets[idx].BackgroundColor = append(datasets[idx].BackgroundColor, "hsl("+fmt.Sprint(rune(color.hue))+" "+fmt.Sprint(rune(color.saturation))+"% "+fmt.Sprint(rune(color.lightness))+"%)")
+		// }
+	}
+
+	// slices.Reverse(dataSetLabels)
+
+	mcds := []oapi.MaterialChartDataset{}
+
+	for i := 2; i >= 0; i-- {
+		fmt.Printf("%d = %d vs %d vs %d\n", i, len(datasets[i].Label), len(datasets[i].Data), len(datasets[i].BackgroundColor))
+		labels = append(labels, datasets[i].Label...)
+		mcds = append(mcds, oapi.MaterialChartDataset{
+			Data:            datasets[i].Data,
+			BackgroundColor: datasets[i].BackgroundColor,
+		})
 	}
 
 	results := oapi.MaterialChart{
 		Labels:   labels,
-		Datasets: datasets,
+		Datasets: mcds,
 	}
 
 	return oapi.GetMaterialChart200JSONResponse(results), nil
