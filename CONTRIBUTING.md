@@ -38,6 +38,11 @@ installed by running `just tools`):
 - [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen):
     Generates Go code from Open API specifications
 
+Optional tools you may want to consider using:
+
+- [bruno](https://github.com/usebruno/bruno)
+    API IDE for making test calls to the backend
+
 ## Building
 
 Fork `filamate` to your own GitHub account, then clone the fork anywhere
@@ -84,9 +89,12 @@ just test
 just lint
 ```
 
-**Note**: Test coverage on newly added functionality is required. While we don't
-expect 100% coverage, we do need sufficient testing of the code to see the
-expected behaviour of it in enough scenarios to deem it fit for purpose.
+**Note**:
+- Adequate test coverage on newly added functionality is required. While we
+  don't expect 100% coverage, we do need sufficient testing of the code to see
+  the expected behaviour of it in enough scenarios to deem it fit for purpose.
+- Changes to the API specification require matching additions or changes to the
+  relevant files/folders under the .bruno folder.
 
 ## Creating commits
 
@@ -114,7 +122,8 @@ message.
 
 ### Examples
 
-[This commit](https://github.com/jsnfwlr/filamate/commit/94b6fbe36f7eb8e0beda3086b8ebf7bd1203ebd8) should have had the following commit message:
+[This commit](https://github.com/jsnfwlr/filamate/commit/94b6fbe36f7eb8e0beda3086b8ebf7bd1203ebd8)
+should have had the following commit message:
 ```
 feat: Added material chart
 - (UI) Added pie chart showing the breakdown of filament spools by class of material, specific material, and brand
@@ -130,7 +139,8 @@ Had the change been a breaking-change, the first line of the commit message woul
 
 ## Submitting a pull request
 
-Push your branch to your `filamate` fork and open a pull request against the main branch.
+Push your branch to your `filamate` fork and open a pull request against the
+`main` branch.
 
 ## Financial contributions
 
