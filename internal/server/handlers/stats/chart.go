@@ -216,7 +216,7 @@ func makeBaseColors(details []db.GetMaterialChartDataRow) []hsl {
 		colors = append(colors, hsl{
 			hue:        (i * 360 / count) % 360,
 			saturation: 100,
-			lightness:  50,
+			lightness:  60,
 		})
 	}
 
@@ -302,7 +302,7 @@ func GetMaterialChart(ctx context.Context, dbq chartsQuerier, r oapi.GetMaterial
 			color = hsl{
 				hue:        (colors.first.hue + colors.last.hue) / 2,
 				saturation: (colors.first.saturation + colors.last.saturation) / 2,
-				lightness:  (colors.last.lightness + 15),
+				lightness:  (colors.first.lightness - 15),
 			}
 
 			if x, ok := dataSetColors[strings.Join(parts[:1], "/")]; !ok {
@@ -319,7 +319,7 @@ func GetMaterialChart(ctx context.Context, dbq chartsQuerier, r oapi.GetMaterial
 			color = hsl{
 				hue:        (colors.first.hue + colors.last.hue) / 2,
 				saturation: (colors.first.saturation + colors.last.saturation) / 2,
-				lightness:  (colors.last.lightness + 15),
+				lightness:  (colors.first.lightness - 15),
 			}
 		}
 

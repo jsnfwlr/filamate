@@ -24,12 +24,13 @@ open http://localhost:9766
 * [x] Upgrade to Go 1.26
 * [x] Add stock level chart to the dashboard
 * [x] Add material/brand chart to the dashboard
+* [ ] Add bulk creation of Locations, Materials, Brands, Stores, Colors, and maybe Spools
+* [ ] Add visual interface showing spool location, with drag-and-drop for moving spools between locations
 * [ ] Add linting for UI
 * [ ] Add unit tests for UI
 * [ ] Add testing mocks for the API functions
 * [ ] Add integration tests of the API endpoints
 * [ ] Add fuzzing tests for API functions
-* [ ] Add bulk creation of Locations, Materials, Brands, Stores, Colors, and maybe Spools
 * [ ] Add support for internationalization (i18n) and allow for translation contributions
 * [ ] Set up GitHub Actions
 
