@@ -7,13 +7,14 @@ default: clean dep generate lint test compile
 
 # Clean build artifacts and temporary files
 clean:
-    rm -f ../bin/filamate
+    rm -f ./dist/*
     rm -rf ./static/assets/*.css ./static/assets/*.js ./static/assets/*.woff ./static/assets/*.woff2 ./static/*.html ./static/*.ico ./static/*.png
 
 # Ensure API and UI dependencies are up to date and valid
 dep:
     go mod tidy
     go mod verify
+    cd ./ui && pnpm install --frozen-lockfile
 
 # Run database migrations and generate API code (OAPI and SQLC)
 generate: db api
@@ -39,7 +40,7 @@ api:
 # Build the UI using pnpm
 ui:
     echo "Building UI...";
-    cd ./ui && pnpm install && pnpm run build
+    cd ./ui && pnpm run build
 
 # Check API for code issues with golangci-lint
 lint:
@@ -59,7 +60,7 @@ coverage:
 # Build the application binary with the embedded UI assets
 compile:
     cd ./ui && pnpm run build
-    go build -o ../bin/filamate .
+    go build -o ./dist/filamate .
 
 # Watch for changes in the UI and rebuild it automatically
 watch:

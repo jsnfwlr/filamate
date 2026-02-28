@@ -1,12 +1,12 @@
 root = "."
 testdata_dir = "testdata"
-tmp_dir = "../bin"
+tmp_dir = "./dist"
 env_files = [".env"]
 
 [build]
   args_bin = ["daemon", "start"]
-  bin = "../bin/filamate"
-  cmd = "go build -o ../bin/filamate ."
+  bin = "./dist/filamate"
+  cmd = "go build -o ./dist/filamate ."
   delay = 0
   exclude_dir = ["assets", "tmp", "vendor", "testdata", "ui", "static/assets"]
   exclude_file = ["index.html", "favicon.ico"]
