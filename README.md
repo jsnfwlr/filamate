@@ -16,17 +16,28 @@ docker compose up -d
 open http://localhost:9766
 ```
 
-## TODO
+## Roadmap
 
+### Pre-release
 * [x] Make demo-data optional via env-var
 * [x] Add custom sort functions to the Locations/Materials/Brands/Colors columns for Spools page to they sort by the label, not the ID
 * [x] Upgrade to Go 1.26
 * [x] Add stock level chart to the dashboard
 * [x] Add material/brand chart to the dashboard
-* [ ] Release v0.1.0 and publish official container image to ghcr.io and hub.docker.com
-* [ ] Make README nicer
 * [ ] Add linting for UI
-* [ ] Add testing for UI
+* [ ] Add unit tests for UI
+* [ ] Add testing mocks for the API functions
+* [ ] Add integration tests of the API endpoints
+* [ ] Add fuzzing tests for API functions
+* [ ] Add bulk creation of Locations, Materials, Brands, Stores, Colors, and maybe Spools
+* [ ] Add support for internationalization (i18n) and allow for translation contributions
+* [ ] Set up GitHub Actions
+
+### v0.1.0 and beyond
+
+* [ ] Publish official container image to ghcr.io and hub.docker.com
+* [ ] Make README nicer
+* [ ] Add integration/behavioral tests of the UI
 * [ ] Add test coverage for UI
 
 ## Disclaimer
