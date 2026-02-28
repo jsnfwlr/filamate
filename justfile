@@ -2,6 +2,10 @@ set tempdir := "./tmp"
 set quiet := true
 set dotenv-load := true
 
+branch := shell('git rev-parse --abbrev-ref HEAD')
+tag := shell('git describe --tags --abbrev=0 $(git rev-list --tags --max-count=1 --date-order main)')
+version := if branch == "main" { tag } else { tag+ "-dev" }
+
 # Clean artifacts, update dependencies, generate code, lint, run tests, and compile the application
 default: clean dep generate lint test compile
 
@@ -60,7 +64,7 @@ coverage:
 # Build the application binary with the embedded UI assets
 compile:
     cd ./ui && pnpm run build
-    go build -o ./dist/filamate .
+    go build -ldflags "-X github.com/jsnfwlr/filamate/internal/cmd.Version={{version}}" -o ./dist/filamate .
 
 # Watch for changes in the UI and rebuild it automatically
 watch:

@@ -13,8 +13,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Version = "v0.0.6"
+
 var RootCmd = &cobra.Command{
-	Version: "v0.1.0",
+	Version: Version,
 	Use:     "filamate",
 	Short:   "filamate CLI",
 }
