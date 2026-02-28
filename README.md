@@ -26,6 +26,7 @@ open http://localhost:9766
 * [x] Add material/brand chart to the dashboard
 * [ ] Add bulk creation of Locations, Materials, Brands, Stores, Colors, and maybe Spools
 * [ ] Add visual interface showing spool location, with drag-and-drop for moving spools between locations
+* [ ] Add rating system that prompts the user to give a rating out of 5 stars when they empty a spool, allowing them to track the quality of the filament by brand/material/color
 * [ ] Add linting for UI
 * [ ] Add unit tests for UI
 * [ ] Add testing mocks for the API functions
