@@ -132,4 +132,8 @@ Had the change been a breaking-change, the first line of the commit message woul
 
 Push your branch to your `filamate` fork and open a pull request against the main branch.
 
+## Financial contributions
 
+You can contribute funds to the developer(s) of this project directly by
+sponsoring them. Details of how each developer accepts sponsorship can be found
+in [FUNDING.yml](https://github.com/jsnfwlr/filamate/blob/main/.github/FUNDING.yml)
