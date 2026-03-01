@@ -126,14 +126,14 @@ func Find(ctx context.Context, dbq colorsQuerier, r oapi.FindColorsRequestObject
 
 	var resp oapi.FindColors200JSONResponse
 	for _, c := range colors {
-		colorItem := oapi.ColorItem{
+		color := oapi.Color{
 			ID:    c.ID,
 			Label: c.Label,
 			Hex:   c.HexCode,
 			Alias: c.Alias,
 		}
 
-		resp = append(resp, colorItem)
+		resp = append(resp, color)
 	}
 
 	return resp, nil

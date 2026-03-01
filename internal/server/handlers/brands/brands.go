@@ -48,12 +48,12 @@ func Find(ctx context.Context, dbq brandsQuerier, r oapi.FindBrandsRequestObject
 	if len(brands) == 0 {
 		o.Info("no brands found")
 
-		return oapi.FindBrands200JSONResponse([]oapi.BrandItem{}), nil
+		return oapi.FindBrands200JSONResponse([]oapi.Brand{}), nil
 	}
 
-	var brandItems []oapi.BrandItem
+	var resp []oapi.Brand
 	for _, b := range brands {
-		brandItems = append(brandItems, oapi.BrandItem{
+		resp = append(resp, oapi.Brand{
 			ID:      b.ID,
 			Label:   b.Label,
 			Active:  b.Active,
@@ -61,7 +61,7 @@ func Find(ctx context.Context, dbq brandsQuerier, r oapi.FindBrandsRequestObject
 		})
 	}
 
-	return oapi.FindBrands200JSONResponse(brandItems), nil
+	return oapi.FindBrands200JSONResponse(resp), nil
 }
 
 // Update updates a brand record
@@ -101,7 +101,7 @@ func Update(ctx context.Context, dbq brandsQuerier, r oapi.UpdateBrandRequestObj
 		}, err
 	}
 
-	resp := oapi.BrandItem{
+	resp := oapi.Brand{
 		ID:      b.ID,
 		Label:   b.Label,
 		StoreID: b.StoreID,
@@ -129,14 +129,14 @@ func Create(ctx context.Context, dbq brandsQuerier, r oapi.CreateBrandRequestObj
 
 	o.Info("brand created", go11y.SeverityLow, "brand_id", b.ID)
 
-	bi := oapi.BrandItem{
+	resp := oapi.Brand{
 		ID:      b.ID,
 		Label:   b.Label,
 		StoreID: b.StoreID,
 		Active:  b.Active,
 	}
 
-	return oapi.CreateBrand201JSONResponse(bi), nil
+	return oapi.CreateBrand201JSONResponse(resp), nil
 }
 
 // Kill deletes a brand record

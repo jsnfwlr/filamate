@@ -22,8 +22,8 @@ import (
 	strictnethttp "github.com/oapi-codegen/runtime/strictmiddleware/nethttp"
 )
 
-// BrandItem Brand item
-type BrandItem struct {
+// Brand Brand item
+type Brand struct {
 	// Active Whether the brand is still in business
 	Active bool `json:"active"`
 
@@ -37,8 +37,8 @@ type BrandItem struct {
 	StoreID *int64 `json:"store_id"`
 }
 
-// ColorItem Color item
-type ColorItem struct {
+// Color Color item
+type Color struct {
 	// Alias Alias of the color
 	Alias *string `json:"alias"`
 
@@ -159,8 +159,8 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-// LocationItem Location item
-type LocationItem struct {
+// Location Location item
+type Location struct {
 	// Capacity Maximum capacity of the location
 	Capacity int `json:"capacity"`
 
@@ -180,6 +180,24 @@ type LocationItem struct {
 	Tally bool `json:"tally"`
 }
 
+// Material Material item
+type Material struct {
+	// Class Material class
+	Class string `json:"class"`
+
+	// Description Description of the material
+	Description string `json:"description"`
+
+	// ID Unique identifier for the material
+	ID int64 `json:"id"`
+
+	// Label Name of the material
+	Label string `json:"label"`
+
+	// Special Whether the material has special properties
+	Special bool `json:"special"`
+}
+
 // MaterialChart defines model for material_chart.
 type MaterialChart struct {
 	Datasets []MaterialChartDataset `json:"datasets"`
@@ -197,26 +215,8 @@ type MaterialChartDataset struct {
 	Data []int64 `json:"data"`
 }
 
-// MaterialItem Material item
-type MaterialItem struct {
-	// Class Material class
-	Class string `json:"class"`
-
-	// Description Description of the material
-	Description string `json:"description"`
-
-	// ID Unique identifier for the material
-	ID int64 `json:"id"`
-
-	// Label Name of the material
-	Label string `json:"label"`
-
-	// Special Whether the material has special properties
-	Special bool `json:"special"`
-}
-
-// SpoolItem Spool item
-type SpoolItem struct {
+// Spool Spool item
+type Spool struct {
 	// Brand ID of the brand of the spool
 	Brand int64 `json:"brand"`
 
@@ -263,8 +263,8 @@ type SpoolItem struct {
 	Weight string `json:"weight"`
 }
 
-// StorageChartItem Storage chart item
-type StorageChartItem struct {
+// StorageChart Storage chart item
+type StorageChart struct {
 	// Labels Labels for the X Axis of the chart - typically the name of months
 	Labels []string `json:"labels"`
 
@@ -278,8 +278,28 @@ type StorageChartItem struct {
 	Used []int64 `json:"used"`
 }
 
-// StorageStatsDetailsItem Additional details about the storage location, such as breakdown of materials stored or historical usage trends
-type StorageStatsDetailsItem struct {
+// StorageStat Storage statistics item
+type StorageStat struct {
+	Details []StorageStatsDetails `json:"details"`
+
+	// Free Amount of available space in the location
+	Free int64 `json:"free"`
+
+	// Label Name of the storage location
+	Label string `json:"label"`
+
+	// Max Total capacity of the storage location
+	Max int64 `json:"max"`
+
+	// Used Amount of filament currently stored in the location
+	Used int64 `json:"used"`
+}
+
+// StorageStats defines model for storage_stats.
+type StorageStats = []StorageStat
+
+// StorageStatsDetails Additional details about the storage location, such as breakdown of materials stored or historical usage trends
+type StorageStatsDetails struct {
 	// Brand Brand of the filament stored in the location
 	Brand int64 `json:"brand"`
 
@@ -296,28 +316,8 @@ type StorageStatsDetailsItem struct {
 	Material int64 `json:"material"`
 }
 
-// StorageStatsItem Storage statistics item
-type StorageStatsItem struct {
-	Details []StorageStatsDetailsItem `json:"details"`
-
-	// Free Amount of available space in the location
-	Free int64 `json:"free"`
-
-	// Label Name of the storage location
-	Label string `json:"label"`
-
-	// Max Total capacity of the storage location
-	Max int64 `json:"max"`
-
-	// Used Amount of filament currently stored in the location
-	Used int64 `json:"used"`
-}
-
-// StorageStatsItems defines model for storage_stats_items.
-type StorageStatsItems = []StorageStatsItem
-
-// StoreItem Store item
-type StoreItem struct {
+// Store Store item
+type Store struct {
 	// ID Unique identifier for the store
 	ID int64 `json:"id"`
 
@@ -427,8 +427,8 @@ type UpdateStoreRequest struct {
 	URL *string `json:"url"`
 }
 
-// UsageStatsItem Usage statistics item
-type UsageStatsItem struct {
+// UsageStat Usage statistics item
+type UsageStat struct {
 	// Color Color(s) of the filament
 	Color string `json:"color"`
 
@@ -442,8 +442,8 @@ type UsageStatsItem struct {
 	Used int64 `json:"used"`
 }
 
-// UsageStatsItems defines model for usage_stats_items.
-type UsageStatsItems = []UsageStatsItem
+// UsageStats defines model for usage_stats.
+type UsageStats = []UsageStat
 
 // SortBy defines model for SortBy.
 type SortBy = string
@@ -1747,7 +1747,7 @@ type UpdateBrandResponseObject interface {
 	VisitUpdateBrandResponse(w http.ResponseWriter) error
 }
 
-type UpdateBrand200JSONResponse BrandItem
+type UpdateBrand200JSONResponse Brand
 
 func (response UpdateBrand200JSONResponse) VisitUpdateBrandResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -1791,7 +1791,7 @@ type FindBrandsResponseObject interface {
 	VisitFindBrandsResponse(w http.ResponseWriter) error
 }
 
-type FindBrands200JSONResponse []BrandItem
+type FindBrands200JSONResponse []Brand
 
 func (response FindBrands200JSONResponse) VisitFindBrandsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -1832,7 +1832,7 @@ type CreateBrandResponseObject interface {
 	VisitCreateBrandResponse(w http.ResponseWriter) error
 }
 
-type CreateBrand201JSONResponse BrandItem
+type CreateBrand201JSONResponse Brand
 
 func (response CreateBrand201JSONResponse) VisitCreateBrandResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -1906,7 +1906,7 @@ type GetStorageChartResponseObject interface {
 	VisitGetStorageChartResponse(w http.ResponseWriter) error
 }
 
-type GetStorageChart200JSONResponse StorageChartItem
+type GetStorageChart200JSONResponse StorageChart
 
 func (response GetStorageChart200JSONResponse) VisitGetStorageChartResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -1998,7 +1998,7 @@ type UpdateColorResponseObject interface {
 	VisitUpdateColorResponse(w http.ResponseWriter) error
 }
 
-type UpdateColor200JSONResponse ColorItem
+type UpdateColor200JSONResponse Color
 
 func (response UpdateColor200JSONResponse) VisitUpdateColorResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2041,7 +2041,7 @@ type FindColorsResponseObject interface {
 	VisitFindColorsResponse(w http.ResponseWriter) error
 }
 
-type FindColors200JSONResponse []ColorItem
+type FindColors200JSONResponse []Color
 
 func (response FindColors200JSONResponse) VisitFindColorsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2082,7 +2082,7 @@ type CreateColorResponseObject interface {
 	VisitCreateColorResponse(w http.ResponseWriter) error
 }
 
-type CreateColor201JSONResponse ColorItem
+type CreateColor201JSONResponse Color
 
 func (response CreateColor201JSONResponse) VisitCreateColorResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2192,7 +2192,7 @@ type UpdateLocationResponseObject interface {
 	VisitUpdateLocationResponse(w http.ResponseWriter) error
 }
 
-type UpdateLocation200JSONResponse LocationItem
+type UpdateLocation200JSONResponse Location
 
 func (response UpdateLocation200JSONResponse) VisitUpdateLocationResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2235,7 +2235,7 @@ type FindLocationsResponseObject interface {
 	VisitFindLocationsResponse(w http.ResponseWriter) error
 }
 
-type FindLocations200JSONResponse []LocationItem
+type FindLocations200JSONResponse []Location
 
 func (response FindLocations200JSONResponse) VisitFindLocationsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2276,7 +2276,7 @@ type CreateLocationResponseObject interface {
 	VisitCreateLocationResponse(w http.ResponseWriter) error
 }
 
-type CreateLocation201JSONResponse LocationItem
+type CreateLocation201JSONResponse Location
 
 func (response CreateLocation201JSONResponse) VisitCreateLocationResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2362,7 +2362,7 @@ type UpdateMaterialResponseObject interface {
 	VisitUpdateMaterialResponse(w http.ResponseWriter) error
 }
 
-type UpdateMaterial200JSONResponse MaterialItem
+type UpdateMaterial200JSONResponse Material
 
 func (response UpdateMaterial200JSONResponse) VisitUpdateMaterialResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2405,7 +2405,7 @@ type FindMaterialsResponseObject interface {
 	VisitFindMaterialsResponse(w http.ResponseWriter) error
 }
 
-type FindMaterials200JSONResponse []MaterialItem
+type FindMaterials200JSONResponse []Material
 
 func (response FindMaterials200JSONResponse) VisitFindMaterialsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2446,7 +2446,7 @@ type CreateMaterialResponseObject interface {
 	VisitCreateMaterialResponse(w http.ResponseWriter) error
 }
 
-type CreateMaterial201JSONResponse MaterialItem
+type CreateMaterial201JSONResponse Material
 
 func (response CreateMaterial201JSONResponse) VisitCreateMaterialResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2532,7 +2532,7 @@ type UpdateSpoolResponseObject interface {
 	VisitUpdateSpoolResponse(w http.ResponseWriter) error
 }
 
-type UpdateSpool200JSONResponse SpoolItem
+type UpdateSpool200JSONResponse Spool
 
 func (response UpdateSpool200JSONResponse) VisitUpdateSpoolResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2575,7 +2575,7 @@ type FindSpoolsResponseObject interface {
 	VisitFindSpoolsResponse(w http.ResponseWriter) error
 }
 
-type FindSpools200JSONResponse []SpoolItem
+type FindSpools200JSONResponse []Spool
 
 func (response FindSpools200JSONResponse) VisitFindSpoolsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2616,7 +2616,7 @@ type CreateSpoolResponseObject interface {
 	VisitCreateSpoolResponse(w http.ResponseWriter) error
 }
 
-type CreateSpool201JSONResponse SpoolItem
+type CreateSpool201JSONResponse Spool
 
 func (response CreateSpool201JSONResponse) VisitCreateSpoolResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2650,7 +2650,7 @@ type GetStorageStatsResponseObject interface {
 	VisitGetStorageStatsResponse(w http.ResponseWriter) error
 }
 
-type GetStorageStats200JSONResponse StorageStatsItems
+type GetStorageStats200JSONResponse StorageStats
 
 func (response GetStorageStats200JSONResponse) VisitGetStorageStatsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2690,7 +2690,7 @@ type GetUsageStatsResponseObject interface {
 	VisitGetUsageStatsResponse(w http.ResponseWriter) error
 }
 
-type GetUsageStats200JSONResponse UsageStatsItems
+type GetUsageStats200JSONResponse UsageStats
 
 func (response GetUsageStats200JSONResponse) VisitGetUsageStatsResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2782,7 +2782,7 @@ type UpdateStoreResponseObject interface {
 	VisitUpdateStoreResponse(w http.ResponseWriter) error
 }
 
-type UpdateStore200JSONResponse StoreItem
+type UpdateStore200JSONResponse Store
 
 func (response UpdateStore200JSONResponse) VisitUpdateStoreResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2825,7 +2825,7 @@ type FindStoresResponseObject interface {
 	VisitFindStoresResponse(w http.ResponseWriter) error
 }
 
-type FindStores200JSONResponse []StoreItem
+type FindStores200JSONResponse []Store
 
 func (response FindStores200JSONResponse) VisitFindStoresResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -2866,7 +2866,7 @@ type CreateStoreResponseObject interface {
 	VisitCreateStoreResponse(w http.ResponseWriter) error
 }
 
-type CreateStore201JSONResponse StoreItem
+type CreateStore201JSONResponse Store
 
 func (response CreateStore201JSONResponse) VisitCreateStoreResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -4266,64 +4266,64 @@ func (sh *strictHandler) CreateStore(w http.ResponseWriter, r *http.Request) {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"sDp8/G8AAAD//2zB1fnAiwAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

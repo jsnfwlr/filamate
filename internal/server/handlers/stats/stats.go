@@ -45,17 +45,17 @@ func GetUsageStats(ctx context.Context, dbq statsQuerier, r oapi.GetUsageStatsRe
 		}, err
 	}
 
-	var results []oapi.UsageStatsItem
+	var resp []oapi.UsageStat
 	for _, s := range stats {
-		result := oapi.UsageStatsItem{
+		result := oapi.UsageStat{
 			Color:    s.Color,
 			Material: s.Material,
 			Used:     s.Used,
 			Ordered:  s.Ordered,
 		}
-		results = append(results, result)
+		resp = append(resp, result)
 	}
-	return oapi.GetUsageStats200JSONResponse(results), nil
+	return oapi.GetUsageStats200JSONResponse(resp), nil
 }
 
 // GetStorageStats retrieves storage stats
@@ -83,12 +83,12 @@ func GetStorageStats(ctx context.Context, dbq statsQuerier, r oapi.GetStorageSta
 		}, err
 	}
 
-	var results []oapi.StorageStatsItem
+	var resp []oapi.StorageStat
 	for _, stat := range stats {
 		if stat.ID == nil {
 			continue
 		}
-		details := []oapi.StorageStatsDetailsItem{}
+		details := []oapi.StorageStatsDetails{}
 		for _, spool := range spools {
 			if spool.LocationID == *stat.ID {
 				colors, err := dbq.GetSpoolColors(ctx, spool.ID)
@@ -110,7 +110,7 @@ func GetStorageStats(ctx context.Context, dbq statsQuerier, r oapi.GetStorageSta
 
 				rCurrentWeight, _ := spool.CurrentWeight.Float64Value()
 
-				detail := oapi.StorageStatsDetailsItem{
+				detail := oapi.StorageStatsDetails{
 					Brand:         spool.BrandID,
 					Material:      spool.MaterialID,
 					CurrentWeight: fmt.Sprintf("%0.2f", rCurrentWeight.Float64),
@@ -122,14 +122,14 @@ func GetStorageStats(ctx context.Context, dbq statsQuerier, r oapi.GetStorageSta
 			}
 		}
 
-		result := oapi.StorageStatsItem{
+		r := oapi.StorageStat{
 			Label:   stat.TallyLabel,
 			Max:     stat.Max,
 			Used:    stat.Used,
 			Free:    stat.Free,
 			Details: details,
 		}
-		results = append(results, result)
+		resp = append(resp, r)
 	}
-	return oapi.GetStorageStats200JSONResponse(results), nil
+	return oapi.GetStorageStats200JSONResponse(resp), nil
 }

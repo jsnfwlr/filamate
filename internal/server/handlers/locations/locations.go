@@ -98,7 +98,7 @@ func Update(ctx context.Context, dbq locationsQuerier, r oapi.UpdateLocationRequ
 func Find(ctx context.Context, dbq locationsQuerier, r oapi.FindLocationsRequestObject) (response oapi.FindLocationsResponseObject, fault error) {
 	ctx, o := go11y.Get(ctx)
 
-	l, err := dbq.FindLocations(ctx)
+	locations, err := dbq.FindLocations(ctx)
 	if err != nil {
 		o.Error("failed to find locations", err, go11y.SeverityHigh)
 
@@ -108,19 +108,19 @@ func Find(ctx context.Context, dbq locationsQuerier, r oapi.FindLocationsRequest
 		}, err
 	}
 
-	var locations []oapi.LocationItem
-	for _, loc := range l {
-		locations = append(locations, oapi.LocationItem{
-			ID:          loc.ID,
-			Label:       loc.Label,
-			Description: loc.Description,
-			Printable:   loc.Printable,
-			Tally:       loc.Tally,
-			Capacity:    int(loc.Capacity),
+	var resp []oapi.Location
+	for _, l := range locations {
+		resp = append(resp, oapi.Location{
+			ID:          l.ID,
+			Label:       l.Label,
+			Description: l.Description,
+			Printable:   l.Printable,
+			Tally:       l.Tally,
+			Capacity:    int(l.Capacity),
 		})
 	}
 
-	return oapi.FindLocations200JSONResponse(locations), nil
+	return oapi.FindLocations200JSONResponse(resp), nil
 }
 
 // Create creates a location record

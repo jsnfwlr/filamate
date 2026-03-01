@@ -153,14 +153,14 @@ func GetStorageChart(ctx context.Context, dbq chartsQuerier, r oapi.GetStorageCh
 
 	tSet.Finalize()
 
-	results := oapi.StorageChartItem{
+	resp := oapi.StorageChart{
 		Labels:    tSet.Months(),
 		Used:      tSet.Used(),
 		Purchased: tSet.Purchased(),
 		Stored:    tSet.Stored(),
 	}
 
-	return oapi.GetStorageChart200JSONResponse(results), nil
+	return oapi.GetStorageChart200JSONResponse(resp), nil
 }
 
 // CheckMaterialChart does CORS preflight for material chart by ID

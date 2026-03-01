@@ -109,18 +109,18 @@ func Find(ctx context.Context, dbq storesQuerier, r oapi.FindStoresRequestObject
 		}, err
 	}
 
-	var respStores []oapi.StoreItem
+	var resp []oapi.Store
 	for _, s := range stores {
-		store := oapi.StoreItem{
+		store := oapi.Store{
 			ID:    s.ID,
 			Label: s.Label,
 			URL:   s.URL,
 		}
 
-		respStores = append(respStores, store)
+		resp = append(resp, store)
 	}
 
-	return oapi.FindStores200JSONResponse(respStores), nil
+	return oapi.FindStores200JSONResponse(resp), nil
 }
 
 // Create creates a store record

@@ -152,7 +152,7 @@ func Update(ctx context.Context, dbq spoolsQuerier, r oapi.UpdateSpoolRequestObj
 	rCurrentWeight, _ := s.CurrentWeight.Float64Value()
 	rCombinedWeight, _ := s.CombinedWeight.Float64Value()
 
-	resp := oapi.SpoolItem{
+	resp := oapi.Spool{
 		ID:             s.ID,
 		Location:       s.LocationID,
 		Brand:          s.BrandID,
@@ -205,7 +205,7 @@ func Find(ctx context.Context, dbq spoolsQuerier, r oapi.FindSpoolsRequestObject
 		}, err
 	}
 
-	var spoolItems []oapi.SpoolItem
+	var resp []oapi.Spool
 	for _, s := range spools {
 		cSet, err := getColors(ctx, dbq, s.ID)
 		if err != nil {
@@ -227,7 +227,7 @@ func Find(ctx context.Context, dbq spoolsQuerier, r oapi.FindSpoolsRequestObject
 		rCurrentWeight, _ := s.CurrentWeight.Float64Value()
 		rCombinedWeight, _ := s.CombinedWeight.Float64Value()
 
-		spoolItem := oapi.SpoolItem{
+		r := oapi.Spool{
 			ID:             s.ID,
 			Colors:         colors,
 			Location:       s.LocationID,
@@ -244,9 +244,9 @@ func Find(ctx context.Context, dbq spoolsQuerier, r oapi.FindSpoolsRequestObject
 			UpdatedAt:      s.UpdatedAt,
 			DeletedAt:      s.DeletedAt,
 		}
-		spoolItems = append(spoolItems, spoolItem)
+		resp = append(resp, r)
 	}
-	return oapi.FindSpools200JSONResponse(spoolItems), nil
+	return oapi.FindSpools200JSONResponse(resp), nil
 }
 
 // Create creates a spool record
@@ -335,7 +335,7 @@ func Create(ctx context.Context, dbq spoolsQuerier, r oapi.CreateSpoolRequestObj
 	rCurrentWeight, _ := spool.CurrentWeight.Float64Value()
 	rCombinedWeight, _ := spool.CombinedWeight.Float64Value()
 
-	resp := oapi.SpoolItem{
+	resp := oapi.Spool{
 		ID:             spool.ID,
 		Location:       spool.LocationID,
 		Brand:          spool.BrandID,
@@ -408,7 +408,7 @@ func swapColors(ctx context.Context, dbq spoolsQuerier, spoolID int64, colorIDs 
 	return nil
 }
 
-func getColors(ctx context.Context, dbq spoolsQuerier, spoolID int64) ([]oapi.ColorItem, error) {
+func getColors(ctx context.Context, dbq spoolsQuerier, spoolID int64) ([]oapi.Color, error) {
 	ctx, o := go11y.Get(ctx)
 	cs, err := dbq.GetSpoolColors(ctx, spoolID)
 	if err != nil {
@@ -416,9 +416,9 @@ func getColors(ctx context.Context, dbq spoolsQuerier, spoolID int64) ([]oapi.Co
 		return nil, err
 	}
 
-	colors := make([]oapi.ColorItem, 0, len(cs))
+	colors := make([]oapi.Color, 0, len(cs))
 	for _, c := range cs {
-		color := oapi.ColorItem{
+		color := oapi.Color{
 			ID:    c.ID,
 			Label: c.Label,
 			Hex:   c.HexCode,

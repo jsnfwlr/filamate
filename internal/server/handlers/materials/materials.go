@@ -81,7 +81,7 @@ func Update(ctx context.Context, dbq materialsQuerier, r oapi.UpdateMaterialRequ
 		}, err
 	}
 
-	materialItem := oapi.MaterialItem{
+	resp := oapi.Material{
 		ID:          m.ID,
 		Label:       m.Label,
 		Description: m.Description,
@@ -89,7 +89,7 @@ func Update(ctx context.Context, dbq materialsQuerier, r oapi.UpdateMaterialRequ
 		Special:     m.Special,
 	}
 
-	return oapi.UpdateMaterial200JSONResponse(materialItem), nil
+	return oapi.UpdateMaterial200JSONResponse(resp), nil
 }
 
 // Find finds material records
@@ -98,7 +98,7 @@ func Update(ctx context.Context, dbq materialsQuerier, r oapi.UpdateMaterialRequ
 func Find(ctx context.Context, dbq materialsQuerier, r oapi.FindMaterialsRequestObject) (response oapi.FindMaterialsResponseObject, fault error) {
 	ctx, o := go11y.Get(ctx)
 
-	m, err := dbq.FindMaterials(ctx)
+	materials, err := dbq.FindMaterials(ctx)
 	if err != nil {
 		o.Error("failed to find materials", err, go11y.SeverityHigh)
 
@@ -108,18 +108,18 @@ func Find(ctx context.Context, dbq materialsQuerier, r oapi.FindMaterialsRequest
 		}, err
 	}
 
-	var materials []oapi.MaterialItem
-	for _, mat := range m {
-		materials = append(materials, oapi.MaterialItem{
-			ID:          mat.ID,
-			Class:       mat.Class,
-			Label:       mat.Label,
-			Description: mat.Description,
-			Special:     mat.Special,
+	var resp []oapi.Material
+	for _, m := range materials {
+		resp = append(resp, oapi.Material{
+			ID:          m.ID,
+			Class:       m.Class,
+			Label:       m.Label,
+			Description: m.Description,
+			Special:     m.Special,
 		})
 	}
 
-	return oapi.FindMaterials200JSONResponse(materials), nil
+	return oapi.FindMaterials200JSONResponse(resp), nil
 }
 
 // Create creates a material record
@@ -144,7 +144,7 @@ func Create(ctx context.Context, dbq materialsQuerier, r oapi.CreateMaterialRequ
 		}, err
 	}
 
-	materialItem := oapi.MaterialItem{
+	resp := oapi.Material{
 		ID:          m.ID,
 		Label:       m.Label,
 		Description: m.Description,
@@ -152,5 +152,5 @@ func Create(ctx context.Context, dbq materialsQuerier, r oapi.CreateMaterialRequ
 		Special:     m.Special,
 	}
 
-	return oapi.CreateMaterial201JSONResponse(materialItem), nil
+	return oapi.CreateMaterial201JSONResponse(resp), nil
 }
