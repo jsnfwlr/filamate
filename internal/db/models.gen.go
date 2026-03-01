@@ -68,6 +68,14 @@ type Material struct {
 	Special bool `json:"special"`
 }
 
+type Rating struct {
+	ID        int64     `json:"id"`
+	SpoolID   int64     `json:"spool_id"`
+	Rating    int64     `json:"rating"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 // Table storing information about individual filament spools
 type Spool struct {
 	ID         int64 `json:"id"`

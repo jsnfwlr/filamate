@@ -109,6 +109,15 @@ type CreateMaterialRequest struct {
 	Special bool `json:"special"`
 }
 
+// CreateRatingRequest Request body for creating a rating
+type CreateRatingRequest struct {
+	// Rating Rating value for the spool, typically on a scale of 1 to 5
+	Rating int64 `json:"rating"`
+
+	// SpoolID ID of the spool being rated
+	SpoolID int64 `json:"spool_id"`
+}
+
 // CreateSpoolRequest Request body for updating a spool
 type CreateSpoolRequest struct {
 	// Brand ID of the brand of the spool
@@ -215,6 +224,69 @@ type MaterialChartDataset struct {
 	Data []int64 `json:"data"`
 }
 
+// Rating Rating item
+type Rating struct {
+	// CreatedAt Timestamp when the rating was created
+	CreatedAt time.Time `json:"created_at"`
+
+	// ID Unique identifier for the rating
+	ID int64 `json:"id"`
+
+	// Rating Rating value for the spool, typically on a scale of 1 to 5
+	Rating int64 `json:"rating"`
+
+	// SpoolID ID of the spool being rated
+	SpoolID int64 `json:"spool_id"`
+
+	// UpdatedAt Timestamp when the rating was last updated
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// RatingStat Rating statistics item
+type RatingStat struct {
+	// Brand Brand of the filament
+	Brand string `json:"brand"`
+
+	// Details Detailed information about each rating for this material and brand combination
+	Details []RatingStatDetail `json:"details"`
+
+	// ID Unique identifier for the material and brand combination
+	ID int64 `json:"id"`
+
+	// Material Material of the filament
+	Material string `json:"material"`
+
+	// RatingAverage Average rating of this material and brand combination, typically on a scale of 1 to 5
+	RatingAverage float32 `json:"rating_average"`
+
+	// RatingCount Number of ratings for this material and brand combination
+	RatingCount int64 `json:"rating_count"`
+}
+
+// RatingStatDetail Additional details about the ratings that contribute to the overall rating statistics for a material and brand combination - individual ratings by spool
+type RatingStatDetail struct {
+	// Rating Unique identifier for the rating
+	Rating int64 `json:"rating"`
+
+	// RatingCreatedAt Timestamp when the rating was created
+	RatingCreatedAt time.Time `json:"rating_created_at"`
+
+	// SpoolColors Color ID(s) of the filament on the spool
+	SpoolColors []int64 `json:"spool_colors"`
+
+	// SpoolCreatedAt Timestamp when the spool was created
+	SpoolCreatedAt time.Time `json:"spool_created_at"`
+
+	// SpoolID Unique identifier for the spool
+	SpoolID int64 `json:"spool_id"`
+
+	// SpoolWeight Initial marketed weight of the filament on the spool in grams
+	SpoolWeight float32 `json:"spool_weight"`
+}
+
+// RatingStats defines model for rating_stats.
+type RatingStats = []RatingStat
+
 // Spool Spool item
 type Spool struct {
 	// Brand ID of the brand of the spool
@@ -284,6 +356,9 @@ type StorageStat struct {
 
 	// Free Amount of available space in the location
 	Free int64 `json:"free"`
+
+	// ID Unique identifier for the storage stat entry
+	ID int64 `json:"id"`
 
 	// Label Name of the storage location
 	Label string `json:"label"`
@@ -385,6 +460,15 @@ type UpdateMaterialRequest struct {
 	Special bool `json:"special"`
 }
 
+// UpdateRatingRequest Request body for updating a rating
+type UpdateRatingRequest struct {
+	// ID ID of the rating to update
+	ID int64 `json:"id"`
+
+	// Rating Updated rating value for the spool, typically on a scale of 1 to 5
+	Rating int64 `json:"rating"`
+}
+
 // UpdateSpoolRequest Request body for updating a spool
 type UpdateSpoolRequest struct {
 	// Brand ID of the brand of the spool
@@ -432,6 +516,9 @@ type UsageStat struct {
 	// Color Color(s) of the filament
 	Color string `json:"color"`
 
+	// ID Unique identifier for the material and color combination
+	ID int64 `json:"id"`
+
 	// Material Material of the filament
 	Material string `json:"material"`
 
@@ -445,6 +532,12 @@ type UsageStat struct {
 // UsageStats defines model for usage_stats.
 type UsageStats = []UsageStat
 
+// BrandID defines model for BrandID.
+type BrandID = int64
+
+// MaterialID defines model for MaterialID.
+type MaterialID = int64
+
 // SortBy defines model for SortBy.
 type SortBy = string
 
@@ -455,6 +548,15 @@ type ID = int64
 type FindBrandsParams struct {
 	// SortBy Field to sort by, prefixed with - for descending order (e.g. 'label' or '-created_at')
 	SortBy *SortBy `form:"sort_by,omitempty" json:"sort_by,omitempty"`
+}
+
+// FindRatingsParams defines parameters for FindRatings.
+type FindRatingsParams struct {
+	// MaterialID ID of the material to filter by
+	MaterialID *MaterialID `form:"material_id,omitempty" json:"material_id,omitempty"`
+
+	// BrandID ID of the brand to filter by
+	BrandID *BrandID `form:"brand_id,omitempty" json:"brand_id,omitempty"`
 }
 
 // UpdateBrandJSONRequestBody defines body for UpdateBrand for application/json ContentType.
@@ -480,6 +582,12 @@ type UpdateMaterialJSONRequestBody = UpdateMaterialRequest
 
 // CreateMaterialJSONRequestBody defines body for CreateMaterial for application/json ContentType.
 type CreateMaterialJSONRequestBody = CreateMaterialRequest
+
+// UpdateRatingJSONRequestBody defines body for UpdateRating for application/json ContentType.
+type UpdateRatingJSONRequestBody = UpdateRatingRequest
+
+// CreateRatingJSONRequestBody defines body for CreateRating for application/json ContentType.
+type CreateRatingJSONRequestBody = CreateRatingRequest
 
 // UpdateSpoolJSONRequestBody defines body for UpdateSpool for application/json ContentType.
 type UpdateSpoolJSONRequestBody = UpdateSpoolRequest
@@ -582,6 +690,24 @@ type ServerInterface interface {
 	// Create material
 	// (POST /api/materials)
 	CreateMaterial(w http.ResponseWriter, r *http.Request)
+	// Delete rating
+	// (DELETE /api/rating/{id})
+	KillRating(w http.ResponseWriter, r *http.Request, id ID)
+	// CORS preflight for rating by ID
+	// (OPTIONS /api/rating/{id})
+	CheckRating(w http.ResponseWriter, r *http.Request, id ID)
+	// Update rating
+	// (PATCH /api/rating/{id})
+	UpdateRating(w http.ResponseWriter, r *http.Request, id ID)
+	// Find ratings
+	// (GET /api/ratings)
+	FindRatings(w http.ResponseWriter, r *http.Request, params FindRatingsParams)
+	// CORS preflight for ratings
+	// (OPTIONS /api/ratings)
+	CheckRatings(w http.ResponseWriter, r *http.Request)
+	// Create rating
+	// (POST /api/ratings)
+	CreateRating(w http.ResponseWriter, r *http.Request)
 	// Delete spool
 	// (DELETE /api/spool/{id})
 	KillSpool(w http.ResponseWriter, r *http.Request, id ID)
@@ -600,6 +726,12 @@ type ServerInterface interface {
 	// Create spool
 	// (POST /api/spools)
 	CreateSpool(w http.ResponseWriter, r *http.Request)
+	// Get rating stats
+	// (GET /api/stats/ratings)
+	GetRatingStats(w http.ResponseWriter, r *http.Request)
+	// CORS preflight for rating stats
+	// (OPTIONS /api/stats/ratings)
+	CheckRatingStats(w http.ResponseWriter, r *http.Request)
 	// Get storage stats
 	// (GET /api/stats/storage)
 	GetStorageStats(w http.ResponseWriter, r *http.Request)
@@ -1192,6 +1324,144 @@ func (siw *ServerInterfaceWrapper) CreateMaterial(w http.ResponseWriter, r *http
 	handler.ServeHTTP(w, r)
 }
 
+// KillRating operation middleware
+func (siw *ServerInterfaceWrapper) KillRating(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id ID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", mux.Vars(r)["id"], &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.KillRating(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CheckRating operation middleware
+func (siw *ServerInterfaceWrapper) CheckRating(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id ID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", mux.Vars(r)["id"], &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CheckRating(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// UpdateRating operation middleware
+func (siw *ServerInterfaceWrapper) UpdateRating(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id ID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", mux.Vars(r)["id"], &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateRating(w, r, id)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// FindRatings operation middleware
+func (siw *ServerInterfaceWrapper) FindRatings(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params FindRatingsParams
+
+	// ------------- Optional query parameter "material_id" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "material_id", r.URL.Query(), &params.MaterialID)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "material_id", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "brand_id" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "brand_id", r.URL.Query(), &params.BrandID)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "brand_id", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.FindRatings(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CheckRatings operation middleware
+func (siw *ServerInterfaceWrapper) CheckRatings(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CheckRatings(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateRating operation middleware
+func (siw *ServerInterfaceWrapper) CreateRating(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateRating(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // KillSpool operation middleware
 func (siw *ServerInterfaceWrapper) KillSpool(w http.ResponseWriter, r *http.Request) {
 
@@ -1300,6 +1570,34 @@ func (siw *ServerInterfaceWrapper) CreateSpool(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateSpool(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetRatingStats operation middleware
+func (siw *ServerInterfaceWrapper) GetRatingStats(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetRatingStats(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CheckRatingStats operation middleware
+func (siw *ServerInterfaceWrapper) CheckRatingStats(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CheckRatingStats(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1653,6 +1951,18 @@ func HandlerWithOptions(si ServerInterface, options GorillaServerOptions) http.H
 
 	r.HandleFunc(options.BaseURL+"/api/materials", wrapper.CreateMaterial).Methods("POST")
 
+	r.HandleFunc(options.BaseURL+"/api/rating/{id}", wrapper.KillRating).Methods("DELETE")
+
+	r.HandleFunc(options.BaseURL+"/api/rating/{id}", wrapper.CheckRating).Methods("OPTIONS")
+
+	r.HandleFunc(options.BaseURL+"/api/rating/{id}", wrapper.UpdateRating).Methods("PATCH")
+
+	r.HandleFunc(options.BaseURL+"/api/ratings", wrapper.FindRatings).Methods("GET")
+
+	r.HandleFunc(options.BaseURL+"/api/ratings", wrapper.CheckRatings).Methods("OPTIONS")
+
+	r.HandleFunc(options.BaseURL+"/api/ratings", wrapper.CreateRating).Methods("POST")
+
 	r.HandleFunc(options.BaseURL+"/api/spool/{id}", wrapper.KillSpool).Methods("DELETE")
 
 	r.HandleFunc(options.BaseURL+"/api/spool/{id}", wrapper.CheckSpool).Methods("OPTIONS")
@@ -1664,6 +1974,10 @@ func HandlerWithOptions(si ServerInterface, options GorillaServerOptions) http.H
 	r.HandleFunc(options.BaseURL+"/api/spools", wrapper.CheckSpools).Methods("OPTIONS")
 
 	r.HandleFunc(options.BaseURL+"/api/spools", wrapper.CreateSpool).Methods("POST")
+
+	r.HandleFunc(options.BaseURL+"/api/stats/ratings", wrapper.GetRatingStats).Methods("GET")
+
+	r.HandleFunc(options.BaseURL+"/api/stats/ratings", wrapper.CheckRatingStats).Methods("OPTIONS")
 
 	r.HandleFunc(options.BaseURL+"/api/stats/storage", wrapper.GetStorageStats).Methods("GET")
 
@@ -2473,6 +2787,177 @@ func (response CreateMaterial500JSONResponse) VisitCreateMaterialResponse(w http
 	return json.NewEncoder(w).Encode(response)
 }
 
+type KillRatingRequestObject struct {
+	ID ID `json:"id"`
+}
+
+type KillRatingResponseObject interface {
+	VisitKillRatingResponse(w http.ResponseWriter) error
+}
+
+type KillRating204Response struct {
+}
+
+func (response KillRating204Response) VisitKillRatingResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type KillRating404JSONResponse Error
+
+func (response KillRating404JSONResponse) VisitKillRatingResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type KillRating500JSONResponse Error
+
+func (response KillRating500JSONResponse) VisitKillRatingResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CheckRatingRequestObject struct {
+	ID ID `json:"id"`
+}
+
+type CheckRatingResponseObject interface {
+	VisitCheckRatingResponse(w http.ResponseWriter) error
+}
+
+type CheckRating204Response struct {
+}
+
+func (response CheckRating204Response) VisitCheckRatingResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type UpdateRatingRequestObject struct {
+	ID   ID `json:"id"`
+	Body *UpdateRatingJSONRequestBody
+}
+
+type UpdateRatingResponseObject interface {
+	VisitUpdateRatingResponse(w http.ResponseWriter) error
+}
+
+type UpdateRating200JSONResponse Rating
+
+func (response UpdateRating200JSONResponse) VisitUpdateRatingResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateRating400JSONResponse Error
+
+func (response UpdateRating400JSONResponse) VisitUpdateRatingResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateRating404JSONResponse Error
+
+func (response UpdateRating404JSONResponse) VisitUpdateRatingResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UpdateRating500JSONResponse Error
+
+func (response UpdateRating500JSONResponse) VisitUpdateRatingResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type FindRatingsRequestObject struct {
+	Params FindRatingsParams
+}
+
+type FindRatingsResponseObject interface {
+	VisitFindRatingsResponse(w http.ResponseWriter) error
+}
+
+type FindRatings200JSONResponse []Rating
+
+func (response FindRatings200JSONResponse) VisitFindRatingsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type FindRatings500JSONResponse Error
+
+func (response FindRatings500JSONResponse) VisitFindRatingsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CheckRatingsRequestObject struct {
+}
+
+type CheckRatingsResponseObject interface {
+	VisitCheckRatingsResponse(w http.ResponseWriter) error
+}
+
+type CheckRatings204Response struct {
+}
+
+func (response CheckRatings204Response) VisitCheckRatingsResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type CreateRatingRequestObject struct {
+	Body *CreateRatingJSONRequestBody
+}
+
+type CreateRatingResponseObject interface {
+	VisitCreateRatingResponse(w http.ResponseWriter) error
+}
+
+type CreateRating201JSONResponse Rating
+
+func (response CreateRating201JSONResponse) VisitCreateRatingResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateRating400JSONResponse Error
+
+func (response CreateRating400JSONResponse) VisitCreateRatingResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CreateRating500JSONResponse Error
+
+func (response CreateRating500JSONResponse) VisitCreateRatingResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 type KillSpoolRequestObject struct {
 	ID ID `json:"id"`
 }
@@ -2641,6 +3126,46 @@ func (response CreateSpool500JSONResponse) VisitCreateSpoolResponse(w http.Respo
 	w.WriteHeader(500)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type GetRatingStatsRequestObject struct {
+}
+
+type GetRatingStatsResponseObject interface {
+	VisitGetRatingStatsResponse(w http.ResponseWriter) error
+}
+
+type GetRatingStats200JSONResponse RatingStats
+
+func (response GetRatingStats200JSONResponse) VisitGetRatingStatsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetRatingStats500JSONResponse Error
+
+func (response GetRatingStats500JSONResponse) VisitGetRatingStatsResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CheckRatingStatsRequestObject struct {
+}
+
+type CheckRatingStatsResponseObject interface {
+	VisitCheckRatingStatsResponse(w http.ResponseWriter) error
+}
+
+type CheckRatingStats204Response struct {
+}
+
+func (response CheckRatingStats204Response) VisitCheckRatingStatsResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
 }
 
 type GetStorageStatsRequestObject struct {
@@ -2982,6 +3507,24 @@ type StrictServerInterface interface {
 	// Create material
 	// (POST /api/materials)
 	CreateMaterial(ctx context.Context, request CreateMaterialRequestObject) (CreateMaterialResponseObject, error)
+	// Delete rating
+	// (DELETE /api/rating/{id})
+	KillRating(ctx context.Context, request KillRatingRequestObject) (KillRatingResponseObject, error)
+	// CORS preflight for rating by ID
+	// (OPTIONS /api/rating/{id})
+	CheckRating(ctx context.Context, request CheckRatingRequestObject) (CheckRatingResponseObject, error)
+	// Update rating
+	// (PATCH /api/rating/{id})
+	UpdateRating(ctx context.Context, request UpdateRatingRequestObject) (UpdateRatingResponseObject, error)
+	// Find ratings
+	// (GET /api/ratings)
+	FindRatings(ctx context.Context, request FindRatingsRequestObject) (FindRatingsResponseObject, error)
+	// CORS preflight for ratings
+	// (OPTIONS /api/ratings)
+	CheckRatings(ctx context.Context, request CheckRatingsRequestObject) (CheckRatingsResponseObject, error)
+	// Create rating
+	// (POST /api/ratings)
+	CreateRating(ctx context.Context, request CreateRatingRequestObject) (CreateRatingResponseObject, error)
 	// Delete spool
 	// (DELETE /api/spool/{id})
 	KillSpool(ctx context.Context, request KillSpoolRequestObject) (KillSpoolResponseObject, error)
@@ -3000,6 +3543,12 @@ type StrictServerInterface interface {
 	// Create spool
 	// (POST /api/spools)
 	CreateSpool(ctx context.Context, request CreateSpoolRequestObject) (CreateSpoolResponseObject, error)
+	// Get rating stats
+	// (GET /api/stats/ratings)
+	GetRatingStats(ctx context.Context, request GetRatingStatsRequestObject) (GetRatingStatsResponseObject, error)
+	// CORS preflight for rating stats
+	// (OPTIONS /api/stats/ratings)
+	CheckRatingStats(ctx context.Context, request CheckRatingStatsRequestObject) (CheckRatingStatsResponseObject, error)
 	// Get storage stats
 	// (GET /api/stats/storage)
 	GetStorageStats(ctx context.Context, request GetStorageStatsRequestObject) (GetStorageStatsResponseObject, error)
@@ -3839,6 +4388,172 @@ func (sh *strictHandler) CreateMaterial(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+// KillRating operation middleware
+func (sh *strictHandler) KillRating(w http.ResponseWriter, r *http.Request, id ID) {
+	var request KillRatingRequestObject
+
+	request.ID = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.KillRating(ctx, request.(KillRatingRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "KillRating")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(KillRatingResponseObject); ok {
+		if err := validResponse.VisitKillRatingResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CheckRating operation middleware
+func (sh *strictHandler) CheckRating(w http.ResponseWriter, r *http.Request, id ID) {
+	var request CheckRatingRequestObject
+
+	request.ID = id
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CheckRating(ctx, request.(CheckRatingRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CheckRating")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CheckRatingResponseObject); ok {
+		if err := validResponse.VisitCheckRatingResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UpdateRating operation middleware
+func (sh *strictHandler) UpdateRating(w http.ResponseWriter, r *http.Request, id ID) {
+	var request UpdateRatingRequestObject
+
+	request.ID = id
+
+	var body UpdateRatingJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.UpdateRating(ctx, request.(UpdateRatingRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UpdateRating")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(UpdateRatingResponseObject); ok {
+		if err := validResponse.VisitUpdateRatingResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// FindRatings operation middleware
+func (sh *strictHandler) FindRatings(w http.ResponseWriter, r *http.Request, params FindRatingsParams) {
+	var request FindRatingsRequestObject
+
+	request.Params = params
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.FindRatings(ctx, request.(FindRatingsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "FindRatings")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(FindRatingsResponseObject); ok {
+		if err := validResponse.VisitFindRatingsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CheckRatings operation middleware
+func (sh *strictHandler) CheckRatings(w http.ResponseWriter, r *http.Request) {
+	var request CheckRatingsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CheckRatings(ctx, request.(CheckRatingsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CheckRatings")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CheckRatingsResponseObject); ok {
+		if err := validResponse.VisitCheckRatingsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateRating operation middleware
+func (sh *strictHandler) CreateRating(w http.ResponseWriter, r *http.Request) {
+	var request CreateRatingRequestObject
+
+	var body CreateRatingJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateRating(ctx, request.(CreateRatingRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateRating")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateRatingResponseObject); ok {
+		if err := validResponse.VisitCreateRatingResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // KillSpool operation middleware
 func (sh *strictHandler) KillSpool(w http.ResponseWriter, r *http.Request, id ID) {
 	var request KillSpoolRequestObject
@@ -3996,6 +4711,54 @@ func (sh *strictHandler) CreateSpool(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(CreateSpoolResponseObject); ok {
 		if err := validResponse.VisitCreateSpoolResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetRatingStats operation middleware
+func (sh *strictHandler) GetRatingStats(w http.ResponseWriter, r *http.Request) {
+	var request GetRatingStatsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetRatingStats(ctx, request.(GetRatingStatsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetRatingStats")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetRatingStatsResponseObject); ok {
+		if err := validResponse.VisitGetRatingStatsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CheckRatingStats operation middleware
+func (sh *strictHandler) CheckRatingStats(w http.ResponseWriter, r *http.Request) {
+	var request CheckRatingStatsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CheckRatingStats(ctx, request.(CheckRatingStatsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CheckRatingStats")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CheckRatingStatsResponseObject); ok {
+		if err := validResponse.VisitCheckRatingStatsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -4266,64 +5029,75 @@ func (sh *strictHandler) CreateStore(w http.ResponseWriter, r *http.Request) {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"sDp8/G8AAAD//2zB1fnAiwAA",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

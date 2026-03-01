@@ -9,13 +9,31 @@ const multiStatAPI = import.meta.env.DEV ? mande('http://bespin:9766/api/stats')
 const multiChartAPI = import.meta.env.DEV ? mande('http://bespin:9766/api/chart') : mande('/api/chart')
 
 export interface UsageStat {
+    id: number
     color: string
     material: string
     used: number
     ordered: number
 }
 
+export interface RatingStat {
+    id: number
+    brand: string
+    material: string
+    rating_count: number
+    rating_average: number
+    details: RatingStatDetails[]
+}
+
+export interface RatingStatDetails {
+    spool_id: number
+    spool_created_at: string
+    spool_weight: number
+    rating: number
+    rating_created_at: string
+}
 export interface StorageStat {
+    id: number
     label: string
     max: number
     used: number
@@ -53,11 +71,7 @@ export const useUsageStatsStore = defineStore('usageStats', () => {
     const sorted = ref<UsageStat[]>([])
     // const editError = ref<string[]>([])
 
-    async function find(sortBy: string = "label", sortDir: string = "asc") {
-        if (sortDir === "desc") {
-            sortBy = "-" + sortBy
-        }
-
+    async function find() {
         await multiStatAPI.get<Array<UsageStat>>("usage").then((results: UsageStat[]) => {
             sorted.value = results
         }).catch(err => {
@@ -81,11 +95,7 @@ export const useStorageStatsStore = defineStore('storageStats', () => {
     const sorted = ref<StorageStat[]>([])
     // const editError = ref<string[]>([])
 
-    async function find(sortBy: string = "label", sortDir: string = "asc") {
-        if (sortDir === "desc") {
-            sortBy = "-" + sortBy
-        }
-
+    async function find() {
         await multiStatAPI.get<Array<StorageStat>>("storage").then((results: StorageStat[]) => {
             sorted.value = results
         }).catch(err => {
@@ -104,11 +114,33 @@ export const useStorageStatsStore = defineStore('storageStats', () => {
 
 })
 
+export const useRatingStatsStore = defineStore('ratingStats', () => {
+
+    const sorted = ref<RatingStat[]>([])
+    // const editError = ref<string[]>([])
+
+    async function find() {
+        await multiStatAPI.get<Array<RatingStat>>("ratings").then((results: RatingStat[]) => {
+            sorted.value = results
+        }).catch(err => {
+            alert("find: " + err)
+        })
+
+        return sorted.value
+    }
+
+    return {
+        sorted,
+        find,
+    }
+
+})
+
 export const useStorageChartStore = defineStore('storageChart', () => {
 
     const sorted = ref<StorageChart>({} as StorageChart)
 
-    async function find(sortBy: string = "label", sortDir: string = "asc") {
+    async function find() {
         await multiChartAPI.get<StorageChart>("storage").then((results: StorageChart) => {
             sorted.value = results
 
@@ -130,7 +162,7 @@ export const useMaterialChartStore = defineStore('materialChart', () => {
 
     const sorted = ref<MaterialChartDatasets>({} as MaterialChartDatasets)
 
-    async function find(sortBy: string = "label", sortDir: string = "asc") {
+    async function find() {
         await multiChartAPI.get<MaterialChartDatasets>("material").then((results: MaterialChartDatasets) => {
             sorted.value = results
         }).catch(err => {

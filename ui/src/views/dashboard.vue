@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 
 
 import UsageStats from '../components/UsageStats.vue'
 import StorageStats from '../components/StorageStats.vue'
+import RatingStats from '../components/RatingStats.vue'
 import StorageChart from '../components/StorageChart.vue'
 import MaterialChart from '../components/MaterialChart.vue'
 
 import { useStorageChartStore } from '../stores/stats'
 import { useMaterialChartStore } from '../stores/stats'
 import type { ChartData } from 'chart.js'
-import type { MaterialChartDatasets } from '../stores/stats'
 
 const storageChartStore = useStorageChartStore()
 const materialChartStore = useMaterialChartStore()
@@ -24,265 +24,6 @@ const materialChartData = ref<ChartData<'pie'>>({
   datasets: []
 })
 
-/*
-const materialChartResp = ref<Array<MaterialChartResponse>>([
-  {
-    label: 'ABS',
-    color: '#FF0000',
-    value: 2,
-    children: [
-      {
-        label: 'ABS',
-        color: '#FF0000',
-        value: 2,
-        children: [
-          {
-            label: 'Sunlu',
-            color: '#FF0000',
-            value: 1,
-            children: null
-          }
-        ]
-      }
-    ]
-  },
-  {
-    label: 'Nylon',
-    color: '#00FF00',
-    value: 1,
-    children: [
-      {
-        label: 'PA6CF',
-        color: '#00FF00',
-        value: 1,
-        children: [
-          {
-            label: 'Sunlu',
-            color: '#00FF00',
-            value: 1,
-            children: null
-          }
-        ]
-
-      }
-    ]
-  },
-  {
-    label: 'PETG',
-    color: '#0000FF',
-    value: 7,
-    children: [
-      {
-        label: 'Basic PETG',
-        color: '#0000FF',
-        value: 5,
-        children: [
-          {
-            label: 'Anycubic',
-            color: '#0000DD',
-            value: 1,
-            children: null
-          },
-          {
-            label: 'Slic3d',
-            color: '#0000BB',
-            value: 1,
-            children: null
-          }
-        ]
-      },
-      {
-        label: 'Hyper PETG',
-        color: '#0033FF',
-        value: 2,
-        children: [
-          {
-            label: 'Creality',
-            color: '#0033DD',
-            value: 2,
-            children: null
-          }
-        ]
-      }
-    ]
-  },
-  {
-    label: 'PLA',
-    color: '#FFFF00',
-    value: 48,
-    children: [
-      {
-        label: 'Basic PLA',
-        color: '#FFFF00',
-        value: 20,
-        children: [
-          {
-            label: 'Anycubic',
-            color: '#FFFF00',
-            value: 12,
-            children: null
-          },
-          {
-            label: 'CCDIY',
-            color: '#FFFF00',
-            value: 1,
-            children: null
-          },
-          {
-            label: 'eSun',
-            color: '#FFFF00',
-            value: 5,
-            children: null
-          },
-          {
-            label: 'Slic3d',
-            color: '#FFFF00',
-            value: 1,
-            children: null
-          }
-        ]
-      },
-      {
-        label: 'HS PLA',
-        color: '#FFFF00',
-        value: 1,
-        children: [
-          {
-            label: 'CCDIY',
-            color: '#FFFF00',
-            value: 1,
-            children: null
-          }
-        ]
-      },
-      {
-        label: 'Hyper PLA',
-        color: '#FFFF00',
-        value: 6,
-        children: [
-          {
-            label: 'Creality',
-            color: '#FFFF00',
-            value: 6,
-            children: null
-          }
-        ]
-      },
-      {
-        label: 'Matte PLA',
-        color: '#FFFF00',
-        value: 1,
-        children: [
-          {
-            label: 'Siddament',
-            color: '#FFFF00',
-            value: 1,
-            children: null
-          }
-        ]
-      },
-      {
-        label: 'PLA+',
-        color: '#FFFF00',
-        value: 18,
-        children: [
-          {
-            label: '3DFillies',
-            color: '#FFFF00',
-            value: 5,
-            children: null
-          },
-          {
-            label: 'eSun',
-            color: '#FFFF00',
-            value: 4,
-            children: null
-          },
-          {
-            label: 'Sunlu',
-            color: '#FFFF00',
-            value: 9,
-            children: null
-          }
-        ]
-      },
-      {
-        label: 'Silk PLA',
-        color: '#FFFF00',
-        value: 1,
-        children: [
-          {
-            label: 'Siddament',
-            color: '#FFFF00',
-            value: 1,
-            children: null
-          }
-        ]
-      },
-      {
-        label: 'Wood PLA',
-        color: '#FFFF00',
-        value: 1,
-        children: [
-          {
-            label: 'Sunlu',
-            color: '#FFFF00',
-            value: 1,
-            children: null
-          }
-        ]
-      },
-      {
-        label: 'TPU',
-        color: '#FF00FF',
-        value: 1,
-        children: [
-          {
-            label: 'TPU 95A',
-            color: '#FF00FF',
-            value: 1,
-            children: [
-              {
-                label: 'Elegoo',
-                color: '#FF00FF',
-                value: 1,
-                children: null
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-])
-
-const materialChartData = computed<ChartData<'pie'>>(() => {
-  const data: ChartData<'pie'> = {
-    labels: [
-      '1', '2', '3',
-      '1.1', '1.2', '2.1', '3.1', '3.2',
-      '1.1.1', '1.1.2', '1.2.1', '2.1.1', '3.1.1', '3.2.1', '3.3.1', '3.3.2'
-    ],
-    datasets: [
-      {
-        backgroundColor: ['#FF7800', '#00FD00', '#0077FF'],
-        data: [11, 5, 85]
-      },
-      {
-        backgroundColor: ['#FF3300', '#FFFE00', '#00FE00', '#0022FF', '#00AAFF'],
-        data: [7, 4, 5, 40, 45]
-      },
-      {
-        backgroundColor: ['#FF0000', '#FF7700', '#FFFF00', '#00FF00', '#0000FF', '#0044FF', '#0088FF', '#00CCFF'],
-        data: [3, 4, 4, 5, 18, 22, 40, 5]
-      }
-
-    ]
-  }
-
-  return data
-})
-*/
 onMounted(async () => {
   await storageChartStore.find()
   storageChartLabels.value = storageChartStore.sorted.labels
@@ -343,6 +84,16 @@ onMounted(async () => {
         </q-tooltip>
       </div>
       <StorageStats />
+    </div>
+    <div class="col-4 q-pr-lg">
+      <div class="text-h6 q-mb-md">
+        Quality Ratings by Material/Brand
+        <q-icon name="info" left size="xs" color="#111" id="RatingStats" />
+        <q-tooltip target="#RatingStats" anchor="center right" self="center left" class="bg-black">
+          An overview of your quality ratings by material and brand.
+        </q-tooltip>
+      </div>
+      <RatingStats />
     </div>
   </div>
 </template>

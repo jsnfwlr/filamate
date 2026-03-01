@@ -13,7 +13,8 @@ const getMaterialChartData = `-- name: GetMaterialChartData :many
 SELECT (CASE WHEN materials.class IS NULL THEN '' ELSE materials.class END)::text as class,
 (CASE WHEN materials.label IS NULL THEN '' ELSE materials.label END)::text as material,
 (CASE WHEN brands.label IS NULL THEN '' ELSE brands.label END)::text as brand,
-count(spools.id) as count
+count(spools.id) as count,
+ROW_NUMBER () OVER (ORDER BY materials.label, brands.label) as id
 FROM spools
 JOIN materials ON material_id = materials.id
 JOIN brands ON brand_id = brands.id
@@ -29,6 +30,7 @@ type GetMaterialChartDataRow struct {
 	Material string `json:"material"`
 	Brand    string `json:"brand"`
 	Count    int64  `json:"count"`
+	ID       int64  `json:"id"`
 }
 
 // GetMaterialChartData returns the data for a material chart: class, material, brand, and count of spools for each combo.
@@ -47,6 +49,62 @@ func (q *Queries) GetMaterialChartData(ctx context.Context) ([]GetMaterialChartD
 			&i.Material,
 			&i.Brand,
 			&i.Count,
+			&i.ID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRatingStats = `-- name: GetRatingStats :many
+SELECT
+(ROW_NUMBER () OVER (ORDER BY materials.label, brands.label))::bigint as id,
+brands.label as brand,
+materials.label as material,
+AVG(ratings.rating) as average_rating,
+COUNT(ratings.id) as rating_count,
+JSON_AGG(json_build_object('spool_id', spools.id, 'spool_created_at', spools.created_at, 'spool_weight', spools.weight,'rating', ratings.rating, 'rating_created_at', ratings.created_at, 'spool_colors', array(SELECT color_id FROM spool_colors WHERE spool_id = spools.id)) ORDER BY ratings.created_at DESC) as details
+FROM ratings
+JOIN spools ON spools.id = ratings.spool_id
+JOIN brands ON brands.id = spools.brand_id
+JOIN materials ON materials.id = spools.material_id
+WHERE spools.deleted_at IS NULL
+GROUP BY brands.label, materials.label
+ORDER BY average_rating DESC, brands.label ASC, materials.label ASC
+`
+
+type GetRatingStatsRow struct {
+	ID            int64   `json:"id"`
+	Brand         string  `json:"brand"`
+	Material      string  `json:"material"`
+	AverageRating float64 `json:"average_rating"`
+	RatingCount   int64   `json:"rating_count"`
+	Details       []byte  `json:"details"`
+}
+
+// GetRatingStats returns the average rating for each brand and material combination, along with the count of ratings.
+// It orders the results by average rating in descending order, and then by brand and material labels in ascending order.
+func (q *Queries) GetRatingStats(ctx context.Context) ([]GetRatingStatsRow, error) {
+	rows, err := q.db.Query(ctx, getRatingStats)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetRatingStatsRow{}
+	for rows.Next() {
+		var i GetRatingStatsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Brand,
+			&i.Material,
+			&i.AverageRating,
+			&i.RatingCount,
+			&i.Details,
 		); err != nil {
 			return nil, err
 		}
@@ -107,7 +165,8 @@ func (q *Queries) GetStorageStats(ctx context.Context) ([]GetStorageStatsRow, er
 }
 
 const getUsageStats = `-- name: GetUsageStats :many
-SELECT color::text, material, SUM(empty)::bigint as used, count(*)::bigint as ordered
+SELECT (ROW_NUMBER() OVER (ORDER BY color, material))::bigint as id,
+color::text, material, SUM(empty)::bigint as used, count(*)::bigint as ordered
 FROM (
 SELECT STRING_AGG(colors.label, ', ') as color,
 materials.class as material,
@@ -124,6 +183,7 @@ ORDER BY SUM(empty) desc, count(*) DESC
 `
 
 type GetUsageStatsRow struct {
+	ID       int64  `json:"id"`
 	Color    string `json:"color"`
 	Material string `json:"material"`
 	Used     int64  `json:"used"`
@@ -141,6 +201,7 @@ func (q *Queries) GetUsageStats(ctx context.Context) ([]GetUsageStatsRow, error)
 	for rows.Next() {
 		var i GetUsageStatsRow
 		if err := rows.Scan(
+			&i.ID,
 			&i.Color,
 			&i.Material,
 			&i.Used,

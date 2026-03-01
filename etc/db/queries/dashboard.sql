@@ -14,7 +14,8 @@ ORDER BY locations.id;
 
 -- name: GetUsageStats :many
 -- GetUsageStats returns the most used color and material combinations, sorted by the number of empty spools and total spools. It filters out combinations that have only one spool or where the number of empty spools is less than half of the total spools.
-SELECT color::text, material, SUM(empty)::bigint as used, count(*)::bigint as ordered
+SELECT (ROW_NUMBER() OVER (ORDER BY color, material))::bigint as id,
+color::text, material, SUM(empty)::bigint as used, count(*)::bigint as ordered
 FROM (
 SELECT STRING_AGG(colors.label, ', ') as color,
 materials.class as material,
@@ -35,7 +36,8 @@ ORDER BY SUM(empty) desc, count(*) DESC;
 SELECT (CASE WHEN materials.class IS NULL THEN '' ELSE materials.class END)::text as class,
 (CASE WHEN materials.label IS NULL THEN '' ELSE materials.label END)::text as material,
 (CASE WHEN brands.label IS NULL THEN '' ELSE brands.label END)::text as brand,
-count(spools.id) as count
+count(spools.id) as count,
+ROW_NUMBER () OVER (ORDER BY materials.label, brands.label) as id
 FROM spools
 JOIN materials ON material_id = materials.id
 JOIN brands ON brand_id = brands.id
@@ -45,10 +47,21 @@ ORDER BY CASE WHEN materials.class IS NULL THEN '' ELSE materials.class END DESC
 CASE WHEN materials.label IS NULL THEN '' ELSE materials.label END DESC,
 CASE WHEN brands.label IS NULL THEN '' ELSE brands.label END DESC;
 
-
-
-
-
-
-
+-- name: GetRatingStats :many
+-- GetRatingStats returns the average rating for each brand and material combination, along with the count of ratings.
+-- It orders the results by average rating in descending order, and then by brand and material labels in ascending order.
+SELECT
+(ROW_NUMBER () OVER (ORDER BY materials.label, brands.label))::bigint as id,
+brands.label as brand,
+materials.label as material,
+AVG(ratings.rating) as average_rating,
+COUNT(ratings.id) as rating_count,
+JSON_AGG(json_build_object('spool_id', spools.id, 'spool_created_at', spools.created_at, 'spool_weight', spools.weight,'rating', ratings.rating, 'rating_created_at', ratings.created_at, 'spool_colors', array(SELECT color_id FROM spool_colors WHERE spool_id = spools.id)) ORDER BY ratings.created_at DESC) as details
+FROM ratings
+JOIN spools ON spools.id = ratings.spool_id
+JOIN brands ON brands.id = spools.brand_id
+JOIN materials ON materials.id = spools.material_id
+WHERE spools.deleted_at IS NULL
+GROUP BY brands.label, materials.label
+ORDER BY average_rating DESC, brands.label ASC, materials.label ASC;
 

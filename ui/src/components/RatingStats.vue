@@ -1,63 +1,30 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, reactive, onMounted } from 'vue'
-import { storeToRefs } from 'pinia'
+import { ref, onMounted } from 'vue'
 
-import { useStorageStatsStore } from '../stores/stats'
-import { useBrandsStore } from '../stores/brands'
-import { useMaterialsStore } from '../stores/materials'
 
-const storageStatsStore = useStorageStatsStore()
-const brandsStore = useBrandsStore()
-const materialsStore = useMaterialsStore()
+import { useRatingStatsStore } from '../stores/stats'
+import { useColorsStore } from '../stores/colors'
+
+const ratingStatsStore = useRatingStatsStore()
+const colorsStore = useColorsStore()
+
+
+const colors = ref(colorsStore.sorted)
+const rating = ref(ratingStatsStore.sorted)
+
+const pagination = ref({
+  rowsPerPage: 0
+})
 
 const rootColumns: QTableColumn[] = [
-  {
-    name: 'label',
-    required: true,
-    label: 'Label',
-    align: 'left',
-    field: 'label',
-    sortable: true,
-    style: 'width: 25%',
-  },
-  {
-    name: 'max',
-    required: true,
-    label: 'Capacity',
-    align: 'left',
-    field: 'max',
-    sortable: true,
-    style: 'width: 25%',
-  },
-  {
-    name: 'used',
-    required: true,
-    label: 'Used',
-    align: 'left',
-    field: 'used',
-    sortable: true,
-    style: 'width: 25%',
-  },
-  {
-    name: 'free',
-    required: true,
-    label: 'Free',
-    align: 'left',
-    field: 'free',
-    sortable: true,
-    style: 'width: 25%',
-  }
-]
-
-const detailsColumns: QTableColumn[] = [
   {
     name: 'brand',
     required: true,
     label: 'Brand',
     align: 'left',
     field: 'brand',
-    sortable: false,
+    sortable: true,
     style: 'width: 25%',
   },
   {
@@ -66,45 +33,92 @@ const detailsColumns: QTableColumn[] = [
     label: 'Material',
     align: 'left',
     field: 'material',
-    sortable: false,
+    sortable: true,
     style: 'width: 25%',
   },
   {
-    name: 'color',
+    name: 'rating_count',
     required: true,
-    label: 'Color',
+    label: '# of Ratings',
     align: 'left',
-    field: 'color',
-    sortable: false,
+    field: 'rating_count',
+    sortable: true,
     style: 'width: 25%',
   },
   {
-    name: 'current_weight',
+    name: 'rating_average',
     required: true,
-    label: 'Current Weight',
+    label: 'Average Rating',
     align: 'left',
-    field: 'current_weight',
-    sortable: false,
+    field: 'rating_average',
+    sortable: true,
     style: 'width: 25%',
+    format: (val) => val.toFixed(1) + ' out of 5'
   }
 ]
 
-var storage = ref(storageStatsStore.sorted)
-var brand = ref(brandsStore.sorted)
-var material = ref(materialsStore.sorted)
+
+const detailsColumns: QTableColumn[] = [
+  {
+    name: 'spool_colors',
+    required: true,
+    label: 'Color',
+    align: 'left',
+    field: 'spool_colors',
+    sortable: false,
+    style: 'width: 18%',
+  },
+  {
+    name: 'spool_weight',
+    required: true,
+    label: 'Weight',
+    align: 'left',
+    field: 'spool_weight',
+    sortable: false,
+    style: 'width: 15%',
+  },
+  {
+    name: 'rating',
+    required: true,
+    label: 'Rating',
+    align: 'left',
+    field: 'rating',
+    sortable: false,
+    style: 'width: 15%',
+    format: (val) => val.toFixed(1) + ' out of 5'
+  },
+  {
+    name: 'spool_created_at',
+    required: true,
+    label: 'Purchased At',
+    align: 'left',
+    field: 'spool_created_at',
+    sortable: false,
+    style: 'width: 26%',
+  },
+  {
+    name: 'rating_created_at',
+    required: true,
+    label: 'Rated At',
+    align: 'left',
+    field: 'rating_created_at',
+    sortable: false,
+    style: 'width: 26%',
+  }
+]
 
 onMounted(async () => {
-  await storageStatsStore.find()
-  storage.value = storageStatsStore.sorted
-  await brandsStore.find()
-  brand.value = brandsStore.sorted
-  await materialsStore.find()
-  material.value = materialsStore.sorted
+  await ratingStatsStore.find()
+  rating.value = ratingStatsStore.sorted
+
+  await colorsStore.find()
+  colors.value = colorsStore.sorted
 })
 
-const pagination = ref({
-  rowsPerPage: 0
-})
+function DateTime(date: string): string {
+  let d = new Date(date)
+  return d.toISOString().replace('T', ' ').split('.')[0] as string
+}
 
 export interface RowClass {
   id: number
@@ -137,7 +151,7 @@ function resetRowClasses() {
 
 <template>
   <div class="row">
-    <q-table dark flat bordered binary-state-sort :rows="storage" :columns="rootColumns" row-key="label" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header" :table-row-class-fn="rowClassFn" @update:pagination="resetRowClasses">
+    <q-table dark flat bordered binary-state-sort :rows="rating" :columns="rootColumns" row-key="id" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header" :table-row-class-fn="rowClassFn" @update:pagination="resetRowClasses">
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">{{ col.label }}</q-th>
@@ -145,13 +159,13 @@ function resetRowClasses() {
         </q-tr>
       </template>
       <template v-slot:body="props">
-        <q-tr :props="props" @click="props.expand = !props.expand">
+        <q-tr :props="props" @click="props.expand = !props.expand" :key="props.row.id + '-main'">
           <q-td v-for="col in props.cols" :key="col.name" :props="props">{{ col.value }}</q-td>
           <q-td auto-width><q-icon @click="props.expand = !props.expand" size="xs" :name="props.expand ? 'mdi-chevron-up' : 'mdi-chevron-down'" /></q-td>
         </q-tr>
-        <q-tr v-show="props.expand" :props="props">
+        <q-tr v-show="props.expand" :props="props" :key="props.row.id + '-expand'">
           <q-td colspan="100%" class="details">
-            <q-table dark flat bordered binary-state-sort :rows="props.row.details" :columns="detailsColumns" row-key="label" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header subgrid">
+            <q-table dark flat bordered binary-state-sort :rows="props.row.details" :columns="detailsColumns" row-key="label" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="subgrid grid sticky-header">
                <template v-slot:header="props">
                 <q-tr :props="props">
                   <q-th v-for="col in props.cols" :key="col.name" :props="props">{{ col.label }}</q-th>
@@ -160,14 +174,18 @@ function resetRowClasses() {
               <template v-slot:body="props">
                 <q-tr :props="props">
                   <q-td v-for="col in props.cols" :key="col.name" :props="props">
-                    <div v-if="col.name === 'brand'">{{ brand.find(b => b.id === props.row.brand)?.label }}</div>
-                    <div v-if="col.name === 'material'">{{ material.find(m => m.id === props.row.material)?.label }}</div>
-                    <div v-if="col.name === 'current_weight'">{{ props.row.current_weight }}</div>
-                    <div v-if="col.name === 'color'">
-                      <div v-for="color, index in props.row.colors_hex" :key="color" class="q-mr-sm">
-                        <div class="hex" :style="{ backgroundColor: color }"></div> {{ props.row.colors_label[index] }}
+                    <div v-if="col.name === 'spool_colors'">
+                      <div v-for="color in props.row.spool_colors" :key="color" class="q-mr-sm">
+                        <div class="hex" :style="{ backgroundColor: colorsStore.findByID(color)?.hex }"></div> {{ colorsStore.findByID(color)?.label }}
                       </div>
                     </div>
+                    <div v-else-if="col.name === 'spool_created_at'">
+                      {{ DateTime(col.value) }}
+                    </div>
+                    <div v-else-if="col.name === 'rating_created_at'">
+                      {{ DateTime(col.value) }}
+                    </div>
+                    <div v-else>{{ col.value }}</div>
                   </q-td>
                 </q-tr>
               </template>

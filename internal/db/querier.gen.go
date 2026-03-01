@@ -16,18 +16,21 @@ type Querier interface {
 	CreateColor(ctx context.Context, arg CreateColorParams) (Color, error)
 	CreateLocation(ctx context.Context, arg CreateLocationParams) (Location, error)
 	CreateMaterial(ctx context.Context, arg CreateMaterialParams) (Material, error)
+	CreateRating(ctx context.Context, rating int64, spoolID int64) (Rating, error)
 	CreateSpool(ctx context.Context, arg CreateSpoolParams) (Spool, error)
 	CreateStore(ctx context.Context, label string, uRL *string) (Store, error)
 	DeleteBrand(ctx context.Context, id int64) error
 	DeleteColor(ctx context.Context, id int64) error
 	DeleteLocation(ctx context.Context, id int64) error
 	DeleteMaterial(ctx context.Context, id int64) error
+	DeleteRating(ctx context.Context, id int64) error
 	DeleteSpool(ctx context.Context, id int64) error
 	DeleteStore(ctx context.Context, id int64) error
 	FindBrands(ctx context.Context) ([]Brand, error)
 	FindColors(ctx context.Context) ([]Color, error)
 	FindLocations(ctx context.Context) ([]Location, error)
 	FindMaterials(ctx context.Context) ([]Material, error)
+	FindRatings(ctx context.Context) ([]Rating, error)
 	FindSpools(ctx context.Context) ([]Spool, error)
 	FindStores(ctx context.Context) ([]Store, error)
 	GetBrandByID(ctx context.Context, id int64) (Brand, error)
@@ -37,6 +40,11 @@ type Querier interface {
 	// GetMaterialChartData returns the data for a material chart: class, material, brand, and count of spools for each combo.
 	// It includes a total row for each class, class and material, and a grand total row. The results are ordered by material label and class, with null values treated as 'All'.
 	GetMaterialChartData(ctx context.Context) ([]GetMaterialChartDataRow, error)
+	GetRatingByID(ctx context.Context, id int64) (Rating, error)
+	// GetRatingStats returns the average rating for each brand and material combination, along with the count of ratings.
+	// It orders the results by average rating in descending order, and then by brand and material labels in ascending order.
+	GetRatingStats(ctx context.Context) ([]GetRatingStatsRow, error)
+	GetRatingsByBrandIDAndMaterialID(ctx context.Context, brandID int64, materialID int64) ([]Rating, error)
 	GetSpoolByID(ctx context.Context, id int64) (Spool, error)
 	GetSpoolColors(ctx context.Context, spoolID int64) ([]Color, error)
 	// GetStorageStats returns the storage statistics for each location, including the maximum capacity, used capacity, and free capacity. It also includes a total row that sums up the statistics for all locations. The results are ordered by location ID.
@@ -50,6 +58,7 @@ type Querier interface {
 	UpdateColor(ctx context.Context, arg UpdateColorParams) (Color, error)
 	UpdateLocation(ctx context.Context, arg UpdateLocationParams) (Location, error)
 	UpdateMaterial(ctx context.Context, arg UpdateMaterialParams) (Material, error)
+	UpdateRating(ctx context.Context, rating int64, iD int64) (Rating, error)
 	UpdateSpool(ctx context.Context, arg UpdateSpoolParams) (Spool, error)
 	UpdateStore(ctx context.Context, arg UpdateStoreParams) (Store, error)
 }

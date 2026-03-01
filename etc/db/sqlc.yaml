@@ -4,14 +4,15 @@ sql:
     schema: "migrations"
     engine: "postgresql"
     queries:
+      - "queries/dashboard.sql"
       - "queries/brands.sql"
       - "queries/colors.sql"
       - "queries/healthcheck.sql"
       - "queries/locations.sql"
       - "queries/materials.sql"
+      - "queries/ratings.sql"
       - "queries/stores.sql"
       - "queries/spools.sql"
-      - "queries/dashboard.sql"
     gen:
       go:
         out: "../../internal/db"

@@ -40,8 +40,6 @@ export interface NewSpool {
     current_weight: number
     price: number
     empty: boolean
-    created_at: Date
-    updated_at: Date
 }
 
 export interface SpoolBrandLink {
@@ -61,6 +59,9 @@ export const useSpoolsStore = defineStore('spools', () => {
 
 
     const sorted = ref<Spool[]>([])
+
+    const lastCreatedID = ref<number | null>(null)
+
     // const editError = ref<string[]>([])
 
     async function find(sortBy: string = "label", sortDir: string = "asc") {
@@ -92,6 +93,7 @@ export const useSpoolsStore = defineStore('spools', () => {
     async function create(record: NewSpool) {
         multiSpoolAPI.post<Spool>(record).then((result: Spool) => {
             sorted.value.push(result)
+            lastCreatedID.value = result.id
         })
     }
 
@@ -175,8 +177,6 @@ export const useSpoolsStore = defineStore('spools', () => {
             store_label: "skip",
         }
 
-
-
         if (brand?.store_id !== null && brand?.store_id !== undefined) {
             let storeForBrand = storesStore.findByID(brand?.store_id as number)
             if (storeForBrand?.url !== undefined && storeForBrand?.url !== null) {
@@ -193,8 +193,11 @@ export const useSpoolsStore = defineStore('spools', () => {
         return result
     }
 
+
+
     return {
         sorted,
+        lastCreatedID,
         count,
         find,
         update,
@@ -202,7 +205,7 @@ export const useSpoolsStore = defineStore('spools', () => {
         kill,
 
         showEmpty,
-toggleEmpty,
+        toggleEmpty,
         findByID,
         indexOfID,
         storeBrandLinks

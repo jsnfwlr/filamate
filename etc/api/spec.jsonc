@@ -1262,6 +1262,219 @@
         ]
       }
     },
+    "/api/ratings": {
+      "options": {
+        "operationId": "check_ratings",
+        "summary": "CORS preflight for ratings",
+        "description": "CORS preflight request for /ratings endpoint.",
+        "responses": {
+          "204": {
+            "description": "CORS preflight successful"
+          }
+        }
+      },
+      "get": {
+        "operationId": "find_ratings",
+        "summary": "Find ratings",
+        "description": "Retrieve a list of all ratings.",
+        "responses": {
+          "200": {
+            "description": "List of ratings retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/rating"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+            {
+              "$ref": "#/components/parameters/MaterialID"
+            },
+            {
+              "$ref": "#/components/parameters/BrandID"
+            }
+          ]
+      },
+      "post": {
+        "operationId": "create_rating",
+        "summary": "Create rating",
+        "description": "Create a new rating.",
+        "responses": {
+          "201": {
+            "description": "rating created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rating"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "rating creation payload",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/create_rating_request"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rating/{id}": {
+      "options": {
+        "operationId": "check_rating",
+        "summary": "CORS preflight for rating by ID",
+        "description": "CORS preflight request for /rating/{id} endpoint.",
+        "responses": {
+          "204": {
+            "description": "CORS preflight successful"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "kill_rating",
+        "summary": "Delete rating",
+        "description": "Delete an existing rating by ID.",
+        "responses": {
+          "204": {
+            "description": "Rating deleted successfully"
+          },
+          "404": {
+            "description": "Rating not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "update_rating",
+        "summary": "Update rating",
+        "description": "Update an existing rating by ID.",
+        "responses": {
+          "200": {
+            "description": "Rating updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rating"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Rating not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/id"
+          }
+        ],
+        "requestBody": {
+          "description": "Rating update payload",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/update_rating_request"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/stats/usage": {
       "options": {
         "operationId": "check_usage_stats",
@@ -1323,6 +1536,45 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/storage_stats"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats/ratings": {
+      "options": {
+        "operationId": "check_rating_stats",
+        "summary": "CORS preflight for rating stats",
+        "description": "CORS preflight request for /stats/ratings endpoint.",
+        "responses": {
+          "204": {
+            "description": "CORS preflight successful"
+          }
+        }
+      },
+      "get": {
+        "operationId": "get_rating_stats",
+        "summary": "Get rating stats",
+        "description": "Retrieve rating statistics for the application.",
+        "responses": {
+          "200": {
+            "description": "Rating stats retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rating_stats"
                 }
               }
             }
@@ -1421,6 +1673,22 @@
   },
   "components": {
     "schemas": {
+      "error": {
+        "type": "object",
+        "required": [
+          "message",
+          "code"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Error message describing the issue"
+          },
+          "code": {
+            "type": "integer"
+          }
+        }
+      },
       "find_location_request": {
         "type": "object",
         "description": "Request body for finding locations",
@@ -2275,12 +2543,18 @@
         "type": "object",
         "description": "Usage statistics item",
         "required": [
+          "id",
           "color",
           "material",
           "used",
           "ordered"
         ],
         "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier for the material and color combination",
+            "format": "int64"
+          },
           "color": {
             "type": "string",
             "description": "Color(s) of the filament"
@@ -2301,6 +2575,107 @@
           }
         }
       },
+      "rating_stats": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/rating_stat"
+        }
+      },
+      "rating_stat": {
+        "type": "object",
+        "description": "Rating statistics item",
+        "required": [
+          "id",
+          "rating_average",
+          "material",
+          "brand",
+          "rating_count",
+          "details"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier for the material and brand combination",
+            "format": "int64"
+          },
+          "rating_average": {
+            "type": "number",
+            "format": "float",
+            "description": "Average rating of this material and brand combination, typically on a scale of 1 to 5"
+
+          },
+          "material": {
+            "type": "string",
+            "description": "Material of the filament"
+          },
+          "brand": {
+            "type": "string",
+            "description": "Brand of the filament"
+          },
+          "rating_count": {
+            "type": "integer",
+            "description": "Number of ratings for this material and brand combination",
+            "format": "int64"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/rating_stat_detail"
+            },
+            "description": "Detailed information about each rating for this material and brand combination"
+          }
+        }
+      },
+      "rating_stat_detail": {
+        "type": "object",
+        "description": "Additional details about the ratings that contribute to the overall rating statistics for a material and brand combination - individual ratings by spool",
+        "required": [
+          "spool_id",
+          "spool_created_at",
+          "spool_weight",
+          "spool_colors",
+          "rating",
+          "rating_created_at"
+        ],
+        "properties": {
+          "spool_id": {
+            "type": "integer",
+            "description": "Unique identifier for the spool",
+            "format": "int64"
+          },
+          "spool_created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the spool was created"
+          },
+          "spool_weight": {
+            "type": "number",
+            "format": "float",
+            "description": "Initial marketed weight of the filament on the spool in grams"
+          },
+          "spool_colors": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "description": "ID of the color of the spool",
+              "format": "int64"
+            },
+            "description": "Color ID(s) of the filament on the spool"
+          },
+          "rating": {
+            "type": "integer",
+            "description": "Unique identifier for the rating",
+            "minimum":1,
+            "maximum":5,
+            "format": "int64"
+          },
+          "rating_created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the rating was created"
+          }
+        }
+      },
       "storage_stats": {
         "type": "array",
         "items": {
@@ -2311,6 +2686,7 @@
         "type": "object",
         "description": "Storage statistics item",
         "required": [
+          "id",
           "label",
           "max",
           "used",
@@ -2318,6 +2694,11 @@
           "details"
         ],
         "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier for the storage stat entry",
+            "format": "int64"
+          },
           "label": {
             "type": "string",
             "description": "Name of the storage location"
@@ -2387,19 +2768,87 @@
           }
         }
       },
-      "error": {
+      "update_rating_request": {
         "type": "object",
+        "description": "Request body for updating a rating",
         "required": [
-          "message",
-          "code"
+          "id",
+          "rating"
         ],
         "properties": {
-          "message": {
-            "type": "string",
-            "description": "Error message describing the issue"
+          "id": {
+            "type": "integer",
+            "description": "ID of the rating to update",
+            "format": "int64"
           },
-          "code": {
-            "type": "integer"
+          "rating": {
+            "type": "integer",
+            "description": "Updated rating value for the spool, typically on a scale of 1 to 5",
+            "minimum": 1,
+            "maximum": 5,
+            "format": "int64"
+          }
+        }
+      },
+      "create_rating_request": {
+        "type": "object",
+        "description": "Request body for creating a rating",
+        "required": [
+          "spool_id",
+          "rating"
+        ],
+        "properties": {
+          "spool_id": {
+            "type": "integer",
+            "description": "ID of the spool being rated",
+            "format": "int64"
+          },
+          "rating": {
+            "type": "integer",
+            "description": "Rating value for the spool, typically on a scale of 1 to 5",
+            "minimum": 1,
+            "maximum": 5,
+            "format": "int64"
+          }
+        }
+      },
+      "rating": {
+        "type": "object",
+        "description": "Rating item",
+        "required": [
+          "id",
+          "spool_id",
+          "rating",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier for the rating",
+            "format": "int64"
+          },
+          "spool_id": {
+            "type": "integer",
+            "description": "ID of the spool being rated",
+            "format": "int64"
+          },
+          "rating": {
+            "type": "integer",
+            "description": "Rating value for the spool, typically on a scale of 1 to 5",
+            "minimum": 1,
+            "maximum": 5,
+            "format": "int64"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the rating was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the rating was last updated"
           }
         }
       }
@@ -2443,6 +2892,26 @@
         "in": "path",
         "required": true,
         "description": "ID of the record to update",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "BrandID": {
+        "name": "brand_id",
+        "in": "query",
+        "required": false,
+        "description": "ID of the brand to filter by",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "MaterialID": {
+        "name": "material_id",
+        "in": "query",
+        "required": false,
+        "description": "ID of the material to filter by",
         "schema": {
           "type": "integer",
           "format": "int64"

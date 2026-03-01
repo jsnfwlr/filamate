@@ -59,12 +59,41 @@ const editRowData = ref<any | null>(null)
 const pagination = ref({
   rowsPerPage: 0
 })
+
+
+
+export interface RowClass {
+  id: number
+  class: string
+}
+
+const rowClasses = ref<Array<RowClass>>([])
+
+function rowClassFn(row: any): string {
+  for (let i = 0; i < rowClasses.value.length; i++) {
+    if (rowClasses !== undefined && rowClasses.value !== undefined && rowClasses.value[i]?.id === row.id) {
+      return rowClasses.value[i]?.class as string
+    }
+  }
+
+  if (rowClasses.value.length % 2 === 0) {
+    rowClasses.value.push({ id: row.id, class: 'odd' })
+    return 'odd' // length of 1 means index
+  }
+
+  rowClasses.value.push({ id: row.id, class: 'even' })
+  return 'even'
+}
+
+function resetRowClasses() {
+  rowClasses.value = []
+}
+
 </script>
 
 <template>
   <div class="row">
-    <q-table dark flat bordered binary-state-sort :rows="usage" :columns="columns" row-key="id" virtual-scroll
-      :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header">
+    <q-table dark flat bordered binary-state-sort :rows="usage" :columns="columns" row-key="id" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header" :table-row-class-fn="rowClassFn" @update:pagination="resetRowClasses">
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">{{ col.label }}</q-th>
@@ -129,5 +158,9 @@ const pagination = ref({
     /* height of all previous header rows */
     scroll-margin-top: 48px;
   }
+}
+
+.even {
+  background-color: #44444411;
 }
 </style>
