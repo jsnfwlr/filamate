@@ -24,23 +24,30 @@ open http://localhost:9766
 * [x] Upgrade to Go 1.26
 * [x] Add stock level chart to the dashboard
 * [x] Add material/brand chart to the dashboard
-* [ ] Add bulk creation of Locations, Materials, Brands, Stores, Colors, and maybe Spools
-* [ ] Add visual interface showing spool location, with drag-and-drop for moving spools between locations
-* [ ] Add rating system that prompts the user to give a rating out of 5 stars when they empty a spool, allowing them to track the quality of the filament by brand/material/color
-* [ ] Add linting for UI
-* [ ] Add unit tests for UI
-* [ ] Add testing mocks for the API functions
-* [ ] Add integration tests of the API endpoints
-* [ ] Add fuzzing tests for API functions
-* [ ] Add support for internationalization (i18n) and allow for translation contributions
-* [ ] Set up GitHub Actions
+* [ ] Add bulk creation of
+    * [ ] [Locations](https://github.com/jsnfwlr/filamate/issues/1)
+    * [ ] [Materials](https://github.com/jsnfwlr/filamate/issues/2)
+    * [ ] [Brands](https://github.com/jsnfwlr/filamate/issues/3)
+    * [ ] [Stores](https://github.com/jsnfwlr/filamate/issues/4)
+    * [ ] [Colors](https://github.com/jsnfwlr/filamate/issues/5)
+    * [ ] [Spools](https://github.com/jsnfwlr/filamate/issues/6)
+    * [ ] [Ratings](https://github.com/jsnfwlr/filamate/issues/7)
+* [ ] [Add visual interface showing spool location, with drag-and-drop for moving spools between locations](https://github.com/jsnfwlr/filamate/issues/8)
+* [x] Add rating system that prompts the user to give a rating out of 5 stars when they empty a spool, allowing them to track the quality of the filament by brand/material/color
+* [ ] [Add linting for UI](https://github.com/jsnfwlr/filamate/issues/9)
+* [ ] [Add unit tests for UI](https://github.com/jsnfwlr/filamate/issues/10)
+* [ ] [Add testing mocks for the API functions](https://github.com/jsnfwlr/filamate/issues/11)
+* [ ] [Add integration tests of the API endpoints](https://github.com/jsnfwlr/filamate/issues/12)
+* [ ] [Add fuzzing tests for API functions](https://github.com/jsnfwlr/filamate/issues/13)
+* [ ] [Add support for internationalization (i18n)](https://github.com/jsnfwlr/filamate/issues/14) and allow for translation contributions
+* [ ] [Set up GitHub Actions](https://github.com/jsnfwlr/filamate/issues/15)
 
 ### v0.1.0 and beyond
 
-* [ ] Publish official container image to ghcr.io and hub.docker.com
-* [ ] Make README nicer
-* [ ] Add integration/behavioral tests of the UI
-* [ ] Add test coverage for UI
+* [ ] [Publish official container image to ghcr.io and hub.docker.com](https://github.com/jsnfwlr/filamate/issues/16)
+* [ ] [Add integration/behavioral tests of the UI](https://github.com/jsnfwlr/filamate/issues/17)
+* [ ] [Add test coverage for UI](https://github.com/jsnfwlr/filamate/issues/18)
+* [ ] [Create a user docs site](https://github.com/jsnfwlr/filamate/issues/19)
 
 ## Disclaimer
 
