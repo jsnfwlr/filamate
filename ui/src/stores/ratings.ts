@@ -59,7 +59,7 @@ export const useRatingStore = defineStore('ratings', () => {
     }
 
     async function kill(ratingID: number) {
-        singleRatingAPI.delete(ratingID).then(resp => {
+        singleRatingAPI.delete(ratingID).then(() => {
             const idx = indexOfID(ratingID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {

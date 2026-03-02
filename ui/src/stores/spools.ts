@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { mande } from "mande";
-import type { Color } from './colors';
 
 import { useBrandsStore } from './brands';
 import { useStoresStore } from './stores';
@@ -98,7 +97,7 @@ export const useSpoolsStore = defineStore('spools', () => {
     }
 
     async function kill(spoolID: number) {
-        singleSpoolAPI.delete(spoolID).then(resp => {
+        singleSpoolAPI.delete(spoolID).then(() => {
             const idx = indexOfID(spoolID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {
@@ -110,7 +109,7 @@ export const useSpoolsStore = defineStore('spools', () => {
         return sorted.value.length
     })
 
-    function findByID(id: number): Spool | undefined {
+    function findByID(id: number): Spool {
         const found = sorted.value.find((b: { id: number | null }) => b.id === id)
         if (found === null || found === undefined) {
             return {

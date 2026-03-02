@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, reactive, onMounted } from 'vue'
-import { storeToRefs } from 'pinia'
+import { ref, onMounted } from 'vue'
 
+import type { UsageStat } from '../stores/stats'
 import { useUsageStatsStore } from '../stores/stats'
 
 
@@ -54,13 +54,9 @@ onMounted(async () => {
   usage.value = usageStatsStore.sorted
 })
 
-const editRowData = ref<any | null>(null)
-
 const pagination = ref({
   rowsPerPage: 0
 })
-
-
 
 export interface RowClass {
   id: number
@@ -69,7 +65,7 @@ export interface RowClass {
 
 const rowClasses = ref<Array<RowClass>>([])
 
-function rowClassFn(row: any): string {
+function rowClassFn(row: UsageStat): string {
   for (let i = 0; i < rowClasses.value.length; i++) {
     if (rowClasses.value !== undefined && rowClasses.value !== undefined && rowClasses.value[i]?.id === row.id) {
       return rowClasses.value[i]?.class as string
@@ -101,8 +97,7 @@ function resetRowClasses() {
       </template>
 
       <template v-slot:body="props">
-        <q-tr :props="props"
-          :style="editRowData != null && editRowData.id === props.row.id ? 'background-color: #ffffff12' : ''">
+        <q-tr :props="props">
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             <div v-if="col.name === 'color'">{{ props.row.color }}</div>
             <div v-if="col.name === 'material'">{{ props.row.material }}</div>

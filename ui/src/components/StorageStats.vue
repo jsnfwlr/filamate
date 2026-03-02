@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, reactive, onMounted } from 'vue'
-import { storeToRefs } from 'pinia'
+import { ref, onMounted } from 'vue'
 
+
+import type { StorageStat } from '../stores/stats'
 import { useStorageStatsStore } from '../stores/stats'
 import { useBrandsStore } from '../stores/brands'
 import { useMaterialsStore } from '../stores/materials'
@@ -113,7 +114,7 @@ export interface RowClass {
 
 const rowClasses = ref<Array<RowClass>>([])
 
-function rowClassFn(row: any): string {
+function rowClassFn(row: StorageStat): string {
   for (let i = 0; i < rowClasses.value.length; i++) {
     if (rowClasses.value !== undefined && rowClasses.value !== undefined && rowClasses.value[i]?.id === row.id) {
       return rowClasses.value[i]?.class as string

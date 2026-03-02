@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import type { ChartData, ChartOptions, TooltipItem } from 'chart.js'
 import { Pie } from 'vue-chartjs'
@@ -9,16 +9,6 @@ ChartJS.register(ArcElement, Tooltip, Legend)
 const props = defineProps<{
     chartData: ChartData<'pie'>,
 }>()
-
-const colors = {
-    red: 'rgb(255, 99, 132)',
-    orange: 'rgb(255, 159, 64)',
-    yellow: 'rgb(255, 205, 86)',
-    green: 'rgb(75, 192, 192)',
-    blue: 'rgb(54, 162, 235)',
-    purple: 'rgb(153, 102, 255)',
-    grey: 'rgb(201, 203, 207)'
-};
 
 
 ChartJS.defaults.color = '#ffffff'
@@ -85,9 +75,9 @@ const options = computed<ChartOptions<'pie'>>(() => {
             },
             tooltip: {
                 callbacks: {
-                    title: function (context: TooltipItem<'pie'>[]): any {
+                    title: function (context: TooltipItem<'pie'>[]): string {
                         if (context[0] === undefined) {
-                            return
+                            return ''
                         }
 
 
@@ -102,7 +92,7 @@ const options = computed<ChartOptions<'pie'>>(() => {
                         let labelIndex = 0;
 
                         if (context[0].dataset === undefined) {
-                            return
+                            return ''
                         }
 
                         if (context[0].dataset.backgroundColor instanceof Array) {
@@ -113,7 +103,7 @@ const options = computed<ChartOptions<'pie'>>(() => {
                         }
 
 
-                        return (context[0].chart.data.labels === undefined ? '' : context[0].chart.data.labels[labelIndex]);
+                        return (context[0].chart.data.labels === undefined ? '' : context[0].chart.data.labels[labelIndex]) as string;
 
                     }
                 }
@@ -128,7 +118,7 @@ const options = computed<ChartOptions<'pie'>>(() => {
 
 <template>
     <div class="q-dark">
-        <Pie :data="chartData" :options="options" />
+        <Pie :data="props.chartData" :options="options" />
     </div>
 </template>
 

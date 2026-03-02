@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { mande } from "mande";
-import type { Spool } from './spools';
-import type { Color } from './colors';
 
 
 const multiStatAPI = import.meta.env.DEV ? mande('http://bespin:9766/api/stats') : mande('/api/stats')

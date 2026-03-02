@@ -2,7 +2,7 @@
 import type { QTableColumn } from 'quasar'
 import { ref, onMounted } from 'vue'
 
-
+import type { RatingStat } from '../stores/stats'
 import { useRatingStatsStore } from '../stores/stats'
 import { useColorsStore } from '../stores/colors'
 
@@ -127,7 +127,7 @@ export interface RowClass {
 
 const rowClasses = ref<Array<RowClass>>([])
 
-function rowClassFn(row: any): string {
+function rowClassFn(row: RatingStat): string {
   for (let i = 0; i < rowClasses.value.length; i++) {
     if (rowClasses.value !== undefined && rowClasses.value !== undefined && rowClasses.value[i]?.id === row.id) {
       return rowClasses.value[i]?.class as string

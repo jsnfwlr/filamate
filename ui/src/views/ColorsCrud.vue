@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, reactive, onMounted } from 'vue'
-import { storeToRefs } from 'pinia'
+import { ref, onMounted } from 'vue'
+
 
 import { useStoresStore } from '../stores/stores'
 import { useColorsStore } from '../stores/colors'
+import type { Color } from '../stores/colors'
 
 
 const storesStore = useStoresStore()
@@ -57,7 +58,7 @@ onMounted(async () => {
   stores.value = storesStore.sorted
 })
 
-const editRowData = ref<any>({})
+const editRowData = ref<Color>({} as Color)
 
 function editRow(id: number) {
   editRowData.value = colorsStore.findByID(id)
@@ -86,7 +87,7 @@ function deleteColor(id: number) {
 }
 
 function resetEdit() {
-  editRowData.value = {}
+  editRowData.value = {} as Color
 }
 
 const pagination = ref({
@@ -122,7 +123,7 @@ const pagination = ref({
       </template>
     </q-table>
     <div class="form">
-      <q-form v-if="editRowData != null" @submit="saveColor(); editRowData = null" @reset="resetEdit()">
+      <q-form v-if="editRowData != null" @submit="saveColor()" @reset="resetEdit()">
         <div class="text-h6 q-mb-md">{{ editRowData.id != null ? 'Edit color' : 'Add new color' }}</div>
         <div><q-input dark v-model="editRowData.label" label="Color name"
             hint="Name of the color: Black, Teal, Orange, etc" lazy-rules

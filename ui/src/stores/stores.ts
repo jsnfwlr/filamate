@@ -47,7 +47,7 @@ export const useStoresStore = defineStore('stores', () => {
     }
 
     async function kill(storeID: number) {
-        singleStoreAPI.delete(storeID).then(resp => {
+        singleStoreAPI.delete(storeID).then(() => {
             const idx = indexOfID(storeID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {
@@ -59,7 +59,7 @@ export const useStoresStore = defineStore('stores', () => {
         return sorted.value.length
     })
 
-    function findByID(id: number): Store | undefined {
+    function findByID(id: number): Store {
         const found = sorted.value.find((f: { id: number | null }) => f.id === id)
         if (found === null || found === undefined) {
             return {

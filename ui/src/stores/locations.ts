@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed, capitalize } from 'vue'
+import { ref, computed } from 'vue'
 import { mande } from "mande";
 
 const multiLocationAPI = import.meta.env.DEV ? mande('http://bespin:9766/api/locations') : mande('/api/locations')
@@ -58,7 +58,7 @@ export const useLocationsStore = defineStore('locations', () => {
     }
 
     async function kill(locationID: number) {
-        singleLocationAPI.delete(locationID).then(resp => {
+        singleLocationAPI.delete(locationID).then(() => {
             const idx = indexOfID(locationID)
             sorted.value.splice(idx, 1)
         }).catch(err => {
@@ -70,7 +70,7 @@ export const useLocationsStore = defineStore('locations', () => {
         return sorted.value.length
     })
 
-    function findByID(id: number): Location | undefined {
+    function findByID(id: number): Location {
         const found = sorted.value.find((b: { id: number | null }) => b.id === id)
         if (found === null || found === undefined) {
             return {

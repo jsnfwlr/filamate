@@ -1,28 +1,40 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, reactive, onMounted } from 'vue'
-import { storeToRefs } from 'pinia'
+import { ref, onMounted } from 'vue'
+
 
 import { useStoresStore } from '../stores/stores'
+import { useBrandsStore } from '../stores/brands'
+import type { Brand } from '../stores/brands'
 
 
 const storesStore = useStoresStore()
+const brandsStore = useBrandsStore()
 
 const columns: QTableColumn[] = [
   {
     name: 'label',
     required: true,
-    label: 'Store',
+    label: 'Brand',
     align: 'left',
     field: 'label',
     sortable: true,
     style: 'width: 40%',
   },
   {
-    name: 'url',
-    label: 'URL',
+    name: 'active',
+    required: true,
+    label: 'Active',
     align: 'left',
-    field: 'url',
+    field: 'active',
+    sortable: true,
+    style: 'width: 10%',
+  },
+  {
+    name: 'store',
+    label: 'Store',
+    align: 'left',
+    field: 'store',
     sortable: true,
     style: 'width: 40%',
   },
@@ -36,34 +48,37 @@ const columns: QTableColumn[] = [
   }
 ]
 
+const brands = ref(brandsStore.sorted)
 const stores = ref(storesStore.sorted)
 
 onMounted(async () => {
   await storesStore.find()
+  await brandsStore.find()
+  brands.value = brandsStore.sorted
   stores.value = storesStore.sorted
 })
 
-const editRowData = ref<any>({})
+const editRowData = ref<Brand>({} as Brand)
 
 function editRow(id: number) {
-  editRowData.value = storesStore.findByID(id)
+  editRowData.value = brandsStore.findByID(id)
 }
 
-function saveStore() {
+function saveBrand() {
   if (editRowData.value.id === undefined || editRowData.value.id === null) {
-    storesStore.create(editRowData.value).then( () => {
+    brandsStore.create(editRowData.value).then( () => {
       resetEdit()
     })
   } else {
-    storesStore.update(editRowData.value.id, editRowData.value).then( () => {
+    brandsStore.update(editRowData.value.id, editRowData.value).then( () => {
       resetEdit()
     })
   }
 }
 
-function deleteStore(id: number) {
-  if (confirm("Are you sure you want to delete this store?")) {
-    storesStore.kill(id)
+function deleteBrand(id: number) {
+  if (confirm("Are you sure you want to delete this brand?")) {
+    brandsStore.kill(id)
     if (editRowData.value.id === id) {
       resetEdit()
     }
@@ -71,18 +86,18 @@ function deleteStore(id: number) {
   }
 }
 
+function resetEdit() {
+  editRowData.value = {} as Brand
+}
+
 const pagination = ref({
   rowsPerPage: 0
 })
-
-function resetEdit() {
-  editRowData.value = {}
-}
 </script>
 
 <template>
   <div class="row">
-    <q-table dark flat bordered binary-state-sort :rows="stores" :columns="columns" row-key="id" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header">
+    <q-table dark flat bordered binary-state-sort :rows="brands" :columns="columns" row-key="id" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header">
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">{{ col.label }}</q-th>
@@ -93,20 +108,22 @@ function resetEdit() {
         <q-tr :props="props" :style="editRowData != null && editRowData.id === props.row.id ? 'background-color: #ffffff12' : ''">
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             <div v-if="col.name === 'label'">{{ props.row.label }}</div>
-            <div v-if="col.name === 'url'"><a :href="props.row.url" target="_blank">{{ props.row.url }}</a></div>
+            <div v-else-if="col.name === 'active'">{{ props.row.active ? 'Yes' : 'No' }}</div>
+            <div v-else-if="col.name === 'store'"><a v-if="props.row.store_id != null" :href="storesStore.findByID(props.row.store_id)?.url" target="_blank" >{{ storesStore.findByID(props.row.store_id)?.label }}</a></div>
             <div v-else-if="col.name === 'actions'">
               <q-btn flat color="primary" icon="mdi-pencil" size="xs"  @click="editRow(props.row.id)" />
-              <q-btn flat color="red" icon="mdi-delete" size="xs"  @click="deleteStore(props.row.id)" />
+              <q-btn flat color="red" icon="mdi-delete" size="xs"  @click="deleteBrand(props.row.id)" />
             </div>
           </q-td>
         </q-tr>
       </template>
     </q-table>
     <div class="form">
-      <q-form v-if="editRowData != null" @submit="saveStore(); editRowData = null" @reset="resetEdit()">
-      <div class="text-h6 q-mb-md">{{ editRowData.id != null ? 'Edit store' : 'Add new store' }}</div>
-      <div><q-input dark v-model="editRowData.label" label="Store name" hint="Name of the brand: Creality, eSun, etc" lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']"/></div>
-      <div><q-input dark v-model="editRowData.url" label="Site URL" hint="The website URL of the store" lazy-rules type="url" :rules="[ val => val && val.length > 0 || 'Please type something']"/></div>
+      <q-form v-if="editRowData != null" @submit="saveBrand()" @reset="resetEdit()">
+      <div class="text-h6 q-mb-md">{{ editRowData.id != null ? 'Edit brand' : 'Add new brand' }}</div>
+      <div><q-input dark v-model="editRowData.label" label="Brand name" hint="Name of the brand: Creality, eSun, etc" lazy-rules :rules="[ val => val && val.length > 0 || 'Please type something']"/></div>
+      <div><q-toggle label="Active" v-model="editRowData.active" /></div>
+      <div><q-select label="Store" clearable dark v-model="editRowData.store_id" :options="stores" option-label="label" option-value="id" map-options emit-value /> </div>
       <div class="q-mt-md">
         <q-btn label="Save" icon="mdi-content-save" type="submit" color="primary" />
         <q-btn label="Cancel" icon="mdi-undo" type="reset" color="secondary" class="q-ml-sm" />

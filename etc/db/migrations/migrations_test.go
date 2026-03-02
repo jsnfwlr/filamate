@@ -75,7 +75,7 @@ func makeInfo(t *testing.T, files []string) (targetVersion int32, information st
 		indicator := "  "
 
 		num := numLeadZero.ReplaceAllString(matches[0][1], "")
-		i.WriteString(fmt.Sprintf("%2s %3s %s\n", indicator, num, matches[0][2]))
+		fmt.Fprintf(&i, "%2s %3s %s\n", indicator, num, matches[0][2])
 		if num == "" {
 			num = "0"
 		}

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/dashboard.vue'
+import HomeView from '../views/DashBoard.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,42 +16,42 @@ const router = createRouter({
       // spools
       path: '/spools',
       name: 'spools',
-      component: () => import('../views/spools.vue'),
+      component: () => import('../views/SpoolsCrud.vue'),
       meta: { title: 'Filamate - Spools' },
     },
     {
       // brands
       path: '/brands',
       name: 'brands',
-      component: () => import('../views/brands.vue'),
+      component: () => import('../views/BrandsCrud.vue'),
       meta: { title: 'Filamate - Brands' },
     },
     {
       // colors
       path: '/colors',
       name: 'colors',
-      component: () => import('../views/colors.vue'),
+      component: () => import('../views/ColorsCrud.vue'),
       meta: { title: 'Filamate - Colors' },
     },
     {
       // locations
       path: '/locations',
       name: 'locations',
-      component: () => import('../views/locations.vue'),
+      component: () => import('../views/LocationsCrud.vue'),
       meta: { title: 'Filamate - Locations' },
     },
     {
       // materials
       path: '/materials',
       name: 'materials',
-      component: () => import('../views/materials.vue'),
+      component: () => import('../views/MaterialsCrud.vue'),
       meta: { title: 'Filamate - Materials' },
     },
     {
       // stores
       path: '/stores',
       name: 'stores',
-      component: () => import('../views/stores.vue'),
+      component: () => import('../views/StoresCrud.vue'),
       meta: { title: 'Filamate - Stores' },
     },
   ],

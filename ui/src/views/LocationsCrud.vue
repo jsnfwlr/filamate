@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, reactive, onMounted } from 'vue'
-import { storeToRefs } from 'pinia'
+import { ref, onMounted } from 'vue'
 
+
+import type { Location } from '../stores/locations'
 import { useLocationsStore } from '../stores/locations'
 
 
@@ -72,7 +73,7 @@ onMounted(async () => {
   locations.value = locationsStore.sorted
 })
 
-const editRowData = ref<any>({})
+const editRowData = ref<Location>({} as Location)
 
 function editRow(id: number) {
   editRowData.value = locationsStore.findByID(id)
@@ -101,7 +102,7 @@ function deleteLocation(id: number) {
 }
 
 function resetEdit() {
-  editRowData.value = {}
+  editRowData.value = {} as Location
 }
 
 const pagination = ref({
@@ -138,7 +139,7 @@ const pagination = ref({
       </template>
     </q-table>
     <div class="form">
-      <q-form v-if="editRowData != null" @submit="saveLocation(); editRowData = null" @reset="resetEdit()">
+      <q-form v-if="editRowData != null" @submit="saveLocation()" @reset="resetEdit()">
         <div class="text-h6 q-mb-md">{{ editRowData.id != null ? 'Edit location' : 'Add new location' }}</div>
         <div><q-input dark v-model="editRowData.label" label="Label"
             hint="Name of the location: Box 1, AMS, etc" lazy-rules

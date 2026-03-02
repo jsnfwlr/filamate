@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, reactive, onMounted } from 'vue'
-import { storeToRefs } from 'pinia'
+import { ref, onMounted } from 'vue'
+
 
 import { useMaterialsStore } from '../stores/materials'
+import type { Material } from '../stores/materials'
 
 
 const materialsStore = useMaterialsStore()
@@ -62,7 +63,7 @@ onMounted(async () => {
   materials.value = materialsStore.sorted
 })
 
-const editRowData = ref<any>({})
+const editRowData = ref<Material>({} as Material)
 
 function editRow(id: number) {
   editRowData.value = materialsStore.findByID(id)
@@ -91,7 +92,7 @@ function deleteMaterial(id: number) {
 }
 
 function resetEdit() {
-  editRowData.value = {}
+  editRowData.value = {} as Material
 }
 
 const pagination = ref({
@@ -126,7 +127,7 @@ const pagination = ref({
       </template>
     </q-table>
     <div class="form">
-      <q-form v-if="editRowData != null" @submit="saveMaterial(); editRowData = null" @reset="resetEdit()">
+      <q-form v-if="editRowData != null" @submit="saveMaterial()" @reset="resetEdit()">
         <div class="text-h6 q-mb-md">{{ editRowData.id != null ? 'Edit material' : 'Add new material' }}</div>
         <div><q-input dark v-model="editRowData.label" label="Material name"
             hint="Name of the material: PLA+, PLA-HS, ABS, etc" lazy-rules

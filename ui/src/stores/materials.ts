@@ -53,7 +53,7 @@ export const useMaterialsStore = defineStore('materials', () => {
     }
 
     async function kill(materialID: number) {
-        singleMaterialAPI.delete(materialID).then(resp => {
+        singleMaterialAPI.delete(materialID).then(() => {
             const idx = indexOfID(materialID)
             sorted.value.splice(idx, 1)
         }).catch(err => {
@@ -65,7 +65,7 @@ export const useMaterialsStore = defineStore('materials', () => {
         return sorted.value.length
     })
 
-    function findByID(id: number): Material | undefined {
+    function findByID(id: number): Material {
         const found = sorted.value.find((b: { id: number | null }) => b.id === id)
         if (found === null || found === undefined) {
             return {

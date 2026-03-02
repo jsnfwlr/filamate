@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import { RouterLink, RouterView, useRoute } from 'vue-router'
-
-import { ref } from 'vue'
-
-const route = useRoute()
+import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>

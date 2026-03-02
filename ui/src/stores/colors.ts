@@ -43,12 +43,12 @@ export const useColorsStore = defineStore('colors', () => {
 
     async function create(record: Color) {
         multiColorAPI.post<Color>(record).then( (result: Color) => {
-            sorted.value.push( result)
+            sorted.value.push(result)
         })
     }
 
     async function kill(colorID: number) {
-        singleColorAPI.delete(colorID).then(resp => {
+        singleColorAPI.delete(colorID).then(() => {
             const idx = indexOfID(colorID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {
@@ -60,7 +60,7 @@ export const useColorsStore = defineStore('colors', () => {
         return sorted.value.length
     })
 
-    function findByID(id: number): Color | undefined {
+    function findByID(id: number): Color {
         const found = sorted.value.find((b: { id: number | null }) => b.id === id)
         if (found === null || found === undefined) {
             return {

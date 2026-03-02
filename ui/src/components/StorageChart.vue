@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, Filler, LinearScale } from 'chart.js'
 import type { ChartData, ChartOptions, TooltipItem } from 'chart.js'
 import { Bar } from 'vue-chartjs'
@@ -23,8 +23,6 @@ const colors = {
     purple: 'rgb(153, 102, 255)',
     grey: 'rgb(201, 203, 207)'
 };
-
-const logged = false
 
 ChartJS.defaults.color = '#ffffff'
 ChartJS.defaults.backgroundColor = '#222222'

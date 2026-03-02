@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import type { NewRating } from '../stores/ratings'
 import { ref, onMounted, computed } from 'vue'
 // import { Temporal } from 'temporal-polyfill'
 
+import type { Spool } from '../stores/spools'
+import type { NewRating } from '../stores/ratings'
 import { useSpoolsStore } from '../stores/spools'
 import { useLocationsStore } from '../stores/locations'
 import { useMaterialsStore } from '../stores/materials'
 import { useColorsStore } from '../stores/colors'
 import { useBrandsStore } from '../stores/brands'
-import { useRatingStore as useRatingsStore } from '../stores/ratings'
+import { useRatingStore } from '../stores/ratings'
 import { useStoresStore } from '../stores/stores'
 
 
@@ -20,7 +21,7 @@ const materialsStore = useMaterialsStore()
 const colorsStore = useColorsStore()
 const brandsStore = useBrandsStore()
 const storesStore = useStoresStore()
-const ratingsStore = useRatingsStore()
+const ratingsStore = useRatingStore()
 
 const spools = ref(spoolsStore.sorted)
 const locations = ref(locationsStore.sorted)
@@ -32,8 +33,8 @@ const ratings = ref(ratingsStore.sorted)
 
 const tab = ref('browse')
 const formTabName = ref('New Spool')
-const editRowData = ref<any>({})
-const rateSpoolData = ref<any>(null)
+const editRowData = ref<Spool>({} as Spool)
+const rateSpoolData = ref<NewRating>({} as NewRating)
 const pagination = ref({
   rowsPerPage: 0
 })
@@ -225,7 +226,7 @@ function saveSpool() {
     spoolsStore.create(editRowData.value).then(() => {
       if (editRowData.value.empty && (editRowData.value.emptied_at === undefined || editRowData.value.emptied_at === null)) {
         editRating(spoolsStore.lastCreatedID as number)
-        editRowData.value = null
+        editRowData.value = {} as Spool
       } else {
         resetEdit()
       }
@@ -237,7 +238,7 @@ function saveSpool() {
     spoolsStore.update(editRowData.value.id, editRowData.value).then(() => {
       if (editRowData.value.empty && (editRowData.value.emptied_at === undefined || editRowData.value.emptied_at === null)) {
         editRating(editRowData.value.id as number)
-        editRowData.value = null
+        editRowData.value = {} as Spool
       } else {
         resetEdit()
       }
@@ -257,19 +258,15 @@ function deleteSpool(id: number) {
 }
 
 function saveRating() {
-  const rating: NewRating = {
-    spool_id: rateSpoolData.value.spool_id,
-    rating: rateSpoolData.value.rating,
-  }
 
-  ratingsStore.create(rating).then(() => {
+  ratingsStore.create(rateSpoolData.value).then(() => {
     resetEdit()
   })
 }
 
 function resetEdit() {
-  editRowData.value = {}
-  rateSpoolData.value = null
+  editRowData.value = {} as Spool
+  rateSpoolData.value = {} as NewRating
   formTabName.value = 'New Spool'
 }
 
@@ -357,7 +354,7 @@ async function toggleEmpty() {
           <q-toggle label="Show Empty" v-model="spoolsStore.showEmpty" @update:model-value="toggleEmpty" left-label />
         </q-tab-panel>
         <q-tab-panel dark name="form">
-          <q-form v-if="rateSpoolData !== null && editRowData === null" @submit="saveRating();" @reset="resetEdit()">
+          <q-form v-if="rateSpoolData.spool_id !== 0 && editRowData === null" @submit="saveRating();" @reset="resetEdit()">
             <div>
               <q-rating v-model="rateSpoolData.rating" size="3.5em" color="yellow-5" icon="star" />
             </div>
@@ -366,7 +363,7 @@ async function toggleEmpty() {
               <q-btn label="Cancel" icon="mdi-undo" type="reset" color="secondary" class="q-ml-sm" />
             </div>
           </q-form>
-          <q-form v-if="rateSpoolData === null && editRowData !== null" @submit="saveSpool();" @reset="resetEdit()">
+          <q-form v-if="rateSpoolData.spool_id === 0 && editRowData !== null" @submit="saveSpool();" @reset="resetEdit()">
             <div class="text-h6 q-mb-md">{{ editRowData.id != null ? 'Edit spool' : 'Add new spool' }}</div>
             <div><q-select label="Brand" dark v-model="editRowData.brand" :options="brands" option-label="label" option-value="id" map-options emit-value hint="The brand of the filament on the spool" /></div>
             <div><q-select label="Store" dark v-model="editRowData.store" :options="stores" option-label="label" option-value="id" map-options emit-value hint="The store the filament was purchased from" /></div>
