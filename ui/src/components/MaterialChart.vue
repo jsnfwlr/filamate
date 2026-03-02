@@ -26,7 +26,7 @@ ChartJS.defaults.backgroundColor = '#222222'
 ChartJS.defaults.borderColor = '#ffffff47'
 
 const options = computed<ChartOptions<'pie'>>(() => {
-    let options: ChartOptions<'pie'> = {
+    const options: ChartOptions<'pie'> = {
         responsive: true,
         plugins: {
             legend: {
@@ -106,7 +106,7 @@ const options = computed<ChartOptions<'pie'>>(() => {
                         }
 
                         if (context[0].dataset.backgroundColor instanceof Array) {
-                            let li = datasetColors.indexOf(context[0].dataset.backgroundColor[context[0].dataIndex]);
+                            const li = datasetColors.indexOf(context[0].dataset.backgroundColor[context[0].dataIndex]);
                             if (li !== -1) {
                                 labelIndex = li;
                             }

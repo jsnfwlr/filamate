@@ -35,7 +35,7 @@ export const useColorsStore = defineStore('colors', () => {
 
     async function update(id: number, record: Color) {
         await singleColorAPI.patch<Color>(id, record).then((result: Color) => {
-            let idx = indexOfID(result.id as number)
+            const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
         })
 
@@ -49,7 +49,7 @@ export const useColorsStore = defineStore('colors', () => {
 
     async function kill(colorID: number) {
         singleColorAPI.delete(colorID).then(resp => {
-            let idx = indexOfID(colorID)
+            const idx = indexOfID(colorID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {
             //     addNewStudentErrors.value = err.body
@@ -61,7 +61,7 @@ export const useColorsStore = defineStore('colors', () => {
     })
 
     function findByID(id: number): Color | undefined {
-        var found = sorted.value.find((b: { id: number | null }) => b.id === id)
+        const found = sorted.value.find((b: { id: number | null }) => b.id === id)
         if (found === null || found === undefined) {
             return {
                 id: null,

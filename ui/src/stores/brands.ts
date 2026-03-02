@@ -35,7 +35,7 @@ export const useBrandsStore = defineStore('brands', () => {
 
     async function update(id: number, record: Brand) {
         await singleBrandAPI.patch<Brand>(id, record).then((result: Brand) => {
-            let idx = indexOfID(result.id as number)
+            const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
         })
 
@@ -49,7 +49,7 @@ export const useBrandsStore = defineStore('brands', () => {
 
     async function kill(brandID: number) {
         singleBrandAPI.delete(brandID).then(resp => {
-            let idx = indexOfID(brandID)
+            const idx = indexOfID(brandID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {
             //     addNewStudentErrors.value = err.body
@@ -61,7 +61,7 @@ export const useBrandsStore = defineStore('brands', () => {
     })
 
     function findByID(id: number): Brand | undefined {
-        var found = sorted.value.find((b: { id: number | null }) => b.id === id)
+        const found = sorted.value.find((b: { id: number | null }) => b.id === id)
         if (found === null || found === undefined) {
             return {
                 id: null,

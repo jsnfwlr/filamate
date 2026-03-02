@@ -21,10 +21,7 @@ dep:
     cd ./ui && pnpm install --frozen-lockfile
 
 # Run database migrations and generate API code (OAPI and SQLC)
-generate: db api
-
-# Run database migrations and generate SQL code from SQL files using sqlc
-db: migrations queries
+generate: gen-queries gen-api
 
 # Run database migrations
 migrations:
@@ -32,30 +29,48 @@ migrations:
     go run . database migrate
 
 # Generate SQL code from SQL files using sqlc
-queries:
+gen-queries:
     echo "Generating queries..."
     go tool sqlc generate --file ./etc/db/sqlc.yaml
 
+
 # Generate API code from OpenAPI spec using oapi-codegen
-api:
+gen-api:
     echo "Generating API..."
     go tool oapi-codegen -config ./etc/api/server.yaml ./etc/api/spec.jsonc
 
 # Build the UI using pnpm
-ui:
+gen-ui:
     echo "Building UI...";
     cd ./ui && pnpm run build
 
+
+# Run linters for both API and UI code
+lint: api-lint ui-lint
+
+# Check UI code for issues with eslint
+ui-lint:
+    cd ./ui && pnpm run lint
+
 # Check API for code issues with golangci-lint
-lint:
+api-lint:
     golangci-lint run
 
+# Run API and UI unit tests
+test: api-test ui-test
+
+# Run UI tests using pnpm and vitest
+ui-test:
+    cd ./ui && pnpm run test
+
 # Run Go tests with coverage and output results in JSON format for tparse
-test:
+api-test:
     go test ./... -cover -json -count 1 | tparse -trimpath github.com/jsnfwlr/filamate/
 
-# Generate a code coverage report and save it as an HTML file in the static directory
-coverage:
+coverage: api-coverage
+
+# Generate an API code coverage report and save it as an HTML file in the static directory
+api-coverage:
     go test ./... -covermode=count -coverprofile=coverage.out -json -count=1 | tparse -pass -trimpath github.com/jsnfwlr/filamate/ || rm coverage.out
     go tool cover -html=coverage.out -o static/coverage.html && sed -i 's|rgb(128, 128, 128)|#00CCFF|; s|rgb(116, 140, 131)|#00D2F9|; s|rgb(104, 152, 134)|#00D8F3|; s|rgb(92, 164, 137)|#00DEEE|; s|rgb(80, 176, 140)|#00E3E8|; s|rgb(68, 188, 143)|#00E9E3|; s|rgb(56, 200, 146)|#00EEDD|; s|rgb(44, 212, 149)|#00F4D8|; s|rgb(32, 224, 152)|#00F9D2|; s|rgb(20, 236, 155)|#00FFCC|;' static/coverage.html
     rm coverage.out
@@ -66,13 +81,17 @@ compile:
     cd ./ui && pnpm run build
     go build -ldflags "-X github.com/jsnfwlr/filamate/internal/cmd.Version={{version}}" -o ./dist/filamate .
 
+# Run the application with live reloading for both API and UI using Air and pnpm
+run:
+    cd ./ui; pnpm run build-live &
+    air -c .air.toml &
+
 # Watch for changes in the UI and rebuild it automatically
-watch:
+ui-run:
 	cd ./ui; pnpm run build-live
 
 # Run the application with live reloading using Air
-run:
-    cd ./ui && pnpm run build
+api-run:
     air -c .air.toml
 
 # Install latest versions of development tools: air, tparse, sqlc, and oapi-codegen

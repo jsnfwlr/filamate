@@ -116,7 +116,7 @@ onMounted(async () => {
 })
 
 function DateTime(date: string): string {
-  let d = new Date(date)
+  const d = new Date(date)
   return d.toISOString().replace('T', ' ').split('.')[0] as string
 }
 
@@ -129,7 +129,7 @@ const rowClasses = ref<Array<RowClass>>([])
 
 function rowClassFn(row: any): string {
   for (let i = 0; i < rowClasses.value.length; i++) {
-    if (rowClasses !== undefined && rowClasses.value !== undefined && rowClasses.value[i]?.id === row.id) {
+    if (rowClasses.value !== undefined && rowClasses.value !== undefined && rowClasses.value[i]?.id === row.id) {
       return rowClasses.value[i]?.class as string
     }
   }

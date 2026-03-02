@@ -68,17 +68,12 @@ just compile
 ## Running `filamate` with your changes
 
 You can create a branch for your changes and try to build from the source as you
-go, running filamate with the API live-reloading whenever a change is detected.
+go, running filamate with the API live rebuilding whenever a change is detected
+to the API or UI.
 
 ```shell
 just run
-```
-
-To rebuild the UI on change, open a second terminal to the same folder:
-
-```shell
-just watch
-```
+``
 
 ## Testing and linting your changes
 

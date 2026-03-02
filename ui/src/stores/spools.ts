@@ -84,7 +84,7 @@ export const useSpoolsStore = defineStore('spools', () => {
 
     async function update(id: number, record: Spool) {
         await singleSpoolAPI.patch<Spool>(id, record).then((result: Spool) => {
-            let idx = indexOfID(result.id as number)
+            const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
         })
 
@@ -99,7 +99,7 @@ export const useSpoolsStore = defineStore('spools', () => {
 
     async function kill(spoolID: number) {
         singleSpoolAPI.delete(spoolID).then(resp => {
-            let idx = indexOfID(spoolID)
+            const idx = indexOfID(spoolID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {
             //     addNewStudentErrors.value = err.body
@@ -111,7 +111,7 @@ export const useSpoolsStore = defineStore('spools', () => {
     })
 
     function findByID(id: number): Spool | undefined {
-        var found = sorted.value.find((b: { id: number | null }) => b.id === id)
+        const found = sorted.value.find((b: { id: number | null }) => b.id === id)
         if (found === null || found === undefined) {
             return {
                 id: null,
@@ -166,11 +166,11 @@ export const useSpoolsStore = defineStore('spools', () => {
     }
 
     function storeBrandLinks(id: number): SpoolBrandLink {
-        let spool = findByID(id)
-        let brand = brandsStore.findByID(spool?.brand as number)
-        let store = storesStore.findByID(spool?.store as number)
+        const spool = findByID(id)
+        const brand = brandsStore.findByID(spool?.brand as number)
+        const store = storesStore.findByID(spool?.store as number)
 
-        let result: SpoolBrandLink = {
+        const result: SpoolBrandLink = {
             brand_link: "",
             brand_label: "",
             store_link: "skip",
@@ -178,7 +178,7 @@ export const useSpoolsStore = defineStore('spools', () => {
         }
 
         if (brand?.store_id !== null && brand?.store_id !== undefined) {
-            let storeForBrand = storesStore.findByID(brand?.store_id as number)
+            const storeForBrand = storesStore.findByID(brand?.store_id as number)
             if (storeForBrand?.url !== undefined && storeForBrand?.url !== null) {
                 result.brand_link = storeForBrand?.url
                 result.brand_label = brand.label

@@ -39,7 +39,7 @@ export const useLocationsStore = defineStore('locations', () => {
 
         alert("update: " + JSON.stringify(record))
         await singleLocationAPI.patch<Location>(id, record).then((result: Location) => {
-            let idx = indexOfID(result.id as number)
+            const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
         }).catch(err => {
             alert("find: " + err)
@@ -59,7 +59,7 @@ export const useLocationsStore = defineStore('locations', () => {
 
     async function kill(locationID: number) {
         singleLocationAPI.delete(locationID).then(resp => {
-            let idx = indexOfID(locationID)
+            const idx = indexOfID(locationID)
             sorted.value.splice(idx, 1)
         }).catch(err => {
             alert("find: " + err)
@@ -71,7 +71,7 @@ export const useLocationsStore = defineStore('locations', () => {
     })
 
     function findByID(id: number): Location | undefined {
-        var found = sorted.value.find((b: { id: number | null }) => b.id === id)
+        const found = sorted.value.find((b: { id: number | null }) => b.id === id)
         if (found === null || found === undefined) {
             return {
                 id: null,

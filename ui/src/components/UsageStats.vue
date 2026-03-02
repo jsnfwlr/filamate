@@ -47,7 +47,7 @@ const columns: QTableColumn[] = [
   }
 ]
 
-var usage = ref(usageStatsStore.sorted)
+const usage = ref(usageStatsStore.sorted)
 
 onMounted(async () => {
   await usageStatsStore.find()
@@ -71,7 +71,7 @@ const rowClasses = ref<Array<RowClass>>([])
 
 function rowClassFn(row: any): string {
   for (let i = 0; i < rowClasses.value.length; i++) {
-    if (rowClasses !== undefined && rowClasses.value !== undefined && rowClasses.value[i]?.id === row.id) {
+    if (rowClasses.value !== undefined && rowClasses.value !== undefined && rowClasses.value[i]?.id === row.id) {
       return rowClasses.value[i]?.class as string
     }
   }

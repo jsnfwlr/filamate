@@ -36,7 +36,7 @@ const columns: QTableColumn[] = [
   }
 ]
 
-var stores = ref(storesStore.sorted)
+const stores = ref(storesStore.sorted)
 
 onMounted(async () => {
   await storesStore.find()

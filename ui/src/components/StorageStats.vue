@@ -89,9 +89,9 @@ const detailsColumns: QTableColumn[] = [
   }
 ]
 
-var storage = ref(storageStatsStore.sorted)
-var brand = ref(brandsStore.sorted)
-var material = ref(materialsStore.sorted)
+const storage = ref(storageStatsStore.sorted)
+const brand = ref(brandsStore.sorted)
+const material = ref(materialsStore.sorted)
 
 onMounted(async () => {
   await storageStatsStore.find()
@@ -115,7 +115,7 @@ const rowClasses = ref<Array<RowClass>>([])
 
 function rowClassFn(row: any): string {
   for (let i = 0; i < rowClasses.value.length; i++) {
-    if (rowClasses !== undefined && rowClasses.value !== undefined && rowClasses.value[i]?.id === row.id) {
+    if (rowClasses.value !== undefined && rowClasses.value !== undefined && rowClasses.value[i]?.id === row.id) {
       return rowClasses.value[i]?.class as string
     }
   }

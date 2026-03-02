@@ -47,8 +47,8 @@ const columns: QTableColumn[] = [
   }
 ]
 
-var brands = ref(brandsStore.sorted)
-var stores = ref(storesStore.sorted)
+const brands = ref(brandsStore.sorted)
+const stores = ref(storesStore.sorted)
 
 onMounted(async () => {
   await storesStore.find()

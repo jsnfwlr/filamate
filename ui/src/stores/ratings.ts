@@ -46,7 +46,7 @@ export const useRatingStore = defineStore('ratings', () => {
 
     async function update(id: number, record: Rating) {
         await singleRatingAPI.patch<Rating>(id, record).then((result: Rating) => {
-            let idx = indexOfID(result.id as number)
+            const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
         })
 
@@ -60,7 +60,7 @@ export const useRatingStore = defineStore('ratings', () => {
 
     async function kill(ratingID: number) {
         singleRatingAPI.delete(ratingID).then(resp => {
-            let idx = indexOfID(ratingID)
+            const idx = indexOfID(ratingID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {
             //     addNewStudentErrors.value = err.body
@@ -72,7 +72,7 @@ export const useRatingStore = defineStore('ratings', () => {
     })
 
     function findByID(id: number): Rating | undefined {
-        var found = sorted.value.find((b: { id: number | null }) => b.id === id)
+        const found = sorted.value.find((b: { id: number | null }) => b.id === id)
         if (found === null || found === undefined) {
             return {
                 id: 0,
@@ -91,7 +91,7 @@ export const useRatingStore = defineStore('ratings', () => {
         }
     }
     function findBySpoolID(id: number): Rating {
-        var found = sorted.value.find((b: { spool_id: number | null }) => b.spool_id === id)
+        const found = sorted.value.find((b: { spool_id: number | null }) => b.spool_id === id)
         if (found === null || found === undefined) {
             return {
                 id: 0,

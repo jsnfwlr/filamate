@@ -39,7 +39,7 @@ const pagination = ref({
 })
 
 const columns = computed<Array<QTableColumn>>(() => {
-  let cols: Array<QTableColumn> = []
+  const cols: Array<QTableColumn> = []
   cols.push({
     name: 'brand',
     required: true,
@@ -257,7 +257,7 @@ function deleteSpool(id: number) {
 }
 
 function saveRating() {
-  let rating: NewRating = {
+  const rating: NewRating = {
     spool_id: rateSpoolData.value.spool_id,
     rating: rateSpoolData.value.rating,
   }
@@ -284,7 +284,7 @@ function resetEdit() {
 // }
 
 function DateTime(date: string): string {
-  let d = new Date(date)
+  const d = new Date(date)
   return d.toISOString().replace('T', ' ').split('.')[0] as string
 }
 

@@ -34,7 +34,7 @@ export const useStoresStore = defineStore('stores', () => {
 
     async function update(id: number, record: Store) {
         await singleStoreAPI.patch<Store>(id, record).then((result: Store) => {
-            let idx = indexOfID(result.id as number)
+            const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
         })
 
@@ -48,7 +48,7 @@ export const useStoresStore = defineStore('stores', () => {
 
     async function kill(storeID: number) {
         singleStoreAPI.delete(storeID).then(resp => {
-            let idx = indexOfID(storeID)
+            const idx = indexOfID(storeID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {
             //     addNewStudentErrors.value = err.body
@@ -60,7 +60,7 @@ export const useStoresStore = defineStore('stores', () => {
     })
 
     function findByID(id: number): Store | undefined {
-        var found = sorted.value.find((f: { id: number | null }) => f.id === id)
+        const found = sorted.value.find((f: { id: number | null }) => f.id === id)
         if (found === null || found === undefined) {
             return {
                 id: null,

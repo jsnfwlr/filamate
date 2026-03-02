@@ -36,7 +36,7 @@ export const useMaterialsStore = defineStore('materials', () => {
 
     async function update(id: number, record: Material) {
         await singleMaterialAPI.patch<Material>(id, record).then((result: Material) => {
-            let idx = indexOfID(result.id as number)
+            const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
         }).catch(err => {
             alert("find: " + err)
@@ -54,7 +54,7 @@ export const useMaterialsStore = defineStore('materials', () => {
 
     async function kill(materialID: number) {
         singleMaterialAPI.delete(materialID).then(resp => {
-            let idx = indexOfID(materialID)
+            const idx = indexOfID(materialID)
             sorted.value.splice(idx, 1)
         }).catch(err => {
             alert("find: " + err)
@@ -66,7 +66,7 @@ export const useMaterialsStore = defineStore('materials', () => {
     })
 
     function findByID(id: number): Material | undefined {
-        var found = sorted.value.find((b: { id: number | null }) => b.id === id)
+        const found = sorted.value.find((b: { id: number | null }) => b.id === id)
         if (found === null || found === undefined) {
             return {
                 id: null,

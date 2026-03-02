@@ -24,7 +24,7 @@ const colors = {
     grey: 'rgb(201, 203, 207)'
 };
 
-let logged = false
+const logged = false
 
 ChartJS.defaults.color = '#ffffff'
 ChartJS.defaults.backgroundColor = '#222222'
@@ -85,12 +85,12 @@ const options = computed<ChartOptions<'bar'>>(() => {
 })
 
 const stock = computed(() => {
-    let stock: number[] = []
+    const stock: number[] = []
 
      props.stored.map((value, index) => {
-        let used = (props.used[index] !== null ? (Array.isArray(props.used[index]) ? props.used[index][1] : props.used[index]) : 0) as number
-         let purchased = (props.purchased[index] !== null ? (Array.isArray(props.purchased[index]) ? props.purchased[index][1] : props.purchased[index]) : 0) as number
-        let stored = (props.stored[index] !== null ? (Array.isArray(props.stored[index]) ? props.stored[index][1] : props.stored[index]) : 0) as number
+        const used = (props.used[index] !== null ? (Array.isArray(props.used[index]) ? props.used[index][1] : props.used[index]) : 0) as number
+         const purchased = (props.purchased[index] !== null ? (Array.isArray(props.purchased[index]) ? props.purchased[index][1] : props.purchased[index]) : 0) as number
+        const stored = (props.stored[index] !== null ? (Array.isArray(props.stored[index]) ? props.stored[index][1] : props.stored[index]) : 0) as number
         stock.push(stored + used + purchased)
     })
     return stock
