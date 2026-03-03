@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
@@ -18,7 +19,10 @@ func (h Handlers) KillStore(ctx context.Context, r oapi.KillStoreRequestObject) 
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.KillStore500JSONResponse{}, err
+		return oapi.KillStore500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -34,7 +38,10 @@ func (h Handlers) KillStore(ctx context.Context, r oapi.KillStoreRequestObject) 
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.KillStore500JSONResponse{}, err
+		return oapi.KillStore500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -59,7 +66,10 @@ func (h Handlers) UpdateStore(ctx context.Context, r oapi.UpdateStoreRequestObje
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.UpdateStore500JSONResponse{}, err
+		return oapi.UpdateStore500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -75,7 +85,10 @@ func (h Handlers) UpdateStore(ctx context.Context, r oapi.UpdateStoreRequestObje
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.UpdateStore500JSONResponse{}, err
+		return oapi.UpdateStore500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -88,7 +101,10 @@ func (h Handlers) FindStores(ctx context.Context, r oapi.FindStoresRequestObject
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.FindStores500JSONResponse{}, err
+		return oapi.FindStores500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -104,7 +120,10 @@ func (h Handlers) FindStores(ctx context.Context, r oapi.FindStoresRequestObject
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.FindStores500JSONResponse{}, err
+		return oapi.FindStores500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -117,7 +136,10 @@ func (h Handlers) CreateStore(ctx context.Context, r oapi.CreateStoreRequestObje
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.CreateStore500JSONResponse{}, err
+		return oapi.CreateStore500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -133,7 +155,10 @@ func (h Handlers) CreateStore(ctx context.Context, r oapi.CreateStoreRequestObje
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.CreateStore500JSONResponse{}, err
+		return oapi.CreateStore500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil

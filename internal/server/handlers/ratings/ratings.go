@@ -3,11 +3,15 @@ package ratings
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
 	"github.com/jsnfwlr/filamate/internal/db"
 	"github.com/jsnfwlr/filamate/internal/server/oapi"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type ratingsQuerier interface {
@@ -43,19 +47,21 @@ func Find(ctx context.Context, dbq ratingsQuerier, r oapi.FindRatingsRequestObje
 		ratings, err = dbq.GetRatingsByBrandIDAndMaterialID(ctx, *r.Params.BrandID, *r.Params.MaterialID)
 		if err != nil {
 			o.Error("failed to get rating by brand id and material id", err, go11y.SeverityHigh, "brand_id", r.Params.BrandID, "material_id", r.Params.MaterialID)
+
 			return oapi.FindRatings500JSONResponse{
-				Message: "Failed to get rating by brand id and material id",
-				Code:    500,
-			}, err
+				Message: fmt.Sprintf("failed to get rating by brand id and material id: %s", err.Error()),
+				Code:    http.StatusInternalServerError,
+			}, nil
 		}
 	} else {
 		ratings, err = dbq.FindRatings(ctx)
 		if err != nil {
 			o.Error("failed to find ratings", err, go11y.SeverityHigh)
+
 			return oapi.FindRatings500JSONResponse{
-				Message: "Failed to find ratings",
-				Code:    500,
-			}, err
+				Message: fmt.Sprintf("failed to find ratings: %s", err.Error()),
+				Code:    http.StatusInternalServerError,
+			}, nil
 		}
 	}
 
@@ -87,19 +93,28 @@ func Update(ctx context.Context, dbq ratingsQuerier, r oapi.UpdateRatingRequestO
 	_, err := dbq.GetRatingByID(ctx, r.ID)
 	if err != nil {
 		o.Error("failed to get rating by id", err, go11y.SeverityHigh, "rating_id", r.ID)
-		return oapi.UpdateRating404JSONResponse{
-			Message: "Failed to get rating by id",
-			Code:    404,
-		}, err
+
+		if err == pgx.ErrNoRows {
+			return oapi.UpdateRating404JSONResponse{
+				Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+				Code:    http.StatusNotFound,
+			}, nil
+		}
+
+		return oapi.UpdateRating500JSONResponse{
+			Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	rating, err := dbq.UpdateRating(ctx, r.Body.Rating, r.ID)
 	if err != nil {
 		o.Error("failed to update rating", err, go11y.SeverityHigh, "rating_id", r.ID)
+
 		return oapi.UpdateRating500JSONResponse{
-			Message: "Failed to update rating",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to update rating: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	resp := oapi.Rating{
@@ -121,10 +136,11 @@ func Create(ctx context.Context, dbq ratingsQuerier, r oapi.CreateRatingRequestO
 	rating, err := dbq.CreateRating(ctx, r.Body.Rating, r.Body.SpoolID)
 	if err != nil {
 		o.Error("failed to create rating", err, go11y.SeverityHigh)
+
 		return oapi.CreateRating500JSONResponse{
-			Message: "Failed to create rating",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to create rating: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	o.Info("rating created", go11y.SeverityLow, "rating_id", rating.ID)
@@ -147,10 +163,11 @@ func Kill(ctx context.Context, dbq ratingsQuerier, r oapi.KillRatingRequestObjec
 	err := dbq.DeleteRating(ctx, r.ID)
 	if err != nil {
 		o.Error("failed to delete rating", err, go11y.SeverityHigh, "rating_id", r.ID)
+
 		return oapi.KillRating500JSONResponse{
-			Message: "Failed to delete rating",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to delete rating: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return oapi.KillRating204Response{}, nil

@@ -3,11 +3,15 @@ package locations
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
 	"github.com/jsnfwlr/filamate/internal/db"
 	"github.com/jsnfwlr/filamate/internal/server/oapi"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type locationsQuerier interface {
@@ -28,9 +32,9 @@ func Kill(ctx context.Context, dbq locationsQuerier, r oapi.KillLocationRequestO
 		o.Error("failed to delete location", err, go11y.SeverityHigh, "location_id", r.ID)
 
 		return oapi.KillLocation500JSONResponse{
-			Message: "Failed to delete location",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to delete location: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return oapi.KillLocation204Response{}, nil
@@ -57,10 +61,17 @@ func Update(ctx context.Context, dbq locationsQuerier, r oapi.UpdateLocationRequ
 	if err != nil {
 		o.Error("failed to get location by id", err, go11y.SeverityHigh, "location_id", r.ID)
 
+		if err == pgx.ErrNoRows {
+			return oapi.UpdateLocation404JSONResponse{
+				Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+				Code:    http.StatusNotFound,
+			}, nil
+		}
+
 		return oapi.UpdateLocation500JSONResponse{
-			Message: "Failed to get location",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	params := db.UpdateLocationParams{
@@ -77,9 +88,9 @@ func Update(ctx context.Context, dbq locationsQuerier, r oapi.UpdateLocationRequ
 		o.Error("failed to update location", err, go11y.SeverityHigh, "location_id", r.ID)
 
 		return oapi.UpdateLocation500JSONResponse{
-			Message: "Failed to update location",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to update location: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return oapi.UpdateLocation200JSONResponse{
@@ -103,9 +114,9 @@ func Find(ctx context.Context, dbq locationsQuerier, r oapi.FindLocationsRequest
 		o.Error("failed to find locations", err, go11y.SeverityHigh)
 
 		return oapi.FindLocations500JSONResponse{
-			Message: "Failed to find locations",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to find locations: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	var resp []oapi.Location
@@ -141,9 +152,9 @@ func Create(ctx context.Context, dbq locationsQuerier, r oapi.CreateLocationRequ
 		o.Error("failed to create location", err, go11y.SeverityHigh)
 
 		return oapi.CreateLocation500JSONResponse{
-			Message: "Failed to create location",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to create location: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return oapi.CreateLocation201JSONResponse{

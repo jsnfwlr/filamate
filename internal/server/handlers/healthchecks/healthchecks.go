@@ -4,6 +4,7 @@ package healthchecks
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
@@ -31,9 +32,9 @@ func HealthCheck(ctx context.Context, dbc healthchecksQuerier, r oapi.HealthChec
 		o.Error("health check failure - unable to read database migrations", err, go11y.SeverityHighest)
 
 		return oapi.HealthCheck500JSONResponse{
-			Message: "unable to read database migrations",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("health check failure - unable to read database migrations: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	// Check that filamate is connected to the database by running a query - auth should fail to start if it cannot connect to the database
@@ -43,9 +44,9 @@ func HealthCheck(ctx context.Context, dbc healthchecksQuerier, r oapi.HealthChec
 		o.Error("health check failure - unable to query database", err, go11y.SeverityHighest)
 
 		return oapi.HealthCheck500JSONResponse{
-			Message: "unable to query database",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("health check failure - unable to query database: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	if version != coll.Steps() {
@@ -53,9 +54,9 @@ func HealthCheck(ctx context.Context, dbc healthchecksQuerier, r oapi.HealthChec
 		o.Error("health check failure", err, go11y.SeverityHighest, db.DBVersionKey, version, db.TotalStepsKey, coll.Steps())
 
 		return oapi.HealthCheck500JSONResponse{
-			Message: fmt.Sprintf("database migrations (%d) not up to date (%d)", version, coll.Steps()),
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("health check failure: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return oapi.HealthCheck200Response{}, nil

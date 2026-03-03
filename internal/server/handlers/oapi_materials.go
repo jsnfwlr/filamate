@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
@@ -18,7 +19,10 @@ func (h Handlers) KillMaterial(ctx context.Context, r oapi.KillMaterialRequestOb
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.KillMaterial500JSONResponse{}, err
+		return oapi.KillMaterial500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -34,7 +38,10 @@ func (h Handlers) KillMaterial(ctx context.Context, r oapi.KillMaterialRequestOb
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.KillMaterial500JSONResponse{}, err
+		return oapi.KillMaterial500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -59,7 +66,10 @@ func (h Handlers) UpdateMaterial(ctx context.Context, r oapi.UpdateMaterialReque
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.UpdateMaterial500JSONResponse{}, err
+		return oapi.UpdateMaterial500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -75,7 +85,10 @@ func (h Handlers) UpdateMaterial(ctx context.Context, r oapi.UpdateMaterialReque
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.UpdateMaterial500JSONResponse{}, err
+		return oapi.UpdateMaterial500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -88,7 +101,10 @@ func (h Handlers) FindMaterials(ctx context.Context, r oapi.FindMaterialsRequest
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.FindMaterials500JSONResponse{}, err
+		return oapi.FindMaterials500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -104,7 +120,10 @@ func (h Handlers) FindMaterials(ctx context.Context, r oapi.FindMaterialsRequest
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.FindMaterials500JSONResponse{}, err
+		return oapi.FindMaterials500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -117,7 +136,10 @@ func (h Handlers) CreateMaterial(ctx context.Context, r oapi.CreateMaterialReque
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.CreateMaterial500JSONResponse{}, err
+		return oapi.CreateMaterial500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -133,7 +155,10 @@ func (h Handlers) CreateMaterial(ctx context.Context, r oapi.CreateMaterialReque
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.CreateMaterial500JSONResponse{}, err
+		return oapi.CreateMaterial500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil

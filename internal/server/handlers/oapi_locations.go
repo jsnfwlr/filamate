@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
@@ -18,7 +19,10 @@ func (h Handlers) KillLocation(ctx context.Context, r oapi.KillLocationRequestOb
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.KillLocation500JSONResponse{}, err
+		return oapi.KillLocation500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -34,7 +38,10 @@ func (h Handlers) KillLocation(ctx context.Context, r oapi.KillLocationRequestOb
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.KillLocation500JSONResponse{}, err
+		return oapi.KillLocation500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -59,7 +66,10 @@ func (h Handlers) UpdateLocation(ctx context.Context, r oapi.UpdateLocationReque
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.UpdateLocation500JSONResponse{}, err
+		return oapi.UpdateLocation500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -75,7 +85,10 @@ func (h Handlers) UpdateLocation(ctx context.Context, r oapi.UpdateLocationReque
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.UpdateLocation500JSONResponse{}, err
+		return oapi.UpdateLocation500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -88,7 +101,10 @@ func (h Handlers) FindLocations(ctx context.Context, r oapi.FindLocationsRequest
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.FindLocations500JSONResponse{}, err
+		return oapi.FindLocations500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -104,7 +120,10 @@ func (h Handlers) FindLocations(ctx context.Context, r oapi.FindLocationsRequest
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.FindLocations500JSONResponse{}, err
+		return oapi.FindLocations500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -117,7 +136,10 @@ func (h Handlers) CreateLocation(ctx context.Context, r oapi.CreateLocationReque
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.CreateLocation500JSONResponse{}, err
+		return oapi.CreateLocation500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -133,7 +155,10 @@ func (h Handlers) CreateLocation(ctx context.Context, r oapi.CreateLocationReque
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.CreateLocation500JSONResponse{}, err
+		return oapi.CreateLocation500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil

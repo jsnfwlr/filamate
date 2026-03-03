@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
@@ -24,7 +25,10 @@ func (h Handlers) GetUsageStats(ctx context.Context, r oapi.GetUsageStatsRequest
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.GetUsageStats500JSONResponse{}, err
+		return oapi.GetUsageStats500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -40,7 +44,10 @@ func (h Handlers) GetUsageStats(ctx context.Context, r oapi.GetUsageStatsRequest
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.GetUsageStats500JSONResponse{}, err
+		return oapi.GetUsageStats500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -59,7 +66,10 @@ func (h Handlers) GetStorageStats(ctx context.Context, r oapi.GetStorageStatsReq
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.GetStorageStats500JSONResponse{}, err
+		return oapi.GetStorageStats500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -75,7 +85,10 @@ func (h Handlers) GetStorageStats(ctx context.Context, r oapi.GetStorageStatsReq
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.GetStorageStats500JSONResponse{}, err
+		return oapi.GetStorageStats500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -94,7 +107,10 @@ func (h Handlers) GetRatingStats(ctx context.Context, r oapi.GetRatingStatsReque
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.GetRatingStats500JSONResponse{}, err
+		return oapi.GetRatingStats500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -110,7 +126,10 @@ func (h Handlers) GetRatingStats(ctx context.Context, r oapi.GetRatingStatsReque
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.GetRatingStats500JSONResponse{}, err
+		return oapi.GetRatingStats500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -129,7 +148,10 @@ func (h Handlers) GetStorageChart(ctx context.Context, r oapi.GetStorageChartReq
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.GetStorageChart500JSONResponse{}, err
+		return oapi.GetStorageChart500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -145,7 +167,10 @@ func (h Handlers) GetStorageChart(ctx context.Context, r oapi.GetStorageChartReq
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.GetStorageChart500JSONResponse{}, err
+		return oapi.GetStorageChart500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -164,7 +189,10 @@ func (h Handlers) GetMaterialChart(ctx context.Context, r oapi.GetMaterialChartR
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.GetMaterialChart500JSONResponse{}, err
+		return oapi.GetMaterialChart500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -180,7 +208,10 @@ func (h Handlers) GetMaterialChart(ctx context.Context, r oapi.GetMaterialChartR
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.GetMaterialChart500JSONResponse{}, err
+		return oapi.GetMaterialChart500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
@@ -18,7 +19,10 @@ func (h Handlers) KillColor(ctx context.Context, r oapi.KillColorRequestObject) 
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.KillColor500JSONResponse{}, err
+		return oapi.KillColor500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -34,7 +38,10 @@ func (h Handlers) KillColor(ctx context.Context, r oapi.KillColorRequestObject) 
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.KillColor500JSONResponse{}, err
+		return oapi.KillColor500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -59,7 +66,10 @@ func (h Handlers) UpdateColor(ctx context.Context, r oapi.UpdateColorRequestObje
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.UpdateColor500JSONResponse{}, err
+		return oapi.UpdateColor500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -75,7 +85,10 @@ func (h Handlers) UpdateColor(ctx context.Context, r oapi.UpdateColorRequestObje
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.UpdateColor500JSONResponse{}, err
+		return oapi.UpdateColor500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -88,7 +101,10 @@ func (h Handlers) FindColors(ctx context.Context, r oapi.FindColorsRequestObject
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.FindColors500JSONResponse{}, err
+		return oapi.FindColors500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -104,7 +120,10 @@ func (h Handlers) FindColors(ctx context.Context, r oapi.FindColorsRequestObject
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.FindColors500JSONResponse{}, err
+		return oapi.FindColors500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -117,7 +136,10 @@ func (h Handlers) CreateColor(ctx context.Context, r oapi.CreateColorRequestObje
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
-		return oapi.CreateColor500JSONResponse{}, err
+		return oapi.CreateColor500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
@@ -133,7 +155,10 @@ func (h Handlers) CreateColor(ctx context.Context, r oapi.CreateColorRequestObje
 
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
-		return oapi.CreateColor500JSONResponse{}, err
+		return oapi.CreateColor500JSONResponse{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil

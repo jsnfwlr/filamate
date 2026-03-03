@@ -3,6 +3,7 @@ package stats
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -114,9 +115,9 @@ func GetStorageChart(ctx context.Context, dbq chartsQuerier, r oapi.GetStorageCh
 		o.Error("failed to find chart", err, go11y.SeverityHigh)
 
 		return oapi.GetStorageChart500JSONResponse{
-			Message: "Failed to find chart",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to find chart: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	o.Info("retrieved storage chart")
@@ -242,9 +243,9 @@ func GetMaterialChart(ctx context.Context, dbq chartsQuerier, r oapi.GetMaterial
 		o.Error("failed to find chart", err, go11y.SeverityHigh)
 
 		return oapi.GetMaterialChart500JSONResponse{
-			Message: "Failed to find chart",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to find chart: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	// slices.Reverse(details)

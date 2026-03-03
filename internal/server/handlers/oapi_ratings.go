@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
@@ -19,17 +20,19 @@ func (h Handlers) KillRating(ctx context.Context, r oapi.KillRatingRequestObject
 	ctx, o := go11y.Get(ctx)
 
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
-
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
 
-		return oapi.KillRating500JSONResponse{}, err
+		return oapi.KillRating500JSONResponse{
+			Message: err.Error(),
+
+			Code: http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
 
 	resp, err := ratings.Kill(ctx, txQuerier, r)
-
 	if err != nil {
 		o.Error("request failed", err, go11y.SeverityHigh)
 
@@ -43,7 +46,11 @@ func (h Handlers) KillRating(ctx context.Context, r oapi.KillRatingRequestObject
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
 
-		return oapi.KillRating500JSONResponse{}, err
+		return oapi.KillRating500JSONResponse{
+			Message: err.Error(),
+
+			Code: http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -73,17 +80,19 @@ func (h Handlers) UpdateRating(ctx context.Context, r oapi.UpdateRatingRequestOb
 	ctx, o := go11y.Get(ctx)
 
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
-
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
 
-		return oapi.UpdateRating500JSONResponse{}, err
+		return oapi.UpdateRating500JSONResponse{
+			Message: err.Error(),
+
+			Code: http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
 
 	resp, err := ratings.Update(ctx, txQuerier, r)
-
 	if err != nil {
 		o.Error("request failed", err, go11y.SeverityHigh)
 
@@ -97,7 +106,11 @@ func (h Handlers) UpdateRating(ctx context.Context, r oapi.UpdateRatingRequestOb
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
 
-		return oapi.UpdateRating500JSONResponse{}, err
+		return oapi.UpdateRating500JSONResponse{
+			Message: err.Error(),
+
+			Code: http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -111,17 +124,19 @@ func (h Handlers) FindRatings(ctx context.Context, r oapi.FindRatingsRequestObje
 	ctx, o := go11y.Get(ctx)
 
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
-
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
 
-		return oapi.FindRatings500JSONResponse{}, err
+		return oapi.FindRatings500JSONResponse{
+			Message: err.Error(),
+
+			Code: http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
 
 	resp, err := ratings.Find(ctx, txQuerier, r)
-
 	if err != nil {
 		o.Error("request failed", err, go11y.SeverityHigh)
 
@@ -135,7 +150,11 @@ func (h Handlers) FindRatings(ctx context.Context, r oapi.FindRatingsRequestObje
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
 
-		return oapi.FindRatings500JSONResponse{}, err
+		return oapi.FindRatings500JSONResponse{
+			Message: err.Error(),
+
+			Code: http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil
@@ -149,17 +168,19 @@ func (h Handlers) CreateRating(ctx context.Context, r oapi.CreateRatingRequestOb
 	ctx, o := go11y.Get(ctx)
 
 	tx, err := h.DBClient.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted, AccessMode: pgx.ReadWrite, DeferrableMode: pgx.NotDeferrable})
-
 	if err != nil {
 		o.Error("could not begin db transaction", err, go11y.SeverityHigh)
 
-		return oapi.CreateRating500JSONResponse{}, err
+		return oapi.CreateRating500JSONResponse{
+			Message: err.Error(),
+
+			Code: http.StatusInternalServerError,
+		}, nil
 	}
 
 	txQuerier := h.DBClient.Queries.WithTx(tx)
 
 	resp, err := ratings.Create(ctx, txQuerier, r)
-
 	if err != nil {
 		o.Error("request failed", err, go11y.SeverityHigh)
 
@@ -173,7 +194,11 @@ func (h Handlers) CreateRating(ctx context.Context, r oapi.CreateRatingRequestOb
 	if err := tx.Commit(ctx); err != nil {
 		o.Error("could not commit transaction", err, go11y.SeverityHigh)
 
-		return oapi.CreateRating500JSONResponse{}, err
+		return oapi.CreateRating500JSONResponse{
+			Message: err.Error(),
+
+			Code: http.StatusInternalServerError,
+		}, nil
 	}
 
 	return resp, nil

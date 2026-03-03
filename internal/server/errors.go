@@ -3,13 +3,12 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
 
 	"github.com/jsnfwlr/go11y"
-
-	"github.com/jsnfwlr/filamate/internal/server/log"
 )
 
 // StatusError represents an error with an associated HTTP status code.
@@ -56,22 +55,39 @@ func NewStatusError(ctx context.Context, code int, err error) StatusError {
 	}
 }
 
-func errorHandler(w http.ResponseWriter, r *http.Request, err error) {
-	var body []byte
-	ctx, o := go11y.Span(r.Context(), tracer, "errorHandler", go11y.SpanKindServer)
+func requestErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
+	ctx, o := go11y.Span(r.Context(), tracer, "requestErrorHandler", go11y.SpanKindServer)
 	defer o.End()
 
-	e := StatusError{}
+	e := NewStatusError(ctx, http.StatusInternalServerError, err)
 
-	if !errors.As(err, &e) {
-		e = NewStatusError(ctx, http.StatusInternalServerError, err)
-	} else {
-		e = err.(StatusError)
+	switch {
+	case strings.Contains(err.Error(), "can't decode JSON body") || strings.Contains(err.Error(), "invalid character") || strings.Contains(err.Error(), "cannot unmarshal"):
+		e.Code = http.StatusBadRequest
 	}
 
-	body, _ = json.Marshal(e)
+	o.Error("error handling request", err, go11y.SeverityMedium)
 
-	o.Error("error handling request", e, log.RequestBodyKey, string(body))
-
+	body, _ := json.Marshal(e)
 	http.Error(w, string(body), e.Code)
+}
+
+func responseErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
+	ctx, o := go11y.Span(r.Context(), tracer, "responseErrorHandler", go11y.SpanKindServer)
+	defer o.End()
+
+	e := NewStatusError(ctx, http.StatusInternalServerError, err)
+
+	rbByte, _ := io.ReadAll(r.Body)
+	var requestBody map[string]interface{}
+	if err := json.Unmarshal(rbByte, &requestBody); err != nil {
+		requestBody = map[string]interface{}{
+			"raw": string(rbByte),
+		}
+	}
+
+	o.Error("error handling response", err, go11y.SeverityMedium, "request_body", requestBody)
+
+	body, _ := json.Marshal(e)
+	http.Error(w, string(body), http.StatusInternalServerError)
 }

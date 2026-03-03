@@ -4,6 +4,7 @@ package spools
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/jsnfwlr/go11y"
@@ -11,6 +12,7 @@ import (
 	"github.com/jsnfwlr/filamate/internal/db"
 	"github.com/jsnfwlr/filamate/internal/server/oapi"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -35,9 +37,9 @@ func Kill(ctx context.Context, dbq spoolsQuerier, r oapi.KillSpoolRequestObject)
 		o.Error("failed to delete spool", err, go11y.SeverityHigh, "spool_id", r.ID)
 
 		return oapi.KillSpool500JSONResponse{
-			Message: "Failed to delete spool",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to delete spool: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return oapi.KillSpool204Response{}, nil
@@ -64,10 +66,17 @@ func Update(ctx context.Context, dbq spoolsQuerier, r oapi.UpdateSpoolRequestObj
 	if err != nil {
 		o.Error("failed to get spool by id", err, go11y.SeverityHigh, "spool_id", r.ID)
 
+		if err == pgx.ErrNoRows {
+			return oapi.UpdateSpool404JSONResponse{
+				Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+				Code:    http.StatusNotFound,
+			}, nil
+		}
+
 		return oapi.UpdateSpool500JSONResponse{
-			Message: "Failed to get spool",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	price := og.Price
@@ -77,9 +86,9 @@ func Update(ctx context.Context, dbq spoolsQuerier, r oapi.UpdateSpoolRequestObj
 			o.Error("failed to scan price", err, go11y.SeverityHigh, "price", r.Body.Price)
 
 			return oapi.UpdateSpool500JSONResponse{
-				Message: "Failed to process price",
-				Code:    500,
-			}, err
+				Message: fmt.Sprintf("failed to scan price: %s", err.Error()),
+				Code:    http.StatusInternalServerError,
+			}, nil
 		}
 	}
 
@@ -130,9 +139,9 @@ func Update(ctx context.Context, dbq spoolsQuerier, r oapi.UpdateSpoolRequestObj
 		o.Error("failed to update spool", err, go11y.SeverityHigh, "spool_id", r.ID)
 
 		return oapi.UpdateSpool500JSONResponse{
-			Message: "Failed to update spool",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to update spool: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	if r.Body.Colors != nil {
@@ -141,9 +150,9 @@ func Update(ctx context.Context, dbq spoolsQuerier, r oapi.UpdateSpoolRequestObj
 			o.Error("failed to swap spool colors", err, go11y.SeverityHigh, "spool_id", s.ID)
 
 			return oapi.UpdateSpool500JSONResponse{
-				Message: "Failed to update spool colors",
-				Code:    500,
-			}, err
+				Message: fmt.Sprintf("failed to swap spool colors: %s", err.Error()),
+				Code:    http.StatusInternalServerError,
+			}, nil
 		}
 	}
 
@@ -174,9 +183,9 @@ func Update(ctx context.Context, dbq spoolsQuerier, r oapi.UpdateSpoolRequestObj
 		o.Error("failed to get spool colors", err, go11y.SeverityHigh, "spool_id", s.ID)
 
 		return oapi.UpdateSpool500JSONResponse{
-			Message: "Failed to get spool colors",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to get spool colors: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	colors := make([]int64, 0, len(cSet))
@@ -200,9 +209,9 @@ func Find(ctx context.Context, dbq spoolsQuerier, r oapi.FindSpoolsRequestObject
 		o.Error("failed to find spools", err, go11y.SeverityHigh)
 
 		return oapi.FindSpools500JSONResponse{
-			Message: "Failed to find spools",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to find spools: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	var resp []oapi.Spool
@@ -212,9 +221,9 @@ func Find(ctx context.Context, dbq spoolsQuerier, r oapi.FindSpoolsRequestObject
 			o.Error("failed to get spool colors", err, go11y.SeverityHigh, "spool_id", s.ID)
 
 			return oapi.FindSpools500JSONResponse{
-				Message: "Failed to get spool colors",
-				Code:    500,
-			}, err
+				Message: fmt.Sprintf("failed to get spool colors: %s", err.Error()),
+				Code:    http.StatusInternalServerError,
+			}, nil
 		}
 
 		colors := make([]int64, 0, len(cSet))
@@ -260,9 +269,9 @@ func Create(ctx context.Context, dbq spoolsQuerier, r oapi.CreateSpoolRequestObj
 		o.Error("failed to scan price", err, go11y.SeverityHigh, "price", r.Body.Price)
 
 		return oapi.CreateSpool500JSONResponse{
-			Message: "Failed to process price",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to scan price: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	params := db.CreateSpoolParams{
@@ -283,9 +292,9 @@ func Create(ctx context.Context, dbq spoolsQuerier, r oapi.CreateSpoolRequestObj
 		o.Error("failed to scan weight", err, go11y.SeverityHigh, "weight", r.Body.Weight)
 
 		return oapi.CreateSpool500JSONResponse{
-			Message: "Failed to process weight",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to scan weight: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	err = params.CurrentWeight.Scan(r.Body.CurrentWeight)
@@ -293,9 +302,9 @@ func Create(ctx context.Context, dbq spoolsQuerier, r oapi.CreateSpoolRequestObj
 		o.Error("failed to scan current weight", err, go11y.SeverityHigh, "current_weight", r.Body.CurrentWeight)
 
 		return oapi.CreateSpool500JSONResponse{
-			Message: "Failed to process current weight",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to scan current weight: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	err = params.CombinedWeight.Scan(r.Body.CombinedWeight)
@@ -303,9 +312,9 @@ func Create(ctx context.Context, dbq spoolsQuerier, r oapi.CreateSpoolRequestObj
 		o.Error("failed to scan combined weight", err, go11y.SeverityHigh, "combined_weight", r.Body.CombinedWeight)
 
 		return oapi.CreateSpool500JSONResponse{
-			Message: "Failed to process combined weight",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to scan combined weight: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	spool, err := dbq.CreateSpool(ctx, params)
@@ -313,9 +322,9 @@ func Create(ctx context.Context, dbq spoolsQuerier, r oapi.CreateSpoolRequestObj
 		o.Error("failed to create spool", err, go11y.SeverityHigh)
 
 		return oapi.CreateSpool500JSONResponse{
-			Message: "Failed to create spool",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to create spool: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	if r.Body.Colors != nil {
@@ -324,9 +333,9 @@ func Create(ctx context.Context, dbq spoolsQuerier, r oapi.CreateSpoolRequestObj
 			o.Error("failed to add color to spool", err, go11y.SeverityHigh, "spool_id", spool.ID, "color_id", r.Body.Colors)
 
 			return oapi.CreateSpool500JSONResponse{
-				Message: "Failed to add color to spool",
-				Code:    500,
-			}, err
+				Message: fmt.Sprintf("failed to add color to spool: %s", err.Error()),
+				Code:    http.StatusInternalServerError,
+			}, nil
 		}
 	}
 
@@ -358,9 +367,9 @@ func Create(ctx context.Context, dbq spoolsQuerier, r oapi.CreateSpoolRequestObj
 			o.Error("failed to get spool colors", err, go11y.SeverityHigh, "spool_id", spool.ID)
 
 			return oapi.CreateSpool500JSONResponse{
-				Message: "Failed to get spool colors",
-				Code:    500,
-			}, err
+				Message: fmt.Sprintf("failed to get spool colors: %s", err.Error()),
+				Code:    http.StatusInternalServerError,
+			}, nil
 		}
 
 		var colors []int64

@@ -3,6 +3,8 @@ package stats
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
@@ -31,10 +33,11 @@ func GetUsageStats(ctx context.Context, dbq usageStatsQuerier, r oapi.GetUsageSt
 	stats, err := dbq.GetUsageStats(ctx)
 	if err != nil {
 		o.Error("failed to find stats", err, go11y.SeverityHigh)
+
 		return oapi.GetUsageStats500JSONResponse{
-			Message: "Failed to find stats",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to find stats: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	var resp []oapi.UsageStat

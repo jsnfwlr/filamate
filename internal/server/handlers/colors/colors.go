@@ -4,6 +4,7 @@ package colors
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"regexp"
 	"strings"
 
@@ -11,6 +12,8 @@ import (
 
 	"github.com/jsnfwlr/filamate/internal/db"
 	"github.com/jsnfwlr/filamate/internal/server/oapi"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type colorsQuerier interface {
@@ -31,9 +34,9 @@ func Kill(ctx context.Context, dbq colorsQuerier, r oapi.KillColorRequestObject)
 		o.Error("failed to delete color", err, go11y.SeverityHigh, "color_id", r.ID)
 
 		return oapi.KillColor500JSONResponse{
-			Message: "Failed to delete color",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to delete color: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return oapi.KillColor204Response{}, nil
@@ -61,19 +64,26 @@ func Update(ctx context.Context, dbq colorsQuerier, r oapi.UpdateColorRequestObj
 		o.Error("invalid hex code provided", err, go11y.SeverityMedium, "hex_code", r.Body.Hex)
 
 		return oapi.UpdateColor500JSONResponse{
-			Message: "Invalid hex code format",
-			Code:    400,
-		}, err
+			Message: fmt.Sprintf("invalid hex code provided: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	og, err := dbq.GetColorByID(ctx, r.ID)
 	if err != nil {
 		o.Error("failed to get color by id", err, go11y.SeverityHigh, "color_id", r.ID)
 
+		if err == pgx.ErrNoRows {
+			return oapi.UpdateColor404JSONResponse{
+				Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+				Code:    http.StatusNotFound,
+			}, nil
+		}
+
 		return oapi.UpdateColor500JSONResponse{
-			Message: "Failed to get color by id",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	params := db.UpdateColorParams{
@@ -93,9 +103,9 @@ func Update(ctx context.Context, dbq colorsQuerier, r oapi.UpdateColorRequestObj
 		o.Error("failed to update color", err, go11y.SeverityHigh, "color_id", r.ID)
 
 		return oapi.UpdateColor500JSONResponse{
-			Message: "Failed to update color",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to update color: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	resp := oapi.UpdateColor200JSONResponse{
@@ -119,9 +129,9 @@ func Find(ctx context.Context, dbq colorsQuerier, r oapi.FindColorsRequestObject
 		o.Error("failed to find colors", err, go11y.SeverityHigh)
 
 		return oapi.FindColors500JSONResponse{
-			Message: "Failed to find colors",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to find colors: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	var resp oapi.FindColors200JSONResponse
@@ -149,9 +159,9 @@ func Create(ctx context.Context, dbq colorsQuerier, r oapi.CreateColorRequestObj
 		o.Error("invalid hex code provided", err, go11y.SeverityMedium, "hex_code", r.Body.Hex)
 
 		return oapi.CreateColor400JSONResponse{
-			Message: "Invalid hex code format",
+			Message: fmt.Sprintf("invalid hex code provided: %s", err.Error()),
 			Code:    400,
-		}, err
+		}, nil
 	}
 
 	params := db.CreateColorParams{
@@ -165,9 +175,9 @@ func Create(ctx context.Context, dbq colorsQuerier, r oapi.CreateColorRequestObj
 		o.Error("failed to create color", err, go11y.SeverityHigh)
 
 		return oapi.CreateColor500JSONResponse{
-			Message: "Failed to create color",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to create color: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	resp := oapi.CreateColor201JSONResponse{

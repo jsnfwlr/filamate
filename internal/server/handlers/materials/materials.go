@@ -3,11 +3,15 @@ package materials
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
 	"github.com/jsnfwlr/filamate/internal/db"
 	"github.com/jsnfwlr/filamate/internal/server/oapi"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type materialsQuerier interface {
@@ -28,9 +32,9 @@ func Kill(ctx context.Context, dbq materialsQuerier, r oapi.KillMaterialRequestO
 		o.Error("failed to delete material", err, go11y.SeverityHigh, "material_id", r.ID)
 
 		return oapi.KillMaterial500JSONResponse{
-			Message: "Failed to delete material",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to delete material: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return oapi.KillMaterial204Response{}, nil
@@ -53,14 +57,21 @@ func Checks(ctx context.Context, dbq materialsQuerier, r oapi.CheckMaterialsRequ
 func Update(ctx context.Context, dbq materialsQuerier, r oapi.UpdateMaterialRequestObject) (response oapi.UpdateMaterialResponseObject, fault error) {
 	ctx, o := go11y.Get(ctx)
 
-	_, og := dbq.GetMaterialByID(ctx, r.ID)
-	if og != nil {
-		o.Error("failed to get material by id", og, go11y.SeverityHigh, "material_id", r.ID)
+	_, err := dbq.GetMaterialByID(ctx, r.ID)
+	if err != nil {
+		o.Error("failed to get material by id", err, go11y.SeverityHigh, "material_id", r.ID)
+
+		if err == pgx.ErrNoRows {
+			return oapi.UpdateMaterial404JSONResponse{
+				Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+				Code:    http.StatusNotFound,
+			}, nil
+		}
 
 		return oapi.UpdateMaterial500JSONResponse{
-			Message: "Failed to get material",
-			Code:    500,
-		}, og
+			Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	params := db.UpdateMaterialParams{
@@ -76,9 +87,9 @@ func Update(ctx context.Context, dbq materialsQuerier, r oapi.UpdateMaterialRequ
 		o.Error("failed to update material", err, go11y.SeverityHigh)
 
 		return oapi.UpdateMaterial500JSONResponse{
-			Message: "Failed to update material",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to update material: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	resp := oapi.Material{
@@ -103,9 +114,9 @@ func Find(ctx context.Context, dbq materialsQuerier, r oapi.FindMaterialsRequest
 		o.Error("failed to find materials", err, go11y.SeverityHigh)
 
 		return oapi.FindMaterials500JSONResponse{
-			Message: "Failed to find materials",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to find materials: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	var resp []oapi.Material
@@ -139,9 +150,9 @@ func Create(ctx context.Context, dbq materialsQuerier, r oapi.CreateMaterialRequ
 		o.Error("failed to create material", err, go11y.SeverityHigh)
 
 		return oapi.CreateMaterial500JSONResponse{
-			Message: "Failed to create material",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to create material: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	resp := oapi.Material{

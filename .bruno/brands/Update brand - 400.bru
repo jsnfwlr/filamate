@@ -1,31 +1,39 @@
 meta {
-  name: Create brand
+  name: Update brand - 400
   type: http
-  seq: 7
+  seq: 5
 }
 
-post {
-  url: http://{{filamate_host}}:{{port}}/api/brands
+patch {
+  url: http://{{filamate_host}}:{{port}}/api/brand/3
   body: json
   auth: inherit
 }
 
 body:json {
   {
-    "label": "Test 4",
-    "active": false
-  
+    "label": 4,
+    "active": false,
+    "store_id": 2
   }
 }
 
+vars:pre-request {
+  port: 9766
+}
+
 example {
-  name: 201 Response
-  description: brand created successfully
+  name: 200 Response
+  description: brand updated successfully
   
   request: {
-    url: http://{{filamate_host}}:{{port}}/api/brands
-    method: POST
+    url: http://{{filamate_host}}:{{port}}/api/brand/:id
+    method: PATCH
     mode: json
+    params:path: {
+      id: 
+    }
+  
     body:json: {
       {
         "label": "",
@@ -40,8 +48,8 @@ example {
     }
   
     status: {
-      code: 201
-      text: Created
+      code: 200
+      text: OK
     }
   
     body: {
@@ -63,9 +71,13 @@ example {
   description: Invalid request data
   
   request: {
-    url: http://{{filamate_host}}:{{port}}/api/brands
-    method: POST
+    url: http://{{filamate_host}}:{{port}}/api/brand/:id
+    method: PATCH
     mode: json
+    params:path: {
+      id: 
+    }
+  
     body:json: {
       {
         "label": "",
@@ -97,13 +109,59 @@ example {
 }
 
 example {
+  name: 404 Response
+  description: brand not found
+  
+  request: {
+    url: http://{{filamate_host}}:{{port}}/api/brand/:id
+    method: PATCH
+    mode: json
+    params:path: {
+      id: 
+    }
+  
+    body:json: {
+      {
+        "label": "",
+        "description": ""
+      }
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 404
+      text: Not Found
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "message": "",
+          "code": 0
+        }
+      '''
+    }
+  }
+}
+
+example {
   name: 500 Response
   description: Internal server error
   
   request: {
-    url: http://{{filamate_host}}:{{port}}/api/brands
-    method: POST
+    url: http://{{filamate_host}}:{{port}}/api/brand/:id
+    method: PATCH
     mode: json
+    params:path: {
+      id: 
+    }
+  
     body:json: {
       {
         "label": "",

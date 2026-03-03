@@ -3,11 +3,15 @@ package brands
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
 	"github.com/jsnfwlr/filamate/internal/db"
 	"github.com/jsnfwlr/filamate/internal/server/oapi"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type brandsQuerier interface {
@@ -40,9 +44,9 @@ func Find(ctx context.Context, dbq brandsQuerier, r oapi.FindBrandsRequestObject
 		o.Error("failed to find brands", err, go11y.SeverityHigh)
 
 		return oapi.FindBrands500JSONResponse{
-			Message: "Failed to find brands",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to find brands: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	if len(brands) == 0 {
@@ -72,11 +76,17 @@ func Update(ctx context.Context, dbq brandsQuerier, r oapi.UpdateBrandRequestObj
 	og, err := dbq.GetBrandByID(ctx, r.ID)
 	if err != nil {
 		o.Error("failed to get brand by id", err, go11y.SeverityHigh, "brand_id", r.ID)
+		if err == pgx.ErrNoRows {
+			return oapi.UpdateBrand404JSONResponse{
+				Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+				Code:    http.StatusNotFound,
+			}, nil
+		}
 
 		return oapi.UpdateBrand500JSONResponse{
-			Message: "Failed to get brand by id",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	params := db.UpdateBrandParams{
@@ -96,9 +106,9 @@ func Update(ctx context.Context, dbq brandsQuerier, r oapi.UpdateBrandRequestObj
 		o.Error("failed to update brand", err, go11y.SeverityHigh, "brand_id", r.ID)
 
 		return oapi.UpdateBrand500JSONResponse{
-			Message: "Failed to update brand",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to update brand: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	resp := oapi.Brand{
@@ -122,9 +132,9 @@ func Create(ctx context.Context, dbq brandsQuerier, r oapi.CreateBrandRequestObj
 		o.Error("failed to create brand", err, go11y.SeverityHigh)
 
 		return oapi.CreateBrand500JSONResponse{
-			Message: "Failed to create brand",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to create brand: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	o.Info("brand created", go11y.SeverityLow, "brand_id", b.ID)
@@ -148,9 +158,9 @@ func Kill(ctx context.Context, dbq brandsQuerier, r oapi.KillBrandRequestObject)
 		o.Error("failed to delete brand", err, go11y.SeverityHigh, "brand_id", r.ID)
 
 		return oapi.KillBrand500JSONResponse{
-			Message: "Failed to delete brand",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to delete brand: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return oapi.KillBrand204Response{}, nil

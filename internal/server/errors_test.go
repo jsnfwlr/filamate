@@ -312,7 +312,7 @@ func TestErrorHandler(t *testing.T) {
 			req = req.WithContext(ctx)
 
 			// Call the error handler
-			errorHandler(w, req, tt.inputError)
+			responseErrorHandler(w, req, tt.inputError)
 
 			// Check status code
 			if w.Code != tt.expectedStatusCode {

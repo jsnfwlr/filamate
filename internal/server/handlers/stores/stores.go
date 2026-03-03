@@ -3,11 +3,15 @@ package stores
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
 	"github.com/jsnfwlr/filamate/internal/db"
 	"github.com/jsnfwlr/filamate/internal/server/oapi"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type storesQuerier interface {
@@ -28,9 +32,9 @@ func Kill(ctx context.Context, dbq storesQuerier, r oapi.KillStoreRequestObject)
 		o.Error("failed to delete store", err, go11y.SeverityHigh, "store_id", r.ID)
 
 		return oapi.KillStore500JSONResponse{
-			Message: "Failed to delete store",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to delete store: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	return oapi.KillStore204Response{}, nil
@@ -57,10 +61,17 @@ func Update(ctx context.Context, dbq storesQuerier, r oapi.UpdateStoreRequestObj
 	if err != nil {
 		o.Error("failed to get store by id", err, go11y.SeverityHigh, "store_id", r.ID)
 
+		if err == pgx.ErrNoRows {
+			return oapi.UpdateStore404JSONResponse{
+				Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+				Code:    http.StatusNotFound,
+			}, nil
+		}
+
 		return oapi.UpdateStore500JSONResponse{
-			Message: "Failed to get store",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to get record by id: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	params := db.UpdateStoreParams{
@@ -79,9 +90,9 @@ func Update(ctx context.Context, dbq storesQuerier, r oapi.UpdateStoreRequestObj
 		o.Error("failed to update store", err, go11y.SeverityHigh, "store_id", r.ID)
 
 		return oapi.UpdateStore500JSONResponse{
-			Message: "Failed to update store",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to update store: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	resp := oapi.UpdateStore200JSONResponse{
@@ -104,9 +115,9 @@ func Find(ctx context.Context, dbq storesQuerier, r oapi.FindStoresRequestObject
 		o.Error("failed to find stores", err, go11y.SeverityHigh)
 
 		return oapi.FindStores500JSONResponse{
-			Message: "Failed to find stores",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to find stores: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	var resp []oapi.Store
@@ -133,9 +144,9 @@ func Create(ctx context.Context, dbq storesQuerier, r oapi.CreateStoreRequestObj
 		o.Error("failed to create store", err, go11y.SeverityHigh, "label", r.Body.Label)
 
 		return oapi.CreateStore500JSONResponse{
-			Message: "Failed to create store",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to create store: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	resp := oapi.CreateStore201JSONResponse{

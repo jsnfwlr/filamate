@@ -3,6 +3,7 @@ package stats
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
@@ -30,19 +31,21 @@ func GetStorageStats(ctx context.Context, dbq storageStatsQuerier, r oapi.GetSto
 	stats, err := dbq.GetStorageStats(ctx)
 	if err != nil {
 		o.Error("failed to find stats", err, go11y.SeverityHigh)
+
 		return oapi.GetStorageStats500JSONResponse{
-			Message: "Failed to find stats",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to find stats: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	spools, err := dbq.FindSpools(ctx)
 	if err != nil {
 		o.Error("failed to find spools", err, go11y.SeverityHigh)
+
 		return oapi.GetStorageStats500JSONResponse{
-			Message: "Failed to find spools",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to find spools: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	var resp []oapi.StorageStat
@@ -56,10 +59,11 @@ func GetStorageStats(ctx context.Context, dbq storageStatsQuerier, r oapi.GetSto
 				colors, err := dbq.GetSpoolColors(ctx, spool.ID)
 				if err != nil {
 					o.Error("failed to find spool colors", err, go11y.SeverityHigh)
+
 					return oapi.GetStorageStats500JSONResponse{
-						Message: "Failed to find spool colors",
-						Code:    500,
-					}, err
+						Message: fmt.Sprintf("failed to find spool colors: %s", err.Error()),
+						Code:    http.StatusInternalServerError,
+					}, nil
 				}
 
 				var colorsHex []string

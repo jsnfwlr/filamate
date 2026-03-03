@@ -4,6 +4,8 @@ package stats
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"net/http"
 
 	"github.com/jsnfwlr/go11y"
 
@@ -29,10 +31,11 @@ func GetRatingStats(ctx context.Context, dbq ratingStatsQuerier, r oapi.GetRatin
 	stats, err := dbq.GetRatingStats(ctx)
 	if err != nil {
 		o.Error("failed to find stats", err, go11y.SeverityHigh)
+
 		return oapi.GetRatingStats500JSONResponse{
-			Message: "Failed to find stats",
-			Code:    500,
-		}, err
+			Message: fmt.Sprintf("failed to find stats: %s", err.Error()),
+			Code:    http.StatusInternalServerError,
+		}, nil
 	}
 
 	var resp []oapi.RatingStat
@@ -49,10 +52,11 @@ func GetRatingStats(ctx context.Context, dbq ratingStatsQuerier, r oapi.GetRatin
 		err := json.Unmarshal(s.Details, &details)
 		if err != nil {
 			o.Error("failed to unmarshal rating stat details", err, go11y.SeverityHigh)
+
 			return oapi.GetRatingStats500JSONResponse{
-				Message: "Failed to unmarshal rating stat details",
-				Code:    500,
-			}, err
+				Message: fmt.Sprintf("failed to unmarshal rating stat details: %s", err.Error()),
+				Code:    http.StatusInternalServerError,
+			}, nil
 		}
 		result.Details = details
 

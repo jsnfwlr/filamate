@@ -47,8 +47,8 @@ func New(ctx context.Context, cfg Config, dbClient *db.Client) (server Server, f
 	}
 
 	api := oapi.NewStrictHandlerWithOptions(h, nil, oapi.StrictHTTPServerOptions{
-		RequestErrorHandlerFunc:  errorHandler,
-		ResponseErrorHandlerFunc: errorHandler,
+		RequestErrorHandlerFunc:  requestErrorHandler,
+		ResponseErrorHandlerFunc: responseErrorHandler,
 	})
 
 	oh := oapi.HandlerFromMux(api, r)
