@@ -35,4 +35,6 @@ services:
       POSTGRES_USER: filamate
       POSTGRES_PASSWORD: filamate
       POSTGRES_DB: filamate
+    volumes:
+      - ./tmp/db-data:/var/lib/postgresql/data
 
