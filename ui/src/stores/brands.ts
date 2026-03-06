@@ -19,40 +19,34 @@ export const useBrandsStore = defineStore('brands', () => {
     const sorted = ref<Brand[]>([])
     // const editError = ref<string[]>([])
 
-    async function find(sortBy: string = "label", sortDir: string = "asc") {
+    function find(sortBy: string = "label", sortDir: string = "asc") {
         if (sortDir === "desc") {
             sortBy = "-" + sortBy
         }
 
-        await multiBrandAPI.get<Array<Brand>>({ query: { "sort_by": sortBy } }).then((results: Brand[]) => {
+        return multiBrandAPI.get<Array<Brand>>({ query: { "sort_by": sortBy } }).then((results: Brand[]) => {
             sorted.value = results
-        }).catch(err => {
-            alert("find: " + err)
         })
-
-        return sorted.value
     }
 
-    async function update(id: number, record: Brand) {
-        await singleBrandAPI.patch<Brand>(id, record).then((result: Brand) => {
+    function update(id: number, record: Brand) {
+        return singleBrandAPI.patch<Brand>(id, record).then((result: Brand) => {
             const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
         })
 
     }
 
-    async function create(record: Brand) {
-        multiBrandAPI.post<Brand>(record).then( (result: Brand) => {
+    function create(record: Brand) {
+        return multiBrandAPI.post<Brand>(record).then( (result: Brand) => {
             sorted.value.push( result)
         })
     }
 
-    async function kill(brandID: number) {
-        singleBrandAPI.delete(brandID).then(() => {
+    function kill(brandID: number) {
+        return singleBrandAPI.delete(brandID).then(() => {
             const idx = indexOfID(brandID)
             sorted.value.splice(idx, 1)
-            // }).catch(err => {
-            //     addNewStudentErrors.value = err.body
         })
     }
 

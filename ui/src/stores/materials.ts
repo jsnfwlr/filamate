@@ -20,44 +20,34 @@ export const useMaterialsStore = defineStore('materials', () => {
     const sorted = ref<Material[]>([])
     // const editError = ref<string[]>([])
 
-    async function find(sortBy: string = "label", sortDir: string = "asc") {
+    function find(sortBy: string = "label", sortDir: string = "asc") {
         if (sortDir === "desc") {
             sortBy = "-" + sortBy
         }
 
-        await multiMaterialAPI.get<Array<Material>>({ query: { "sort_by": sortBy } }).then((results: Material[]) => {
+        return multiMaterialAPI.get<Array<Material>>({ query: { "sort_by": sortBy } }).then((results: Material[]) => {
             sorted.value = results
-        }).catch(err => {
-            alert("find: " + err)
         })
-
-        return sorted.value
     }
 
-    async function update(id: number, record: Material) {
-        await singleMaterialAPI.patch<Material>(id, record).then((result: Material) => {
+    function update(id: number, record: Material) {
+        return singleMaterialAPI.patch<Material>(id, record).then((result: Material) => {
             const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
-        }).catch(err => {
-            alert("find: " + err)
         })
 
     }
 
-    async function create(record: Material) {
-        multiMaterialAPI.post<Material>(record).then( (result: Material) => {
+    function create(record: Material) {
+        return multiMaterialAPI.post<Material>(record).then( (result: Material) => {
             sorted.value.push( result)
-        }).catch(err => {
-            alert("find: " + err)
         })
     }
 
-    async function kill(materialID: number) {
-        singleMaterialAPI.delete(materialID).then(() => {
+    function kill(materialID: number) {
+        return singleMaterialAPI.delete(materialID).then(() => {
             const idx = indexOfID(materialID)
             sorted.value.splice(idx, 1)
-        }).catch(err => {
-            alert("find: " + err)
         })
     }
 

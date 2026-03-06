@@ -53,51 +53,41 @@ const storesStore = useStoresStore()
 
 
 export const useSpoolsStore = defineStore('spools', () => {
-
-
-
-
     const sorted = ref<Spool[]>([])
 
     const lastCreatedID = ref<number | null>(null)
 
     // const editError = ref<string[]>([])
 
-    async function find(sortBy: string = "label", sortDir: string = "asc") {
+    function find(sortBy: string = "label", sortDir: string = "asc") {
         if (sortDir === "desc") {
             sortBy = "-" + sortBy
         }
 
-        await multiSpoolAPI.get<Array<Spool>>({ query: { "sort_by": sortBy } }).then((results: Spool[]) => {
+        return multiSpoolAPI.get<Array<Spool>>({ query: { "sort_by": sortBy } }).then((results: Spool[]) => {
             if (!showEmpty.value) {
-                results = results.filter((s: Spool) => !s.empty)
+                sorted.value = results.filter((s: Spool) => !s.empty)
             }
-
-            sorted.value = results
-        }).catch(err => {
-            alert("find: " + err)
         })
-
-        return sorted.value
     }
 
-    async function update(id: number, record: Spool) {
-        await singleSpoolAPI.patch<Spool>(id, record).then((result: Spool) => {
+    function update(id: number, record: Spool) {
+        return singleSpoolAPI.patch<Spool>(id, record).then((result: Spool) => {
             const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
         })
 
     }
 
-    async function create(record: NewSpool) {
-        multiSpoolAPI.post<Spool>(record).then((result: Spool) => {
+    function create(record: NewSpool) {
+        return multiSpoolAPI.post<Spool>(record).then((result: Spool) => {
             sorted.value.push(result)
             lastCreatedID.value = result.id
         })
     }
 
-    async function kill(spoolID: number) {
-        singleSpoolAPI.delete(spoolID).then(() => {
+    function kill(spoolID: number) {
+        return singleSpoolAPI.delete(spoolID).then(() => {
             const idx = indexOfID(spoolID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {

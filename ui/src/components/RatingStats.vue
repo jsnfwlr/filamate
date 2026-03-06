@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 import type { RatingStat } from '../stores/stats'
-import { useRatingStatsStore } from '../stores/stats'
+import type { Color } from '../stores/colors'
+
 import { useColorsStore } from '../stores/colors'
 
-const ratingStatsStore = useRatingStatsStore()
 const colorsStore = useColorsStore()
 
 
-const colors = ref(colorsStore.sorted)
-const rating = ref(ratingStatsStore.sorted)
 
 const pagination = ref({
   rowsPerPage: 0
 })
+
 
 const rootColumns: QTableColumn[] = [
   {
@@ -107,13 +106,11 @@ const detailsColumns: QTableColumn[] = [
   }
 ]
 
-onMounted(async () => {
-  await ratingStatsStore.find()
-  rating.value = ratingStatsStore.sorted
+const props = defineProps<{
+    ratings: RatingStat[],
+    colors: Color[]
+}>()
 
-  await colorsStore.find()
-  colors.value = colorsStore.sorted
-})
 
 function DateTime(date: string): string {
   const d = new Date(date)
@@ -151,7 +148,7 @@ function resetRowClasses() {
 
 <template>
   <div class="row">
-    <q-table dark flat bordered binary-state-sort :rows="rating" :columns="rootColumns" row-key="id" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header" :table-row-class-fn="rowClassFn" @update:pagination="resetRowClasses">
+    <q-table dark flat bordered binary-state-sort :rows="props.ratings" :columns="rootColumns" row-key="id" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header" :table-row-class-fn="rowClassFn" @update:pagination="resetRowClasses">
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">{{ col.label }}</q-th>
@@ -176,7 +173,7 @@ function resetRowClasses() {
                   <q-td v-for="col in props.cols" :key="col.name" :props="props">
                     <div v-if="col.name === 'spool_colors'">
                       <div v-for="color in props.row.spool_colors" :key="color" class="q-mr-sm">
-                        <div class="hex" :style="{ backgroundColor: colorsStore.findByID(color)?.hex }"></div> {{ colorsStore.findByID(color)?.label }}
+                        <div class="hex" :style="{ backgroundColor: colorsStore.filterByID(colors, color)?.hex }"></div> {{ colorsStore.filterByID(colors, color)?.label }}
                       </div>
                     </div>
                     <div v-else-if="col.name === 'spool_created_at'">

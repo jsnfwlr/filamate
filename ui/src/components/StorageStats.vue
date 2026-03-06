@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 
 import type { StorageStat } from '../stores/stats'
-import { useStorageStatsStore } from '../stores/stats'
-import { useBrandsStore } from '../stores/brands'
-import { useMaterialsStore } from '../stores/materials'
+import type { Brand } from '../stores/brands'
+import type { Material } from '../stores/materials'
 
-const storageStatsStore = useStorageStatsStore()
-const brandsStore = useBrandsStore()
-const materialsStore = useMaterialsStore()
+
 
 const rootColumns: QTableColumn[] = [
   {
@@ -90,18 +87,11 @@ const detailsColumns: QTableColumn[] = [
   }
 ]
 
-const storage = ref(storageStatsStore.sorted)
-const brand = ref(brandsStore.sorted)
-const material = ref(materialsStore.sorted)
-
-onMounted(async () => {
-  await storageStatsStore.find()
-  storage.value = storageStatsStore.sorted
-  await brandsStore.find()
-  brand.value = brandsStore.sorted
-  await materialsStore.find()
-  material.value = materialsStore.sorted
-})
+const props = defineProps<{
+  storage: StorageStat[],
+  brands: Brand[],
+  materials: Material[]
+}>()
 
 const pagination = ref({
   rowsPerPage: 0
@@ -138,7 +128,7 @@ function resetRowClasses() {
 
 <template>
   <div class="row">
-    <q-table dark flat bordered binary-state-sort :rows="storage" :columns="rootColumns" row-key="label" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header" :table-row-class-fn="rowClassFn" @update:pagination="resetRowClasses">
+    <q-table dark flat bordered binary-state-sort :rows="props.storage" :columns="rootColumns" row-key="label" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header" :table-row-class-fn="rowClassFn" @update:pagination="resetRowClasses">
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">{{ col.label }}</q-th>
@@ -161,8 +151,8 @@ function resetRowClasses() {
               <template v-slot:body="props">
                 <q-tr :props="props">
                   <q-td v-for="col in props.cols" :key="col.name" :props="props">
-                    <div v-if="col.name === 'brand'">{{ brand.find(b => b.id === props.row.brand)?.label }}</div>
-                    <div v-if="col.name === 'material'">{{ material.find(m => m.id === props.row.material)?.label }}</div>
+                    <div v-if="col.name === 'brand'">{{ brands.find(b => b.id === props.row.brand)?.label }}</div>
+                    <div v-if="col.name === 'material'">{{ materials.find(m => m.id === props.row.material)?.label }}</div>
                     <div v-if="col.name === 'current_weight'">{{ props.row.current_weight }}</div>
                     <div v-if="col.name === 'color'">
                       <div v-for="color, index in props.row.colors_hex" :key="color" class="q-mr-sm">

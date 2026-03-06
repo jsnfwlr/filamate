@@ -72,11 +72,7 @@ export const useUsageStatsStore = defineStore('usageStats', () => {
     async function find() {
         await multiStatAPI.get<Array<UsageStat>>("usage").then((results: UsageStat[]) => {
             sorted.value = results
-        }).catch(err => {
-            alert("find: " + err)
         })
-
-        return sorted.value
     }
 
 
@@ -93,14 +89,10 @@ export const useStorageStatsStore = defineStore('storageStats', () => {
     const sorted = ref<StorageStat[]>([])
     // const editError = ref<string[]>([])
 
-    async function find() {
-        await multiStatAPI.get<Array<StorageStat>>("storage").then((results: StorageStat[]) => {
+    function find() {
+        return multiStatAPI.get<Array<StorageStat>>("storage").then((results: StorageStat[]) => {
             sorted.value = results
-        }).catch(err => {
-            alert("find: " + err)
         })
-
-        return sorted.value
     }
 
 
@@ -117,14 +109,10 @@ export const useRatingStatsStore = defineStore('ratingStats', () => {
     const sorted = ref<RatingStat[]>([])
     // const editError = ref<string[]>([])
 
-    async function find() {
-        await multiStatAPI.get<Array<RatingStat>>("ratings").then((results: RatingStat[]) => {
+    function find() {
+        return multiStatAPI.get<Array<RatingStat>>("ratings").then((results: RatingStat[]) => {
             sorted.value = results
-        }).catch(err => {
-            alert("find: " + err)
         })
-
-        return sorted.value
     }
 
     return {
@@ -138,15 +126,10 @@ export const useStorageChartStore = defineStore('storageChart', () => {
 
     const sorted = ref<StorageChart>({} as StorageChart)
 
-    async function find() {
-        await multiChartAPI.get<StorageChart>("storage").then((results: StorageChart) => {
+    function find() {
+         return multiChartAPI.get<StorageChart>("storage").then((results: StorageChart) => {
             sorted.value = results
-
-        }).catch(err => {
-            alert("find: " + err)
         })
-
-        return sorted.value
     }
 
     return {
@@ -160,14 +143,10 @@ export const useMaterialChartStore = defineStore('materialChart', () => {
 
     const sorted = ref<MaterialChartDatasets>({} as MaterialChartDatasets)
 
-    async function find() {
-        await multiChartAPI.get<MaterialChartDatasets>("material").then((results: MaterialChartDatasets) => {
+    function find() {
+        return multiChartAPI.get<MaterialChartDatasets>("material").then((results: MaterialChartDatasets) => {
             sorted.value = results
-        }).catch(err => {
-            alert("find: " + err)
         })
-
-        return sorted.value
     }
 
     return {

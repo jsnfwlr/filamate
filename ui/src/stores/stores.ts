@@ -18,36 +18,32 @@ export const useStoresStore = defineStore('stores', () => {
     const sorted = ref<Store[]>([])
     // const editError = ref<string[]>([])
 
-    async function find(sortBy: string = "label", sortDir: string = "asc") {
+    function find(sortBy: string = "label", sortDir: string = "asc") {
         if (sortDir === "desc") {
             sortBy = "-" + sortBy
         }
 
-        await multiStoreAPI.get<Array<Store>>({ query: { "sort_by": sortBy } }).then((results: Store[]) => {
+        return multiStoreAPI.get<Array<Store>>({ query: { "sort_by": sortBy } }).then((results: Store[]) => {
             sorted.value = results
-        }).catch(err => {
-            alert("find: " + err)
         })
-
-        return sorted.value
     }
 
-    async function update(id: number, record: Store) {
-        await singleStoreAPI.patch<Store>(id, record).then((result: Store) => {
+    function update(id: number, record: Store) {
+        return singleStoreAPI.patch<Store>(id, record).then((result: Store) => {
             const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
         })
 
     }
 
-    async function create(record: Store) {
-        multiStoreAPI.post<Store>(record).then( (result: Store) => {
+    function create(record: Store) {
+        return multiStoreAPI.post<Store>(record).then( (result: Store) => {
             sorted.value.push( result)
         })
     }
 
-    async function kill(storeID: number) {
-        singleStoreAPI.delete(storeID).then(() => {
+    function kill(storeID: number) {
+        return singleStoreAPI.delete(storeID).then(() => {
             const idx = indexOfID(storeID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {

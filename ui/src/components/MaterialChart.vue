@@ -10,7 +10,6 @@ const props = defineProps<{
     chartData: ChartData<'pie'>,
 }>()
 
-
 ChartJS.defaults.color = '#ffffff'
 ChartJS.defaults.backgroundColor = '#222222'
 ChartJS.defaults.borderColor = '#ffffff47'
@@ -21,57 +20,6 @@ const options = computed<ChartOptions<'pie'>>(() => {
         plugins: {
             legend: {
                 display: false,
-                /*
-                labels: {
-                    generateLabels: function (chart) {
-                        // Get the default label list
-                        const original = ChartJS.overrides.pie.plugins.legend.labels.generateLabels;
-                        const labelsOriginal = original.call(this, chart);
-
-                        // Build an array of colors used in the datasets of the chart
-                        let datasetColors = chart.data.datasets.map(function (e) {
-                            return e.backgroundColor;
-                        });
-                        datasetColors = datasetColors.flat();
-
-                        // loop over the datasets, using the color index to figure out which dataset the label comes from
-                        // set the datasetIndex of the nth label when the nth color is found within the dataset making sure
-                        // the label is never reused across datasets. Also make sure the hidden state of the label is updated
-                        // to match the dataset hidden state, and the fillStyle is updated to match the dataset backgroundColor
-                        for (let i = 0; i < chart.data.datasets.length; i++) {
-                            const dataset = chart.data.datasets[i];
-                            if (dataset === undefined) continue;
-
-                            if (dataset.backgroundColor instanceof Array) {
-                                for (let j = 0; j < dataset.backgroundColor.length; j++) {
-                                    const bgColor = dataset.backgroundColor[j];
-                                    const colorIndex = datasetColors.indexOf(bgColor);
-                                    if (colorIndex !== -1) {
-                                        if (labelsOriginal[colorIndex] !== undefined) {
-                                            labelsOriginal[colorIndex].datasetIndex = i;
-                                            labelsOriginal[colorIndex].hidden = !chart.isDatasetVisible(i);
-                                            labelsOriginal[colorIndex].fillStyle = bgColor as Color;
-                                            labelsOriginal[colorIndex].text = chart.data.labels ? chart.data.labels[colorIndex] + " (" + dataset.data[j] + ")" : '';
-
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        return labelsOriginal;
-                    }
-                },
-                onClick: function (mouseEvent, legendItem, legend) {
-                    if (legendItem.datasetIndex !== undefined) {
-                        // toggle the visibility of the dataset from what it currently is
-                        legend.chart.getDatasetMeta(
-                            legendItem.datasetIndex
-                        ).hidden = legend.chart.isDatasetVisible(legendItem.datasetIndex);
-                        legend.chart.update();
-                    }
-                }
-                */
             },
             tooltip: {
                 callbacks: {
@@ -79,10 +27,6 @@ const options = computed<ChartOptions<'pie'>>(() => {
                         if (context[0] === undefined) {
                             return ''
                         }
-
-
-
-
 
                         let datasetColors = context[0].chart.data.datasets.map(function (e) {
                             return e.backgroundColor;
@@ -101,7 +45,6 @@ const options = computed<ChartOptions<'pie'>>(() => {
                                 labelIndex = li;
                             }
                         }
-
 
                         return (context[0].chart.data.labels === undefined ? '' : context[0].chart.data.labels[labelIndex]) as string;
 

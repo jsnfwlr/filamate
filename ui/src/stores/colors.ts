@@ -19,36 +19,32 @@ export const useColorsStore = defineStore('colors', () => {
     const sorted = ref<Color[]>([])
     // const editError = ref<string[]>([])
 
-    async function find(sortBy: string = "label", sortDir: string = "asc") {
+    function find(sortBy: string = "label", sortDir: string = "asc") {
         if (sortDir === "desc") {
             sortBy = "-" + sortBy
         }
 
-        await multiColorAPI.get<Array<Color>>({ query: { "sort_by": sortBy } }).then((results: Color[]) => {
+        return multiColorAPI.get<Array<Color>>({ query: { "sort_by": sortBy } }).then((results: Color[]) => {
             sorted.value = results
-        }).catch(err => {
-            alert("find: " + err)
         })
-
-        return sorted.value
     }
 
-    async function update(id: number, record: Color) {
-        await singleColorAPI.patch<Color>(id, record).then((result: Color) => {
+    function update(id: number, record: Color) {
+        return singleColorAPI.patch<Color>(id, record).then((result: Color) => {
             const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
         })
 
     }
 
-    async function create(record: Color) {
-        multiColorAPI.post<Color>(record).then( (result: Color) => {
+    function create(record: Color) {
+        return multiColorAPI.post<Color>(record).then( (result: Color) => {
             sorted.value.push(result)
         })
     }
 
-    async function kill(colorID: number) {
-        singleColorAPI.delete(colorID).then(() => {
+    function kill(colorID: number) {
+        return singleColorAPI.delete(colorID).then(() => {
             const idx = indexOfID(colorID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {
@@ -78,6 +74,24 @@ export const useColorsStore = defineStore('colors', () => {
         }
     }
 
+    function filterByID(colors: Color[], id: number): Color {
+        const found = colors.find((b: { id: number | null }) => b.id === id)
+        if (found === null || found === undefined) {
+            return {
+                id: null,
+                label: "",
+                hex: "",
+                alias: null,
+            }
+        }
+        return {
+            id: found.id,
+            label: found.label,
+            hex: found.hex,
+            alias: found.alias,
+        }
+    }
+
     function indexOfID(id: number): number {
         return sorted.value.findIndex((b: { id: number | null }) => b.id === id)
     }
@@ -91,6 +105,7 @@ export const useColorsStore = defineStore('colors', () => {
         kill,
 
         findByID,
+        filterByID,
         indexOfID,
     }
 

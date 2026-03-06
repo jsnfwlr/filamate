@@ -178,28 +178,49 @@ const columns = computed<Array<QTableColumn>>(() => {
   return cols
 })
 
-onMounted(async () => {
+onMounted(() => {
 
-  await locationsStore.find()
-  locations.value = locationsStore.sorted
+  locationsStore.find().then(() => {
+    locations.value = locationsStore.sorted
+  }).catch((error) => {
+   errors.value.push("Failed to load location data: " + error.message)
+  })
 
-  await materialsStore.find()
-  materials.value = materialsStore.sorted
+  materialsStore.find().then(() => {
+    materials.value = materialsStore.sorted
+  }).catch((error) => {
+   errors.value.push("Failed to load material data: " + error.message)
+  })
 
-  await colorsStore.find()
-  colors.value = colorsStore.sorted
+  colorsStore.find().then(() => {
+    colors.value = colorsStore.sorted
+  }).catch((error) => {
+   errors.value.push("Failed to load color data: " + error.message)
+  })
 
-  await brandsStore.find()
-  brands.value = brandsStore.sorted
+  brandsStore.find().then(() => {
+    brands.value = brandsStore.sorted
+  }).catch((error) => {
+   errors.value.push("Failed to load brand data: " + error.message)
+  })
 
-  await storesStore.find()
-  stores.value = storesStore.sorted
+  storesStore.find().then(() => {
+    stores.value = storesStore.sorted
+  }).catch((error) => {
+   errors.value.push("Failed to load store data: " + error.message)
+  })
 
-  await spoolsStore.find()
-  spools.value = spoolsStore.sorted
+  spoolsStore.find().then(() => {
+    spools.value = spoolsStore.sorted
+  }).catch((error) => {
+   errors.value.push("Failed to load spool data: " + error.message)
+  })
 
-  await ratingsStore.find()
-  ratings.value = ratingsStore.sorted
+  ratingsStore.find().then(() => {
+    ratings.value = ratingsStore.sorted
+  }).catch((error) => {
+   errors.value.push("Failed to load rating data: " + error.message)
+  })
 })
 
 function editRow(id: number) {
@@ -271,12 +292,25 @@ function DateTime(date: string): string {
   return d.toISOString().replace('T', ' ').split('.')[0] as string
 }
 
-async function toggleEmpty() {
+function toggleEmpty() {
   spoolsStore.toggleEmpty()
 
-  await spoolsStore.find()
-  spools.value = spoolsStore.sorted
+  spoolsStore.find().then(() => {
+    spools.value = spoolsStore.sorted
+  })
 }
+
+const showErrors = computed({
+  get() {
+    return errors.value.length > 0
+  },
+  set(newValue: boolean) {
+    if (!newValue) {
+      errors.value = []
+    }
+  }
+})
+const errors = ref<string[]>([])
 </script>
 
 <template>
@@ -360,7 +394,7 @@ async function toggleEmpty() {
             <div>
               <q-select label="Colors" clearable dark v-model="editRowData.colors" :options="colors" option-label="label" option-value="id" map-options emit-value multiple hint="The color(s) of the filament on the spool">
                 <template v-slot:selected>
-                  <q-chip dark v-if="editRowData.colors" v-for="color in editRowData.colors" :key="color" size="md" class="q-mr-sm">
+                  <q-chip dark v-for="color in editRowData.colors" :key="color" size="md" class="q-mr-sm">
                     <div class="hex" :style="{ backgroundColor: colorsStore.findByID(color)?.hex }"></div> {{ colorsStore.findByID(color)?.label }}
                   </q-chip>
                 </template>
@@ -389,6 +423,21 @@ async function toggleEmpty() {
 
     </div>
   </div>
+  <q-dialog v-model="showErrors" dark>
+    <q-card dark>
+      <q-card-section>
+        <div class="text-h6">Error(s) </div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <div v-for="error in errors" :key="error">{{ error }}</div>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="OK" color="primary" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <style scoped>

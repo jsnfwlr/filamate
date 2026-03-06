@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
-
-import { useStoresStore } from '../stores/stores'
 import { useColorsStore } from '../stores/colors'
 import type { Color } from '../stores/colors'
 
 
-const storesStore = useStoresStore()
 const colorsStore = useColorsStore()
 
 const columns: QTableColumn[] = [
@@ -49,13 +46,14 @@ const columns: QTableColumn[] = [
 ]
 
 const colors = ref(colorsStore.sorted)
-const stores = ref(storesStore.sorted)
 
-onMounted(async () => {
-  await storesStore.find()
-  await colorsStore.find()
-  colors.value = colorsStore.sorted
-  stores.value = storesStore.sorted
+onMounted(() => {
+
+  colorsStore.find().then(() => {
+    colors.value = colorsStore.sorted
+  }).catch((error) => {
+   errors.value.push("Failed to load color data: " + error.message)
+  })
 })
 
 const editRowData = ref<Color>({} as Color)
@@ -93,6 +91,17 @@ function resetEdit() {
 const pagination = ref({
   rowsPerPage: 0
 })
+const showErrors = computed({
+  get() {
+    return errors.value.length > 0
+  },
+  set(newValue: boolean) {
+    if (!newValue) {
+      errors.value = []
+    }
+  }
+})
+const errors = ref<string[]>([])
 </script>
 
 <template>
@@ -153,6 +162,22 @@ const pagination = ref({
 
     </div>
   </div>
+  <q-dialog v-model="showErrors" dark>
+    <q-card dark>
+      <q-card-section>
+        <div class="text-h6">Error(s) </div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <div v-for="error in errors" :key="error">{{ error }}</div>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="OK" color="primary" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
 </template>
 
 <style scoped>

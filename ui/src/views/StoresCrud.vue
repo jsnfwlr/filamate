@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 
 import { useStoresStore } from '../stores/stores'
@@ -39,9 +39,12 @@ const columns: QTableColumn[] = [
 
 const stores = ref(storesStore.sorted)
 
-onMounted(async () => {
-  await storesStore.find()
-  stores.value = storesStore.sorted
+onMounted(() => {
+  storesStore.find().then(() => {
+    stores.value = storesStore.sorted
+  }).catch((error) => {
+   errors.value.push("Failed to load store data: " + error.message)
+  })
 })
 
 const editRowData = ref<Store>({} as Store)
@@ -79,6 +82,19 @@ const pagination = ref({
 function resetEdit() {
   editRowData.value = {} as Store
 }
+
+const showErrors = computed({
+  get() {
+    return errors.value.length > 0
+  },
+  set(newValue: boolean) {
+    if (!newValue) {
+      errors.value = []
+    }
+  }
+})
+
+const errors = ref<string[]>([])
 </script>
 
 <template>
@@ -116,6 +132,21 @@ function resetEdit() {
 
     </div>
   </div>
+  <q-dialog v-model="showErrors" dark>
+    <q-card dark>
+      <q-card-section>
+        <div class="text-h6">Error(s) </div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <div v-for="error in errors" :key="error">{{ error }}</div>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="OK" color="primary" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <style scoped>

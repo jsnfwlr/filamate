@@ -25,41 +25,35 @@ export const useRatingStore = defineStore('ratings', () => {
     const sorted = ref<Rating[]>([])
     // const editError = ref<string[]>([])
 
-    async function find(brandID: number | null = null, materialID: number | null = null) {
+    function find(brandID: number | null = null, materialID: number | null = null) {
         if (brandID !== null && materialID !== null) {
 
-            await multiRatingAPI.get<Array<Rating>>({ query: { "material_id": materialID, "brand_id": brandID } }).then((results: Rating[]) => {
+            return multiRatingAPI.get<Array<Rating>>({ query: { "material_id": materialID, "brand_id": brandID } }).then((results: Rating[]) => {
                 sorted.value = results
-            }).catch(err => {
-                alert("find: " + err)
             })
         } else {
-            await multiRatingAPI.get<Array<Rating>>().then((results: Rating[]) => {
+            return multiRatingAPI.get<Array<Rating>>().then((results: Rating[]) => {
                 sorted.value = results
-            }).catch(err => {
-                alert("find: " + err)
             })
         }
-
-        return sorted.value
     }
 
-    async function update(id: number, record: Rating) {
-        await singleRatingAPI.patch<Rating>(id, record).then((result: Rating) => {
+    function update(id: number, record: Rating) {
+        return singleRatingAPI.patch<Rating>(id, record).then((result: Rating) => {
             const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
         })
 
     }
 
-    async function create(record: NewRating) {
-        multiRatingAPI.post<Rating>(record).then( (result: Rating) => {
+    function create(record: NewRating) {
+        return multiRatingAPI.post<Rating>(record).then( (result: Rating) => {
             sorted.value.push( result)
         })
     }
 
-    async function kill(ratingID: number) {
-        singleRatingAPI.delete(ratingID).then(() => {
+    function kill(ratingID: number) {
+        return singleRatingAPI.delete(ratingID).then(() => {
             const idx = indexOfID(ratingID)
             sorted.value.splice(idx, 1)
             // }).catch(err => {

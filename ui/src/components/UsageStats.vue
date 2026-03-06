@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 import type { UsageStat } from '../stores/stats'
-import { useUsageStatsStore } from '../stores/stats'
 
-
-const usageStatsStore = useUsageStatsStore()
 
 const columns: QTableColumn[] = [
   {
@@ -47,12 +44,10 @@ const columns: QTableColumn[] = [
   }
 ]
 
-const usage = ref(usageStatsStore.sorted)
+const props = defineProps<{
+  usage: UsageStat[],
+}>()
 
-onMounted(async () => {
-  await usageStatsStore.find()
-  usage.value = usageStatsStore.sorted
-})
 
 const pagination = ref({
   rowsPerPage: 0
@@ -89,7 +84,7 @@ function resetRowClasses() {
 
 <template>
   <div class="row">
-    <q-table dark flat bordered binary-state-sort :rows="usage" :columns="columns" row-key="id" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header" :table-row-class-fn="rowClassFn" @update:pagination="resetRowClasses">
+    <q-table dark flat bordered binary-state-sort :rows="props.usage" :columns="columns" row-key="id" virtual-scroll :rows-per-page-options="[0]" v-model:pagination="pagination" class="grid sticky-header" :table-row-class-fn="rowClassFn" @update:pagination="resetRowClasses">
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">{{ col.label }}</q-th>

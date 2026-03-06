@@ -26,43 +26,29 @@ export const useLocationsStore = defineStore('locations', () => {
 
         await multiLocationAPI.get<Array<Location>>({ query: { "sort_by": sortBy } }).then((results: Location[]) => {
             sorted.value = results
-        }).catch(err => {
-            alert("find: " + err)
         })
-
-        return sorted.value
     }
 
-    async function update(id: number, record: Location) {
-
+    function update(id: number, record: Location) {
         record.capacity = record.capacity / 1
-
-        alert("update: " + JSON.stringify(record))
-        await singleLocationAPI.patch<Location>(id, record).then((result: Location) => {
+        return singleLocationAPI.patch<Location>(id, record).then((result: Location) => {
             const idx = indexOfID(result.id as number)
             sorted.value[idx] = result
-        }).catch(err => {
-            alert("find: " + err)
         })
 
     }
 
-    async function create(record: Location) {
+    function create(record: Location) {
         record.capacity = record.capacity / 1
-        alert("create: " + JSON.stringify(record))
-        multiLocationAPI.post<Location>(record).then((result: Location) => {
+        return multiLocationAPI.post<Location>(record).then((result: Location) => {
             sorted.value.push(result)
-        }).catch(err => {
-            alert("find: " + err)
         })
     }
 
-    async function kill(locationID: number) {
-        singleLocationAPI.delete(locationID).then(() => {
+    function kill(locationID: number) {
+        return singleLocationAPI.delete(locationID).then(() => {
             const idx = indexOfID(locationID)
             sorted.value.splice(idx, 1)
-        }).catch(err => {
-            alert("find: " + err)
         })
     }
 

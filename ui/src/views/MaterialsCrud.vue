@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 
 import { useMaterialsStore } from '../stores/materials'
@@ -58,9 +58,12 @@ const columns: QTableColumn[] = [
 
 const materials = ref(materialsStore.sorted)
 
-onMounted(async () => {
-  await materialsStore.find()
-  materials.value = materialsStore.sorted
+onMounted(() => {
+  materialsStore.find().then(() => {
+    materials.value = materialsStore.sorted
+  }).catch((error) => {
+   errors.value.push("Failed to load material data: " + error.message)
+  })
 })
 
 const editRowData = ref<Material>({} as Material)
@@ -98,6 +101,17 @@ function resetEdit() {
 const pagination = ref({
   rowsPerPage: 0
 })
+const showErrors = computed({
+  get() {
+    return errors.value.length > 0
+  },
+  set(newValue: boolean) {
+    if (!newValue) {
+      errors.value = []
+    }
+  }
+})
+const errors = ref<string[]>([])
 </script>
 
 <template>
@@ -147,6 +161,21 @@ const pagination = ref({
 
     </div>
   </div>
+  <q-dialog v-model="showErrors" dark>
+    <q-card dark>
+      <q-card-section>
+        <div class="text-h6">Error(s) </div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <div v-for="error in errors" :key="error">{{ error }}</div>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="OK" color="primary" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <style scoped>
