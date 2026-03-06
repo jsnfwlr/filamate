@@ -64,7 +64,7 @@ onMounted( () => {
   })
 })
 
-const editRowData = ref<Brand>({} as Brand)
+const editRowData = ref<Brand>({active: true} as Brand)
 
 function editRow(id: number) {
   editRowData.value = brandsStore.findByID(id)
@@ -93,7 +93,7 @@ function deleteBrand(id: number) {
 }
 
 function resetEdit() {
-  editRowData.value = {} as Brand
+  editRowData.value = {active: true} as Brand
 }
 
 const pagination = ref({

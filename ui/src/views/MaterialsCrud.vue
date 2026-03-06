@@ -66,7 +66,7 @@ onMounted(() => {
   })
 })
 
-const editRowData = ref<Material>({} as Material)
+const editRowData = ref<Material>({special: false} as Material)
 
 function editRow(id: number) {
   editRowData.value = materialsStore.findByID(id)
@@ -95,7 +95,7 @@ function deleteMaterial(id: number) {
 }
 
 function resetEdit() {
-  editRowData.value = {} as Material
+  editRowData.value = {special: false} as Material
 }
 
 const pagination = ref({

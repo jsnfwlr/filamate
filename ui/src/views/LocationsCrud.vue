@@ -76,7 +76,7 @@ onMounted(() => {
   })
 })
 
-const editRowData = ref<Location>({} as Location)
+const editRowData = ref<Location>({printable: false, tally: true} as Location)
 
 function editRow(id: number) {
   editRowData.value = locationsStore.findByID(id)
@@ -105,7 +105,7 @@ function deleteLocation(id: number) {
 }
 
 function resetEdit() {
-  editRowData.value = {} as Location
+  editRowData.value = {printable: false, tally: true} as Location
 }
 
 const pagination = ref({
