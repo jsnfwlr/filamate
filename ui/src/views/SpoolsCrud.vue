@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { QTableColumn } from 'quasar'
 import { ref, onMounted, computed } from 'vue'
-// import { Temporal } from 'temporal-polyfill'
 
 import type { Spool } from '../stores/spools'
 import type { NewRating } from '../stores/ratings'
@@ -12,8 +11,6 @@ import { useColorsStore } from '../stores/colors'
 import { useBrandsStore } from '../stores/brands'
 import { useRatingStore } from '../stores/ratings'
 import { useStoresStore } from '../stores/stores'
-
-
 
 const spoolsStore = useSpoolsStore()
 const locationsStore = useLocationsStore()
@@ -33,7 +30,7 @@ const ratings = ref(ratingsStore.sorted)
 
 const tab = ref('browse')
 const formTabName = ref('New Spool')
-const editRowData = ref<Spool>({} as Spool)
+const editRowData = ref<Spool>({empty: false} as Spool)
 const rateSpoolData = ref<NewRating>({} as NewRating)
 const pagination = ref({
   rowsPerPage: 0
@@ -181,7 +178,6 @@ const columns = computed<Array<QTableColumn>>(() => {
   return cols
 })
 
-
 onMounted(async () => {
 
   await locationsStore.find()
@@ -206,11 +202,13 @@ onMounted(async () => {
   ratings.value = ratingsStore.sorted
 })
 
-
 function editRow(id: number) {
-	  editRowData.value = spoolsStore.findByID(id)
-	  tab.value = 'form'
-	  formTabName.value = `Edit Spool`
+  editRowData.value = spoolsStore.findByID(id)
+  if (editRowData.value.empty && (editRowData.value.emptied_at === undefined || editRowData.value.emptied_at === null)) {
+    editRowData.value.empty = false
+  }
+	tab.value = 'form'
+	formTabName.value = `Edit Spool`
 }
 
 function editRating(id: number) {
@@ -280,8 +278,6 @@ async function toggleEmpty() {
   await spoolsStore.find()
   spools.value = spoolsStore.sorted
 }
-
-
 </script>
 
 <template>
@@ -363,7 +359,23 @@ async function toggleEmpty() {
             <div><q-input dark v-model="editRowData.weight" label="Weight" type="number" hint="The marketed weight of the filament on the spool" /></div>
             <div><q-input dark v-model="editRowData.price" label="Price" type="number" hint="The price paid for the spool of filament" /></div>
             <div>
-              <q-select label="Colors" clearable dark v-model="editRowData.colors" :options="colors" option-label="label" option-value="id" map-options emit-value multiple hint="The color(s) of the filament on the spool" />
+              <q-select label="Colors" clearable dark v-model="editRowData.colors" :options="colors" option-label="label" option-value="id" map-options emit-value multiple hint="The color(s) of the filament on the spool">
+                <template v-slot:selected>
+                  <q-chip dark v-if="editRowData.colors" v-for="color in editRowData.colors" :key="color" size="md" class="q-mr-sm">
+                    <div class="hex" :style="{ backgroundColor: colorsStore.findByID(color)?.hex }"></div> {{ colorsStore.findByID(color)?.label }}
+                  </q-chip>
+                </template>
+                <template v-slot:option="scope">
+                  <q-item v-bind="scope.itemProps">
+                    <q-item-section side>
+                      <div class="hex" :style="{ backgroundColor: scope.opt?.hex }"></div>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>{{ scope.opt.label }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
             </div>
 
             <div><q-toggle label="Empty" v-model="editRowData.empty" left-label /></div>
