@@ -49,8 +49,8 @@ export interface StorageStatDetails {
 
 export interface StorageChart {
     labels: string[]
-    used: (number | [number, number] | null)[]
-    purchased: (number | [number, number] | null)[]
+    emptied: (number | [number, number] | null)[]
+    added: (number | [number, number] | null)[]
     stored: (number | [number, number] | null)[]
 }
 

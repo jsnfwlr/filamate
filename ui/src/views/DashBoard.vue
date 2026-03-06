@@ -15,8 +15,8 @@ import type { ChartData } from 'chart.js'
 const storageChartStore = useStorageChartStore()
 const materialChartStore = useMaterialChartStore()
 
-const storageChartUsed = ref<(number | [number, number] | null)[]>([])
-const storageChartPurchased = ref<(number | [number, number] | null)[]>([])
+const storageChartEmptied = ref<(number | [number, number] | null)[]>([])
+const storageChartAdded = ref<(number | [number, number] | null)[]>([])
 const storageChartStored = ref<(number | [number, number] | null)[]>([])
 const storageChartLabels = ref<Array<string>>([])
 const materialChartData = ref<ChartData<'pie'>>({
@@ -27,9 +27,9 @@ const materialChartData = ref<ChartData<'pie'>>({
 onMounted(async () => {
   await storageChartStore.find()
   storageChartLabels.value = storageChartStore.sorted.labels
-  storageChartPurchased.value = storageChartStore.sorted.purchased
+  storageChartAdded.value = storageChartStore.sorted.added
   storageChartStored.value = storageChartStore.sorted.stored
-  storageChartUsed.value = storageChartStore.sorted.used
+  storageChartEmptied.value = storageChartStore.sorted.emptied
 
   await materialChartStore.find()
   materialChartData.value = materialChartStore.sorted
@@ -48,7 +48,7 @@ onMounted(async () => {
           Your filament purchases and usage over the last 12 months.
         </q-tooltip>
       </div>
-      <StorageChart :used="storageChartUsed" :purchased="storageChartPurchased" :labels="storageChartLabels"
+      <StorageChart :emptied="storageChartEmptied" :added="storageChartAdded" :labels="storageChartLabels"
         :stored="storageChartStored" />
     </div>
     <div class="col-4">

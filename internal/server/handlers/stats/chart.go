@@ -32,8 +32,8 @@ type tallies struct {
 type tally struct {
 	Label     string
 	YearMonth int
-	Purchased int64
-	Used      int64
+	Added     int64
+	Emptied   int64
 	Stored    int64
 }
 
@@ -45,20 +45,20 @@ func (t tallies) Months() []string {
 	return months
 }
 
-func (t tallies) Purchased() []int64 {
-	purchased := []int64{}
+func (t tallies) Added() []int64 {
+	added := []int64{}
 	for _, tally := range t.Tallies {
-		purchased = append(purchased, tally.Purchased)
+		added = append(added, tally.Added)
 	}
-	return purchased
+	return added
 }
 
-func (t tallies) Used() []int64 {
-	used := []int64{}
+func (t tallies) Emptied() []int64 {
+	emptied := []int64{}
 	for _, tally := range t.Tallies {
-		used = append(used, tally.Used)
+		emptied = append(emptied, tally.Emptied)
 	}
-	return used
+	return emptied
 }
 
 func (t tallies) Stored() []int64 {
@@ -76,16 +76,16 @@ func (t *tallies) Set(yearMonth int, month string) {
 	})
 }
 
-func (t *tallies) Calc(yearMonth int, month string, purchased, used int64) {
+func (t *tallies) Calc(yearMonth int, month string, added, emptied int64) {
 	if yearMonth < t.Min {
-		t.Tallies[0].Stored += purchased - used
+		t.Tallies[0].Stored += added - emptied
 		return
 	}
 
 	for i, x := range t.Tallies {
 		if x.YearMonth == yearMonth {
-			t.Tallies[i].Purchased += purchased
-			t.Tallies[i].Used += used
+			t.Tallies[i].Added += added
+			t.Tallies[i].Emptied += emptied
 
 			return
 		}
@@ -93,15 +93,15 @@ func (t *tallies) Calc(yearMonth int, month string, purchased, used int64) {
 }
 
 func (t *tallies) Finalize() {
-	var used int64 = 0
+	var emptied int64 = 0
 	for i := range t.Tallies {
 		if i != 0 {
-			t.Tallies[i].Stored = t.Tallies[i-1].Stored + (t.Tallies[i-1].Purchased - used)
+			t.Tallies[i].Stored = t.Tallies[i-1].Stored + (t.Tallies[i-1].Added - emptied)
 		}
 
-		used = t.Tallies[i].Used
+		emptied = t.Tallies[i].Emptied
 
-		t.Tallies[i].Used = t.Tallies[i].Used * -1
+		t.Tallies[i].Emptied = t.Tallies[i].Emptied * -1
 	}
 }
 
@@ -155,10 +155,10 @@ func GetStorageChart(ctx context.Context, dbq chartsQuerier, r oapi.GetStorageCh
 	tSet.Finalize()
 
 	resp := oapi.StorageChart{
-		Labels:    tSet.Months(),
-		Used:      tSet.Used(),
-		Purchased: tSet.Purchased(),
-		Stored:    tSet.Stored(),
+		Labels:  tSet.Months(),
+		Emptied: tSet.Emptied(),
+		Added:   tSet.Added(),
+		Stored:  tSet.Stored(),
 	}
 
 	return oapi.GetStorageChart200JSONResponse(resp), nil
@@ -200,7 +200,6 @@ type hsl struct {
 // 	{hue: 300, saturation: 100, lightness: 40}, // "hsl(300, 100%, 40%)"
 // 	{hue: 315, saturation: 100, lightness: 40}, // "hsl(315, 100%, 40%)"
 // 	{hue: 330, saturation: 100, lightness: 40}, // "hsl(330, 100%, 40%)"
-
 // }
 
 func makeBaseColors(details []db.GetMaterialChartDataRow) []hsl {

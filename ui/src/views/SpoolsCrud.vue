@@ -258,7 +258,6 @@ function deleteSpool(id: number) {
 }
 
 function saveRating() {
-
   ratingsStore.create(rateSpoolData.value).then(() => {
     resetEdit()
   })
@@ -269,16 +268,6 @@ function resetEdit() {
   rateSpoolData.value = {} as NewRating
   formTabName.value = 'New Spool'
 }
-
-// function DateTime(date: string): string {
-
-//   let d = new Date(date)
-
-//   let dt = Temporal.PlainDateTime.from(date)
-//   let s = dt.toString()
-//   s = s.replace('T', ' ')
-//   return s.split('.')[0] as string
-// }
 
 function DateTime(date: string): string {
   const d = new Date(date)
@@ -363,7 +352,7 @@ async function toggleEmpty() {
               <q-btn label="Cancel" icon="mdi-undo" type="reset" color="secondary" class="q-ml-sm" />
             </div>
           </q-form>
-          <q-form v-if="rateSpoolData.spool_id === 0 && editRowData !== null" @submit="saveSpool();" @reset="resetEdit()">
+          <q-form v-if="rateSpoolData.spool_id === undefined && editRowData !== null" @submit="saveSpool();" @reset="resetEdit()">
             <div class="text-h6 q-mb-md">{{ editRowData.id != null ? 'Edit spool' : 'Add new spool' }}</div>
             <div><q-select label="Brand" dark v-model="editRowData.brand" :options="brands" option-label="label" option-value="id" map-options emit-value hint="The brand of the filament on the spool" /></div>
             <div><q-select label="Store" dark v-model="editRowData.store" :options="stores" option-label="label" option-value="id" map-options emit-value hint="The store the filament was purchased from" /></div>

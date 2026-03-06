@@ -2193,51 +2193,6 @@
           }
         }
       },
-      "FindSpoolRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "Request body for finding spools",
-        "properties": {
-          "location_id": {
-            "type": "integer",
-            "description": "Filter spools by location"
-          },
-          "material_id": {
-            "type": "integer",
-            "description": "Filter spools by material"
-          },
-          "brand_id": {
-            "type": "integer",
-            "description": "Filter spools by brand"
-          },
-          "color_id": {
-            "type": "integer",
-            "description": "Filter spools by color"
-          },
-          "store_id": {
-            "type": "integer",
-            "description": "Filter spools by store"
-          },
-          "purchased_before": {
-            "type": "string",
-            "format": "date",
-            "description": "Filter spools purchased before this date"
-          },
-          "purchased_after": {
-            "type": "string",
-            "format": "date",
-            "description": "Filter spools purchased after this date"
-          },
-          "empty": {
-            "type": "boolean",
-            "description": "Whether to only show spools that are empty or not - ignored if nil"
-          },
-          "deleted": {
-            "type": "boolean",
-            "description": "Whether to include deleted spools"
-          }
-        }
-      },
       "UpdateSpoolRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -2523,8 +2478,8 @@
         "description": "Response body for storage chart data",
         "required": [
           "labels",
-          "used",
-          "purchased",
+          "emptied",
+          "added",
           "stored"
         ],
         "properties": {
@@ -2535,21 +2490,21 @@
             },
             "description": "Labels for the X Axis of the chart - typically the name of months"
           },
-          "used": {
+          "emptied": {
             "type": "array",
             "items": {
               "type": "integer",
               "format": "int64"
             },
-            "description": "Number of spools used in the period"
+            "description": "Number of spools emptied in the period"
           },
-          "purchased": {
+          "added": {
             "type": "array",
             "items": {
               "type": "integer",
               "format": "int64"
             },
-            "description": "Number of spools purchased in the period"
+            "description": "Number of spools added in the period"
           },
           "stored": {
             "type": "array",

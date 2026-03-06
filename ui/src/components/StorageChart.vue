@@ -9,8 +9,8 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Filler,
 
 const props = defineProps<{
     labels: string[],
-    purchased: Array<number | [number, number] | null>,
-    used: Array<number | [number, number] | null>,
+    added: Array<number | [number, number] | null>,
+    emptied: Array<number | [number, number] | null>,
     stored: Array<number | [number, number] | null>
 }>()
 
@@ -86,10 +86,10 @@ const stock = computed(() => {
     const stock: number[] = []
 
      props.stored.map((value, index) => {
-        const used = (props.used[index] !== null ? (Array.isArray(props.used[index]) ? props.used[index][1] : props.used[index]) : 0) as number
-         const purchased = (props.purchased[index] !== null ? (Array.isArray(props.purchased[index]) ? props.purchased[index][1] : props.purchased[index]) : 0) as number
+        const emptied = (props.emptied[index] !== null ? (Array.isArray(props.emptied[index]) ? props.emptied[index][1] : props.emptied[index]) : 0) as number
+        const added = (props.added[index] !== null ? (Array.isArray(props.added[index]) ? props.added[index][1] : props.added[index]) : 0) as number
         const stored = (props.stored[index] !== null ? (Array.isArray(props.stored[index]) ? props.stored[index][1] : props.stored[index]) : 0) as number
-        stock.push(stored + used + purchased)
+        stock.push(stored + emptied + added)
     })
     return stock
 })
@@ -100,17 +100,17 @@ const chartData = computed<ChartData<'bar'>>(() => {
         labels: props.labels,
         datasets: [
             {
-                label: 'Used',
+                label: 'Emptied',
                 backgroundColor: colors.green,
-                data: props.used,
+                data: props.emptied,
                 order: 0,
                 // stack: 'Stack 1'
 
             },
             {
-                label: 'Purchased',
+                label: 'Added',
                 backgroundColor: colors.red,
-                data: props.purchased,
+                data: props.added,
                 order: 1,
                 // stack: 'Stack 2'
             },
