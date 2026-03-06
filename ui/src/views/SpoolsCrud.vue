@@ -218,13 +218,12 @@ function editRating(id: number) {
 }
 
 function saveSpool() {
-
   if (editRowData.value.id === undefined || editRowData.value.id === null) {
 
     spoolsStore.create(editRowData.value).then(() => {
       if (editRowData.value.empty && (editRowData.value.emptied_at === undefined || editRowData.value.emptied_at === null)) {
         editRating(spoolsStore.lastCreatedID as number)
-        editRowData.value = {} as Spool
+        editRowData.value = {empty: false} as Spool
       } else {
         resetEdit()
       }
@@ -236,7 +235,7 @@ function saveSpool() {
     spoolsStore.update(editRowData.value.id, editRowData.value).then(() => {
       if (editRowData.value.empty && (editRowData.value.emptied_at === undefined || editRowData.value.emptied_at === null)) {
         editRating(editRowData.value.id as number)
-        editRowData.value = {} as Spool
+        editRowData.value = {empty: false} as Spool
       } else {
         resetEdit()
       }
@@ -262,7 +261,7 @@ function saveRating() {
 }
 
 function resetEdit() {
-  editRowData.value = {} as Spool
+  editRowData.value = {empty: false} as Spool
   rateSpoolData.value = {} as NewRating
   formTabName.value = 'New Spool'
 }
