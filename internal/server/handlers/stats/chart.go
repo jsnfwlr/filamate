@@ -247,10 +247,6 @@ func GetMaterialChart(ctx context.Context, dbq chartsQuerier, r oapi.GetMaterial
 		}, nil
 	}
 
-	// slices.Reverse(details)
-
-	o.Info("retrieved material chart", "details", details)
-
 	datasets := [3]DataSet{}
 	labels := []string{}
 	dataSetColors := map[string]assignedColors{}

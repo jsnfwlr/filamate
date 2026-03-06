@@ -10,7 +10,6 @@ output-options:
 
 generate:
   std-http-server: true
-  # gorilla-server: true
   strict-server: true
   embedded-spec: true
   models: true

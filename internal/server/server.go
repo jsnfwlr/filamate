@@ -46,6 +46,7 @@ func New(ctx context.Context, cfg Config, dbClient *db.Client) (server Server, f
 	opts := oapi.StdHTTPServerOptions{
 		BaseRouter: mux,
 		Middlewares: []oapi.MiddlewareFunc{
+			recoverPanic,
 			go11y.SetRequestID,
 			o.LogRequest,
 		},

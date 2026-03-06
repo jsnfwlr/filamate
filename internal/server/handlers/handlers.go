@@ -18,11 +18,7 @@ type Handlers struct {
 	staticFS   static.FS
 }
 
-// var tracer = go11y.NewTracer("github.com/jsnfwlr/filamate/internal/server/handlers")
-
 func New(ctx context.Context, dbClient *db.Client, staticType string) (handlers Handlers, fault error) {
-	// ctx, o := go11y.Get(ctx)
-
 	if staticType != "embedded" && staticType != "directory" {
 		return Handlers{}, errors.New("invalid STATIC_TYPE, must be 'embedded' or 'directory'")
 	}
