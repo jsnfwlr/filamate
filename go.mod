@@ -13,7 +13,6 @@ require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/getkin/kin-openapi v0.133.0
 	github.com/go-playground/validator/v10 v10.14.1
-	github.com/gorilla/mux v1.8.1
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/jackc/tern/v2 v2.3.3
 	github.com/joho/godotenv v1.5.1

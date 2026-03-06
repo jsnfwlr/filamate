@@ -13,8 +13,6 @@ import (
 	"github.com/jsnfwlr/filamate/internal/db"
 	"github.com/jsnfwlr/filamate/internal/server/handlers"
 	"github.com/jsnfwlr/filamate/internal/server/oapi"
-
-	"github.com/gorilla/mux"
 )
 
 const (
@@ -22,22 +20,16 @@ const (
 )
 
 type Server struct {
-	router *mux.Router
+	router *http.ServeMux
 	core   *http.Server
 }
 
 var tracer = go11y.NewTracer("github.com/jsnfwlr/filamate/internal/server")
 
 func New(ctx context.Context, cfg Config, dbClient *db.Client) (server Server, fault error) {
-	r := mux.NewRouter()
 	ctx, o := go11y.Get(ctx)
 
-	mw := []mux.MiddlewareFunc{
-		go11y.SetRequestID,
-		o.LogRequest,
-	}
-
-	r.Use(mw...)
+	mux := http.NewServeMux()
 
 	o.Debug("creating base router")
 
@@ -51,9 +43,19 @@ func New(ctx context.Context, cfg Config, dbClient *db.Client) (server Server, f
 		ResponseErrorHandlerFunc: responseErrorHandler,
 	})
 
-	oh := oapi.HandlerFromMux(api, r)
+	opts := oapi.StdHTTPServerOptions{
+		BaseRouter: mux,
+		Middlewares: []oapi.MiddlewareFunc{
+			go11y.SetRequestID,
+			o.LogRequest,
+		},
+	}
 
-	r.PathPrefix("/").Name("ui-index").Methods(http.MethodGet).HandlerFunc(h.UI)
+	oh := oapi.HandlerWithOptions(api, opts)
+
+	// oh := oapi.HandlerFromMux(api, r)
+
+	mux.HandleFunc("GET /", h.UI)
 
 	core := &http.Server{
 		Addr:                         net.JoinHostPort(cfg.Host(), cfg.Port()),
@@ -62,7 +64,8 @@ func New(ctx context.Context, cfg Config, dbClient *db.Client) (server Server, f
 	}
 
 	s := Server{
-		core: core,
+		router: mux,
+		core:   core,
 	}
 
 	return s, nil

@@ -1,12 +1,16 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oapi-codegen/oapi-codegen/v2.6.0/configuration-schema.json
+
 package: oapi
 output: ./internal/server/oapi/oapi.gen.go
 output-options:
   nullable-type: false
   skip-prune: false
   name-normalizer: ToCamelCaseWithInitialisms
+  prefer-skip-optional-pointer-with-omitzero: true
 
 generate:
-  gorilla-server: true
+  std-http-server: true
+  # gorilla-server: true
   strict-server: true
   embedded-spec: true
   models: true
